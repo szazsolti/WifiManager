@@ -30,6 +30,7 @@ public class HomeFragment extends Fragment implements GetMessageInFragment {
     private Button bt_connect;
     private EditText et_username;
     private Thread readerThread;
+    private Thread managerThread;
     private GetMessageListener getMessageListener;
     private String TAG="HOMEFRAGMENT";
     private Context context;
@@ -123,17 +124,26 @@ public class HomeFragment extends Fragment implements GetMessageInFragment {
              makeWifis(parts[1]);
              if(wifiList.size()>=3){
 
-                 Bundle bundle = new Bundle();
-                 bundle.putSerializable("wifilist", wifiList);
-                 SearchWifiFragment searchWifiFragment = new SearchWifiFragment(context);
-                 searchWifiFragment.setArguments(bundle);
-                 //searchWifiFragment.setNotifyToDraw(notifyDraw);
-                 FragmentManager fragmentManager = getFragmentManager();
-                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                 fragmentTransaction.replace(R.id.fragment_container, searchWifiFragment);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("wifilist", wifiList);
 
-                 //fragmentTransaction.addToBackStack("homeFragment");
-                 fragmentTransaction.commit();
+
+                Manager manager = new Manager(context);
+                manager.setWifiListFromDataBase(wifiList);
+                manager.setFragmentManager(getFragmentManager());
+                managerThread = new Thread(manager);
+                managerThread.start();
+
+/*
+                SearchWifiFragment searchWifiFragment = new SearchWifiFragment(context);
+                searchWifiFragment.setArguments(bundle);
+                //searchWifiFragment.setNotifyToDraw(notifyDraw);
+                FragmentManager fragmentManager = getFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.fragment_container, searchWifiFragment);
+
+                //fragmentTransaction.addToBackStack("homeFragment");
+                fragmentTransaction.commit();*/
              }
              else{
                  getMessageListener.returnMessage("Not enough wifi.");
@@ -176,4 +186,5 @@ public class HomeFragment extends Fragment implements GetMessageInFragment {
             }
         }
     }
+
 }

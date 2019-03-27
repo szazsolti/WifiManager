@@ -91,7 +91,6 @@ public class SearchWifiFragment extends Fragment implements GetWiFiListFromDevic
 
         if(checkPermission()) {
             mainWifiObj = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-
             startRefresh();
             wifiReciever = new WifiScanReceiver(mainWifiObj);
             wifiReciever.setGetWiFiListFromDeviceArrayList(this);
@@ -122,7 +121,6 @@ public class SearchWifiFragment extends Fragment implements GetWiFiListFromDevic
 
         if(checkPermission()) {
             context.registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-
             mainWifiObj = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
             mainWifiObj.startScan();
             startRefresh();
