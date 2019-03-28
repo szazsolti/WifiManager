@@ -63,11 +63,15 @@ public class MessageSender extends AsyncTask<String,Void,Void> {
                 clientSocket.close();
                 getMessageListener.returnMessage("The socket is closed. Server is not available.");
             }
-
-
+            
 
         } catch (IOException e) {
-            getMessageListener.returnMessage("The socket is closed. Server is not available.");
+            try {
+                getMessageListener.returnMessage("Server is not available.");
+            }
+            catch (Exception ignored){
+            }
+
             //e.printStackTrace();
         }
 

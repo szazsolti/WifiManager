@@ -16,10 +16,10 @@ public class Client {
         }
         return sinlge_instance;
     }
-
+/*
     public void setSocket(Socket socket){
         this.clientSocket = socket;
-    }
+    }*/
 
     public Socket getClientSocket(){
         return clientSocket;

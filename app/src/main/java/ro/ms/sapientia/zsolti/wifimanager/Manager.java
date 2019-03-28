@@ -2,7 +2,6 @@
 package ro.ms.sapientia.zsolti.wifimanager;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -11,7 +10,6 @@ import android.location.LocationManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -23,9 +21,9 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.MessageSender;
+import ro.ms.sapientia.zsolti.wifimanager.Fragments.DrawPositionFragment;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetMessageListener;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetWiFiListFromDeviceArrayList;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.NotifyToDraw;
-import ro.ms.sapientia.zsolti.wifimanager.Trilateration;
 
 public class Manager implements GetWiFiListFromDeviceArrayList, Runnable{
 
@@ -40,6 +38,7 @@ public class Manager implements GetWiFiListFromDeviceArrayList, Runnable{
     private Thread refreshData;
     private Context context;
     private FragmentManager fragmentManager;
+    private GetMessageListener getMessageListener;
 
 
     public Manager(Context context){
@@ -125,8 +124,9 @@ public class Manager implements GetWiFiListFromDeviceArrayList, Runnable{
             trilateration.setR();
             trilateration.setParameters();
             Log.d(TAG,"X: " + trilateration.getX() + " Y: " + trilateration.getY());
+
             MessageSender messageSender = new MessageSender();
-            messageSender.execute("X: "+trilateration.getX() +" Y:"+ trilateration.getY());
+            messageSender.execute("[Position]-"+trilateration.getX() +" "+ trilateration.getY());
             sendBroadcastNotify();
 
 
@@ -230,10 +230,14 @@ public class Manager implements GetWiFiListFromDeviceArrayList, Runnable{
         DrawPositionFragment drawPositionFragment = new DrawPositionFragment(context);
         //drawPositionFragment.setArguments(bundle);
         //FragmentManager fragmentManager = fragmentManager;
+        drawPositionFragment.setGetMessageListener(getMessageListener);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, drawPositionFragment);
         fragmentTransaction.addToBackStack("searchwifi");
         fragmentTransaction.commit();
 
+    }
+    public void setGetMessageListener(GetMessageListener getMessageListener){
+        this.getMessageListener = getMessageListener;
     }
 }

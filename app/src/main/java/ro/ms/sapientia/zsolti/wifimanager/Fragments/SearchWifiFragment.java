@@ -1,4 +1,4 @@
-package ro.ms.sapientia.zsolti.wifimanager;
+package ro.ms.sapientia.zsolti.wifimanager.Fragments;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -30,6 +30,10 @@ import java.util.Comparator;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.MessageSender;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetWiFiListFromDeviceArrayList;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.NotifyToDraw;
+import ro.ms.sapientia.zsolti.wifimanager.R;
+import ro.ms.sapientia.zsolti.wifimanager.Trilateration;
+import ro.ms.sapientia.zsolti.wifimanager.WiFi;
+import ro.ms.sapientia.zsolti.wifimanager.WifiScanReceiver;
 
 
 public class SearchWifiFragment extends Fragment implements GetWiFiListFromDeviceArrayList{

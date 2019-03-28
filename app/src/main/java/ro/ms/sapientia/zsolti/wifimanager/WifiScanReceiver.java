@@ -38,7 +38,7 @@ public class WifiScanReceiver extends BroadcastReceiver {
             String filtered[] = new String[wifis.size()];
             int counter = 0;
             //Log.d(TAG, "Wifis: " + wifis.toString());
-            //int p = 70; //dist = p*(1-percentage) - hatotavolsag merese
+            //int point = 70; //dist = point*(1-percentage) - hatotavolsag merese
 
 
 

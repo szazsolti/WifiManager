@@ -1,12 +1,10 @@
-package ro.ms.sapientia.zsolti.wifimanager;
+package ro.ms.sapientia.zsolti.wifimanager.Fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +19,9 @@ import ro.ms.sapientia.zsolti.wifimanager.Communication.MessageSender;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.ReaderThread;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetMessageInFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetMessageListener;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.NotifyToDraw;
+import ro.ms.sapientia.zsolti.wifimanager.Manager;
+import ro.ms.sapientia.zsolti.wifimanager.R;
+import ro.ms.sapientia.zsolti.wifimanager.WiFi;
 
 public class HomeFragment extends Fragment implements GetMessageInFragment {
 
@@ -124,16 +124,16 @@ public class HomeFragment extends Fragment implements GetMessageInFragment {
              makeWifis(parts[1]);
              if(wifiList.size()>=3){
 
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("wifilist", wifiList);
-
+                //Bundle bundle = new Bundle();
+                //bundle.putSerializable("wifilist", wifiList);
 
                 Manager manager = new Manager(context);
                 manager.setWifiListFromDataBase(wifiList);
                 manager.setFragmentManager(getFragmentManager());
+                manager.setGetMessageListener(getMessageListener);
                 managerThread = new Thread(manager);
                 managerThread.start();
-
+                Log.d(TAG,"WiFilista");
 /*
                 SearchWifiFragment searchWifiFragment = new SearchWifiFragment(context);
                 searchWifiFragment.setArguments(bundle);

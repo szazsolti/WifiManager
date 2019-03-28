@@ -1,6 +1,7 @@
 package ro.ms.sapientia.zsolti.wifimanager;
 
 import android.net.Uri;
+import android.os.Handler;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +13,9 @@ import java.io.IOException;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.MessageSender;
+import ro.ms.sapientia.zsolti.wifimanager.Fragments.DrawPositionFragment;
+import ro.ms.sapientia.zsolti.wifimanager.Fragments.HomeFragment;
+import ro.ms.sapientia.zsolti.wifimanager.Fragments.SearchWifiFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetMessageListener;
 
 public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener, SearchWifiFragment.OnFragmentInteractionListener, DrawPositionFragment.OnFragmentInteractionListener,GetMessageListener {
@@ -63,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         messageSender.execute(message);
     }
 
-    /*
+
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
@@ -81,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                 doubleBackToExitPressedOnce=false;
             }
         }, 2000);
-    }*/
+    }
 
     @Override
     protected void onDestroy() {

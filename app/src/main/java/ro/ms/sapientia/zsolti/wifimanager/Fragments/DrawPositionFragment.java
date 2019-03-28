@@ -1,4 +1,4 @@
-package ro.ms.sapientia.zsolti.wifimanager;
+package ro.ms.sapientia.zsolti.wifimanager.Fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -13,7 +13,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetMessageListener;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.NotifyToDraw;
+import ro.ms.sapientia.zsolti.wifimanager.MyCanvas;
+import ro.ms.sapientia.zsolti.wifimanager.NotifyToDrawBroadcastReceiver;
+import ro.ms.sapientia.zsolti.wifimanager.R;
+import ro.ms.sapientia.zsolti.wifimanager.Trilateration;
+import ro.ms.sapientia.zsolti.wifimanager.UserOnCanvas;
 
 
 public class DrawPositionFragment extends Fragment implements NotifyToDraw {
@@ -24,6 +30,7 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
     private Context context;
     private RelativeLayout relativeLayout;
     private NotifyToDrawBroadcastReceiver receiver = new NotifyToDrawBroadcastReceiver();
+    private GetMessageListener getMessageListener;
     private IntentFilter filter = new IntentFilter("draw");
     private OnFragmentInteractionListener mListener;
 
@@ -61,18 +68,28 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
 
         View view =  inflater.inflate(R.layout.fragment_draw_position, container, false);
 
-        point.set((int)Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
+        point.set((int) Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
 
         Log.d(TAG,"X: " + Trilateration.getInstance().getX() + "Y: " + Trilateration.getInstance().getY());
 
-        context.registerReceiver(receiver, filter);
-        receiver.setNotifyToDraw(this);
+        try{
+            context.registerReceiver(receiver, filter);
+            receiver.setNotifyToDraw(this);
+        }
+        catch (Exception e){
+            //getMessageListener.returnMessage("Helytelen hivatkozás. Az alkalmazás kilép.");
+            System.exit(2);
+        }
+
         relativeLayout = view.findViewById(R.id.rect);
-        myCanvas = new MyCanvas(context);
+
+        UserOnCanvas user = new UserOnCanvas(point.x+"",point.y+"","Me");
+
+        myCanvas = new MyCanvas(context,user);
         //Log.d(TAG,point.x + " " + point.y);
 
-        myCanvas.setParameters(point.x+"", point.y+"");
-
+        //myCanvas.setParameters(point.x+"", point.y+"");
+        myCanvas.setContext(context);
         myCanvas.setBackgroundResource(R.drawable.szoba2);
         relativeLayout.addView(myCanvas);
 
@@ -125,6 +142,10 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
 
         }
     }*/
+
+    public void setGetMessageListener(GetMessageListener getMessageListener){
+        this.getMessageListener = getMessageListener;
+    }
 
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
