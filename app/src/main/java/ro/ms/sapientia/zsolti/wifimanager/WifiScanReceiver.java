@@ -6,18 +6,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetWiFiListFromDeviceArrayList;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager;
 
 public class WifiScanReceiver extends BroadcastReceiver {
     WifiManager mainWifiObj;
     private ArrayList<String> wifis;
     private ArrayList<WiFi> wifisFromDevice=new ArrayList<>();
-    private GetWiFiListFromDeviceArrayList getWiFiListFromDeviceArrayList;
+    private ISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager sendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager;
     private String TAG = "WIFISCANRECEIVER";
 
     public WifiScanReceiver(WifiManager wifiManager){
@@ -57,11 +56,11 @@ public class WifiScanReceiver extends BroadcastReceiver {
                 //Log.d(TAG, "Wifis filtered: " + filtered[counter]);
                 counter++;
             }
-            getWiFiListFromDeviceArrayList.returnWiFiListFromDevice(wifisFromDevice);
+            sendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager.returnWiFiListFromDevice(wifisFromDevice);
 
         }
     }
-    public void setGetWiFiListFromDeviceArrayList(GetWiFiListFromDeviceArrayList getWiFiListFromDeviceArrayList){
-        this.getWiFiListFromDeviceArrayList = getWiFiListFromDeviceArrayList;
+    public void setISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager(ISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager ISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager){
+        this.sendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager = ISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager;
     }
 }

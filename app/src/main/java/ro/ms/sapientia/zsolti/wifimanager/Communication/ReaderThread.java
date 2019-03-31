@@ -3,18 +3,16 @@ package ro.ms.sapientia.zsolti.wifimanager.Communication;
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.net.SocketException;
 
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetMessageInFragment;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetMessageListener;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromReaderThreadToHomeFragment;
 
 public class ReaderThread implements Runnable{
 
-    private GetMessageListener getMessageListener;
-    private GetMessageInFragment getMessageInFragment;
+    private ISendDataToUIListener sendDataToUIListener;
+    private ISendMessageFromReaderThreadToHomeFragment sendMessageFromReaderThreadToHomeFragment;
     private String TAG = "READERTHREAD_CLASS";
     private Socket socket=null;
     private InputStreamReader inputStreamReader=null;
@@ -26,6 +24,8 @@ public class ReaderThread implements Runnable{
         logged=false;
         try{
             socket = Client.getInstance().getClientSocket();
+            //SocketService service = new SocketService();
+            //socket = service.getClientSocket();
             inputStreamReader = new InputStreamReader(socket.getInputStream());
             bufferedReader = new BufferedReader(inputStreamReader);
             logged=true;
@@ -43,32 +43,32 @@ public class ReaderThread implements Runnable{
                         inputStreamReader.close();
                         bufferedReader.close();
                         //socket.close();
-                        getMessageListener.returnMessage("Socket is closed.");
+                        sendDataToUIListener.returnMessage("Socket is closed.");
                         logged=false;
                     }
                     //Log.d(TAG,"Message: "+mess);
                     if(mess!=null){
                         processingPachet(mess);
-                        getMessageListener.returnMessage(mess);
+                        //sendDataToUIListener.returnMessage(mess);
                     }
                 }
                 else if(socket == null || socket.isClosed() || !socket.isConnected() || !socket.isBound() || mess==null){
                     inputStreamReader.close();
                     bufferedReader.close();
                     socket.close();
-                    getMessageListener.returnMessage("Socket is closed.");
+                    sendDataToUIListener.returnMessage("Socket is closed.");
                     logged=false;
                 }
                 else{
                     inputStreamReader.close();
                     bufferedReader.close();
                     socket.close();
-                    getMessageListener.returnMessage("Socket is closed.");
+                    sendDataToUIListener.returnMessage("Socket is closed.");
                     logged=false;
                 }
             }
         }catch (Exception e){
-            getMessageListener.returnMessage("Socket is closed.");
+            sendDataToUIListener.returnMessage("Socket is closed.");
                 //e1.printStackTrace();
             }
     }
@@ -77,17 +77,17 @@ public class ReaderThread implements Runnable{
         String[] parts = input.split("-");
         try {
             if(parts[0].equals("[ConnectionOK]")){
-                getMessageInFragment.returnMessage("OK");
+                sendMessageFromReaderThreadToHomeFragment.returnMessage("OK");
             }
             else if(parts[0].equals("[Wifis]")){
-                getMessageInFragment.returnMessage(input);
+                sendMessageFromReaderThreadToHomeFragment.returnMessage(input);
             }
             else if(parts[0].equals("[Exit]")){
                 inputStreamReader.close();
                 bufferedReader.close();
                 socket.close();
                 logged=false;
-                getMessageInFragment.returnMessage("Exit");
+                sendMessageFromReaderThreadToHomeFragment.returnMessage("Exit");
             }
         }
         catch (Exception e){
@@ -95,12 +95,12 @@ public class ReaderThread implements Runnable{
         }
     }
 
-    public void setGetMessageInFragment(GetMessageInFragment getMessageInFragment){
-        this.getMessageInFragment = getMessageInFragment;
+    public void setISendMessageFromReaderThreadToHomeFragment(ISendMessageFromReaderThreadToHomeFragment ISendMessageFromReaderThreadToHomeFragment){
+        this.sendMessageFromReaderThreadToHomeFragment = ISendMessageFromReaderThreadToHomeFragment;
     }
 
-    public void setGetMessageListener(GetMessageListener getMessageListener){
-        this.getMessageListener = getMessageListener;
+    public void setISendDataToUIListener(ISendDataToUIListener ISendDataToUIListener){
+        this.sendDataToUIListener = ISendDataToUIListener;
     }
 
 }

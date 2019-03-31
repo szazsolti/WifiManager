@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.MessageSender;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetWiFiListFromDeviceArrayList;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.NotifyToDraw;
 import ro.ms.sapientia.zsolti.wifimanager.R;
 import ro.ms.sapientia.zsolti.wifimanager.Trilateration;
@@ -36,9 +36,8 @@ import ro.ms.sapientia.zsolti.wifimanager.WiFi;
 import ro.ms.sapientia.zsolti.wifimanager.WifiScanReceiver;
 
 
-public class SearchWifiFragment extends Fragment implements GetWiFiListFromDeviceArrayList{
+public class SearchWifiFragment extends Fragment implements ISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager {
 
-    private OnFragmentInteractionListener mListener;
     private Thread refreshWifi = new Thread();
     private NotifyToDraw notifyToDraw;
     private WifiManager mainWifiObj;
@@ -97,7 +96,7 @@ public class SearchWifiFragment extends Fragment implements GetWiFiListFromDevic
             mainWifiObj = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
             startRefresh();
             wifiReciever = new WifiScanReceiver(mainWifiObj);
-            wifiReciever.setGetWiFiListFromDeviceArrayList(this);
+            wifiReciever.setISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager(this);
             context.registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
         }
 
@@ -106,22 +105,10 @@ public class SearchWifiFragment extends Fragment implements GetWiFiListFromDevic
         return view;
     }
 
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        Log.d(TAG, "onAttach: ");
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
 
         if(checkPermission()) {
             context.registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
@@ -136,7 +123,6 @@ public class SearchWifiFragment extends Fragment implements GetWiFiListFromDevic
         Log.d(TAG, "onDetach: ");
         super.onDetach();
         context.unregisterReceiver(wifiReciever);
-        mListener = null;
     }
 
     @Override

@@ -2,7 +2,6 @@ package ro.ms.sapientia.zsolti.wifimanager.Fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -17,21 +16,20 @@ import java.util.ArrayList;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.MessageSender;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.ReaderThread;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetMessageInFragment;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetMessageListener;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromReaderThreadToHomeFragment;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 import ro.ms.sapientia.zsolti.wifimanager.Manager;
 import ro.ms.sapientia.zsolti.wifimanager.R;
 import ro.ms.sapientia.zsolti.wifimanager.WiFi;
 
-public class HomeFragment extends Fragment implements GetMessageInFragment {
+public class HomeFragment extends Fragment implements ISendMessageFromReaderThreadToHomeFragment {
 
-    private OnFragmentInteractionListener mListener;
     private TextView tw_test;
     private Button bt_connect;
     private EditText et_username;
-    private Thread readerThread;
+    private Thread readerThread = new Thread();
     private Thread managerThread;
-    private GetMessageListener getMessageListener;
+    private ISendDataToUIListener sendDataToUIListener;
     private String TAG="HOMEFRAGMENT";
     private Context context;
     private ArrayList<WiFi> wifiList = new ArrayList<>();
@@ -69,45 +67,37 @@ public class HomeFragment extends Fragment implements GetMessageInFragment {
         tw_test = view.findViewById(R.id.tw_instruction);
         et_username = view.findViewById(R.id.et_username);
 
-        ReaderThread readerThread = new ReaderThread();
-        readerThread.setGetMessageListener(getMessageListener);
-        readerThread.setGetMessageInFragment(this);
-        this.readerThread = new Thread(readerThread);
-        //((MainActivity)Objects.requireNonNull(getActivity())).setGetMessageInFragment((GetMessageInFragment) getContext());
-        HomeFragment.this.readerThread.start();
+
+        if(!HomeFragment.this.readerThread.isAlive()) {
+            ReaderThread readerThread = new ReaderThread();
+            readerThread.setISendDataToUIListener(sendDataToUIListener);
+            readerThread.setISendMessageFromReaderThreadToHomeFragment(this);
+            this.readerThread = new Thread(readerThread);
+        }
+
+        //((MainActivity)Objects.requireNonNull(getActivity())).setISendMessageFromReaderThreadToHomeFragment((ISendMessageFromReaderThreadToHomeFragment) getContext());
+        //context.startService(new Intent(context, SocketService.class));
         bt_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //context.bindService(new Intent(context, SocketService.class));
                 sendMyUsername();
-                //((MainActivity)Objects.requireNonNull(getActivity())).setGetMessageInFragment((GetMessageInFragment) getContext());
+                HomeFragment.this.readerThread.start();
+                //((MainActivity)Objects.requireNonNull(getActivity())).setISendMessageFromReaderThreadToHomeFragment((ISendMessageFromReaderThreadToHomeFragment) getContext());
             }
         });
-
         return view;
     }
-
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+
     }
 
     @Override
@@ -118,19 +108,17 @@ public class HomeFragment extends Fragment implements GetMessageInFragment {
     public void processingMessage(String message){
         String[] parts = message.split("-");
         if(message.equals("OK")){
-            getMessageListener.returnMessage("Waiting for data...");
+            sendDataToUIListener.returnMessage("Waiting for data...");
         }
         else if(parts[0].equals("[Wifis]")){
              makeWifis(parts[1]);
              if(wifiList.size()>=3){
-
                 //Bundle bundle = new Bundle();
                 //bundle.putSerializable("wifilist", wifiList);
-
                 Manager manager = new Manager(context);
                 manager.setWifiListFromDataBase(wifiList);
                 manager.setFragmentManager(getFragmentManager());
-                manager.setGetMessageListener(getMessageListener);
+                manager.setISendDataToUIListener(sendDataToUIListener);
                 managerThread = new Thread(manager);
                 managerThread.start();
                 Log.d(TAG,"WiFilista");
@@ -141,33 +129,28 @@ public class HomeFragment extends Fragment implements GetMessageInFragment {
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.fragment_container, searchWifiFragment);
-
                 //fragmentTransaction.addToBackStack("homeFragment");
                 fragmentTransaction.commit();*/
              }
              else{
-                 getMessageListener.returnMessage("Not enough wifi.");
+                 sendDataToUIListener.returnMessage("Not enough wifi.");
              }
         }
         else if(message.equals("Exit")){
-            getMessageListener.returnMessage("Server is not available");
+            sendDataToUIListener.returnMessage("Server is not available");
         }
         else {
-            getMessageListener.returnMessage("Socket is not ready.");
+            sendDataToUIListener.returnMessage("Socket is not ready.");
         }
     }
 
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
-    }
-
-    public void setGetMessageListener(GetMessageListener getMessageListener){
-        this.getMessageListener = getMessageListener;
+    public void setISendDataToUIListener(ISendDataToUIListener ISendDataToUIListener){
+        this.sendDataToUIListener = ISendDataToUIListener;
     }
 
     public void sendMyUsername(){
         MessageSender messageSender = new MessageSender();
-        messageSender.setGetMessageListener(getMessageListener);
+        messageSender.setISendDataToUIListener(sendDataToUIListener);
         messageSender.execute("[Username]-"+et_username.getText());
         //send.setVisibility(View.VISIBLE);
         et_username.setText("");

@@ -1,19 +1,13 @@
 
 package ro.ms.sapientia.zsolti.wifimanager;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.location.LocationManager;
 import android.net.wifi.WifiManager;
-import android.os.Build;
-import android.provider.Settings;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -22,10 +16,10 @@ import java.util.Comparator;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.MessageSender;
 import ro.ms.sapientia.zsolti.wifimanager.Fragments.DrawPositionFragment;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetMessageListener;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetWiFiListFromDeviceArrayList;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager;
 
-public class Manager implements GetWiFiListFromDeviceArrayList, Runnable{
+public class Manager implements ISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager, Runnable{
 
     //private static Manager single_instance = null;
     private String TAG = "MANAGER";
@@ -38,19 +32,19 @@ public class Manager implements GetWiFiListFromDeviceArrayList, Runnable{
     private Thread refreshData;
     private Context context;
     private FragmentManager fragmentManager;
-    private GetMessageListener getMessageListener;
+    private ISendDataToUIListener sendDataToUIListener;
 
 
     public Manager(Context context){
         this.context = context;
 
-        if(checkPermission()) {
+        //if(checkPermission()) {
             mainWifiObj = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
             startRefresh();
             wifiReciever = new WifiScanReceiver(mainWifiObj);
-            wifiReciever.setGetWiFiListFromDeviceArrayList(this);
+            wifiReciever.setISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager(this);
             context.registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-        }
+        //}
     }
 
 
@@ -86,14 +80,14 @@ public class Manager implements GetWiFiListFromDeviceArrayList, Runnable{
         };
         refreshWifi.start();
     }
-
+/*
     public boolean checkPermission(){
         final LocationManager manager = (LocationManager) context.getSystemService( Context.LOCATION_SERVICE );
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
         {
             if(context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             {
-                //requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 87);
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 87);
             }
             else if (manager != null && !manager.isProviderEnabled( LocationManager.GPS_PROVIDER )) {
                 Toast.makeText(context, "You need to enable your GPS", Toast.LENGTH_SHORT).show();
@@ -105,7 +99,7 @@ public class Manager implements GetWiFiListFromDeviceArrayList, Runnable{
             }
         }
         return true;
-    }
+    }*/
 
     public void calculateTrilateration(ArrayList<WiFi> wifilistFromDevice){
 
@@ -230,14 +224,14 @@ public class Manager implements GetWiFiListFromDeviceArrayList, Runnable{
         DrawPositionFragment drawPositionFragment = new DrawPositionFragment(context);
         //drawPositionFragment.setArguments(bundle);
         //FragmentManager fragmentManager = fragmentManager;
-        drawPositionFragment.setGetMessageListener(getMessageListener);
+        drawPositionFragment.setISendDataToUIListener(sendDataToUIListener);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, drawPositionFragment);
         fragmentTransaction.addToBackStack("searchwifi");
         fragmentTransaction.commit();
 
     }
-    public void setGetMessageListener(GetMessageListener getMessageListener){
-        this.getMessageListener = getMessageListener;
+    public void setISendDataToUIListener(ISendDataToUIListener ISendDataToUIListener){
+        this.sendDataToUIListener = ISendDataToUIListener;
     }
 }

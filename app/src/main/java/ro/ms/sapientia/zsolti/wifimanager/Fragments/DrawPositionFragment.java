@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetMessageListener;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.NotifyToDraw;
 import ro.ms.sapientia.zsolti.wifimanager.MyCanvas;
 import ro.ms.sapientia.zsolti.wifimanager.NotifyToDrawBroadcastReceiver;
@@ -30,9 +30,8 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
     private Context context;
     private RelativeLayout relativeLayout;
     private NotifyToDrawBroadcastReceiver receiver = new NotifyToDrawBroadcastReceiver();
-    private GetMessageListener getMessageListener;
+    private ISendDataToUIListener sendDataToUIListener;
     private IntentFilter filter = new IntentFilter("draw");
-    private OnFragmentInteractionListener mListener;
 
     @SuppressLint("ValidFragment")
     public DrawPositionFragment (Context context){
@@ -77,7 +76,7 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
             receiver.setNotifyToDraw(this);
         }
         catch (Exception e){
-            //getMessageListener.returnMessage("Helytelen hivatkozás. Az alkalmazás kilép.");
+            //ISendDataToUIListener.returnMessage("Helytelen hivatkozás. Az alkalmazás kilép.");
             System.exit(2);
         }
 
@@ -100,21 +99,12 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
         myCanvas.setParameters(point.x+"", point.y+"");
         myCanvas.invalidate();
     }
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+        context.registerReceiver(receiver, filter);
+        receiver.setNotifyToDraw(this);
     }
 
     @Override
@@ -126,7 +116,6 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
     @Override
@@ -143,8 +132,8 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
         }
     }*/
 
-    public void setGetMessageListener(GetMessageListener getMessageListener){
-        this.getMessageListener = getMessageListener;
+    public void setISendDataToUIListener(ISendDataToUIListener ISendDataToUIListener){
+        this.sendDataToUIListener = ISendDataToUIListener;
     }
 
     public interface OnFragmentInteractionListener {

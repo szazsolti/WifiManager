@@ -27,6 +27,7 @@
                 <action android:name="ro.ms.sapientia.zsolti.draw"></action>
             </intent-filter>
         </receiver>
+        <service android:name=".SocketService"></service>
     </application>
 
 </manifest>

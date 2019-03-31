@@ -8,12 +8,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetMessageListener;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 
 public class MessageSender extends AsyncTask<String,Void,Void> {
     private Socket clientSocket;
     private DataOutputStream dataOutputStream;
-    private GetMessageListener getMessageListener;
+    private ISendDataToUIListener ISendDataToUIListener;
     private String TAG = "MESSAGESENDER_CLASS";
     String message;
 
@@ -27,11 +27,13 @@ public class MessageSender extends AsyncTask<String,Void,Void> {
         String message = voids[0];
 
         try {
+
+            //clientSocket = service.getClientSocket();
             clientSocket = Client.getInstance().getClientSocket();
             //Client.getInstance().setSocket(clientSocket);
 
             if(clientSocket.isConnected() && clientSocket.isBound()){
-                //getMessageListener.returnMessage("The socket is OK.");
+                //ISendDataToUIListener.returnMessage("The socket is OK.");
                 pw = new PrintWriter(clientSocket.getOutputStream());
                 Log.d(TAG,"Kuldott uzenet: "+message);
 
@@ -52,7 +54,7 @@ public class MessageSender extends AsyncTask<String,Void,Void> {
                     pw.flush();
                     pw.close();
                     clientSocket.close();
-                    getMessageListener.returnMessage("The socket is closed. Server is not available.");
+                    ISendDataToUIListener.returnMessage("The socket is closed. Server is not available.");
                 }
 
             }
@@ -61,13 +63,13 @@ public class MessageSender extends AsyncTask<String,Void,Void> {
                 pw.flush();
                 pw.close();
                 clientSocket.close();
-                getMessageListener.returnMessage("The socket is closed. Server is not available.");
+                ISendDataToUIListener.returnMessage("The socket is closed. Server is not available.");
             }
             
 
         } catch (IOException e) {
             try {
-                getMessageListener.returnMessage("Server is not available.");
+                ISendDataToUIListener.returnMessage("Server is not available.");
             }
             catch (Exception ignored){
             }
@@ -83,8 +85,8 @@ public class MessageSender extends AsyncTask<String,Void,Void> {
     // }
 
 
-    public void setGetMessageListener(GetMessageListener getMessageListener){
-        this.getMessageListener = getMessageListener;
+    public void setISendDataToUIListener(ISendDataToUIListener ISendDataToUIListener){
+        this.ISendDataToUIListener = ISendDataToUIListener;
     }
 }
 

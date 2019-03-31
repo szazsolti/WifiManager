@@ -4,6 +4,6 @@ import java.util.ArrayList;
 
 import ro.ms.sapientia.zsolti.wifimanager.WiFi;
 
-public interface GetWiFiListFromDeviceArrayList {
+public interface ISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager {
     void returnWiFiListFromDevice(ArrayList<WiFi> wifisFromDevice);
 }

@@ -1,7 +1,13 @@
 package ro.ms.sapientia.zsolti.wifimanager;
 
-import android.net.Uri;
+import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,12 +19,10 @@ import java.io.IOException;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.MessageSender;
-import ro.ms.sapientia.zsolti.wifimanager.Fragments.DrawPositionFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Fragments.HomeFragment;
-import ro.ms.sapientia.zsolti.wifimanager.Fragments.SearchWifiFragment;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.GetMessageListener;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 
-public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener, SearchWifiFragment.OnFragmentInteractionListener, DrawPositionFragment.OnFragmentInteractionListener,GetMessageListener {
+public class MainActivity extends AppCompatActivity implements ISendDataToUIListener {
 
     private boolean doubleBackToExitPressedOnce = false;
     private String TAG = "MainActivity";
@@ -27,19 +31,15 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        HomeFragment homeFragment = new HomeFragment(getApplicationContext());
-        homeFragment.setGetMessageListener(this);
-        //Manager.getInstance().setContext(getApplicationContext());
-        //homeFragment.setGetMessageInFragment(getMessageInFragment);
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, homeFragment);
-        fragmentTransaction.commit();
-    }
-
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
+        if(checkPermission()){
+            HomeFragment homeFragment = new HomeFragment(getApplicationContext());
+            homeFragment.setISendDataToUIListener(this);
+            //Manager.getInstance().setContext(getApplicationContext());
+            //homeFragment.setISendMessageFromReaderThreadToHomeFragment(getMessageInFragment);
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container, homeFragment);
+            fragmentTransaction.commit();
+        }
     }
 
     @Override
@@ -50,23 +50,57 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if(text.equals("Socket is closed.")){
+                    //startHomeFragment();
+                    Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
+                }
                 Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void startHomeFragment(){
+        HomeFragment homeFragment = new HomeFragment(getApplicationContext());
+        homeFragment.setISendDataToUIListener(this);
+        //Manager.getInstance().setContext(getApplicationContext());
+        //homeFragment.setISendMessageFromReaderThreadToHomeFragment(getMessageInFragment);
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, homeFragment);
+        fragmentTransaction.commitAllowingStateLoss();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         sendMessage("[Logout]-");
+        //stopService(new Intent(getBaseContext(),SocketService.class));
     }
 
     public void sendMessage(String message){
         MessageSender messageSender = new MessageSender();
-        messageSender.setGetMessageListener(this);
+        messageSender.setISendDataToUIListener(this);
         messageSender.execute(message);
     }
 
+    public boolean checkPermission(){
+        final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        {
+            if(checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 87);
+            }
+            else if (manager != null && !manager.isProviderEnabled( LocationManager.GPS_PROVIDER )) {
+                Toast.makeText(getApplicationContext(), "You need to enable your GPS", Toast.LENGTH_SHORT).show();
+                Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(myIntent);
+            }
+            else {
+                return true;
+            }
+        }
+        return true;
+    }
 
     @Override
     public void onBackPressed() {

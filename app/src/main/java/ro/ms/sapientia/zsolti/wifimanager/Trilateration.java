@@ -104,11 +104,11 @@ public class Trilateration implements Serializable{
     }*/
 
     public void calculateX(){
-        x=round(router1.x + (getX1() * ex + getY1() * ey + getZ() * ez), 5);
+        x=round(router1.x + (getX1() * ex + getY1() * ey + getZ() * ez), 3);
     }
 
     public void calculateY(){
-        y=round(router1.y + (getX1() * ex + getY1() * ey + getZ() * ez), 5);
+        y=round(router1.y + (getX1() * ex + getY1() * ey + getZ() * ez), 3);
     }
 
     public double getX(){
@@ -120,8 +120,6 @@ public class Trilateration implements Serializable{
         calculateY();
         return y;
     }
-
-
 
     public void notifyToDraw(String message){
         if(message.equals("calculate")){
