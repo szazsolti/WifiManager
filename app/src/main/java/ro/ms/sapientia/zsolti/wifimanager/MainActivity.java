@@ -18,6 +18,7 @@ import android.widget.Toast;
 import java.io.IOException;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
+import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.MessageSender;
 import ro.ms.sapientia.zsolti.wifimanager.Fragments.HomeFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
@@ -70,9 +71,49 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
     }
 
     @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "onRestart:");
+
+        try {
+            //if(Communication.getInstance().isExists()){
+            //Communication.getInstance().destroy();
+            Communication.getInstance().sendUsername();
+
+            //}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        /*
+        try {
+            MessageSender messageSender = new MessageSender();
+            messageSender.execute("[Username]-"+Client.getInstance().getUsername());
+        } catch (IOException e) {
+
+            Toast.makeText(getApplicationContext(),"Failed to connect to server.",Toast.LENGTH_SHORT).show();
+        }*/
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
-        sendMessage("[Logout]-");
+        //sendMessage("[Logout]-");
+        /*
+        Thread logout = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Log.d(TAG, "run: onStop called");
+                    if(Communication.getInstance().connected()){
+                        Communication.getInstance().sendMessage("[Logout]-");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        logout.start();*/
         //stopService(new Intent(getBaseContext(),SocketService.class));
     }
 
@@ -83,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
     }
 
     public boolean checkPermission(){
+        DetectInternetConnection detectInternetConnection = new DetectInternetConnection(getApplicationContext());
         final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
         {
@@ -91,9 +133,13 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 87);
             }
             else if (manager != null && !manager.isProviderEnabled( LocationManager.GPS_PROVIDER )) {
-                Toast.makeText(getApplicationContext(), "You need to enable your GPS", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "You need to enable your GPS.", Toast.LENGTH_SHORT).show();
                 Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(myIntent);
+            }
+            else if(!detectInternetConnection.isConnectingToInternet()){
+                Toast.makeText(getApplicationContext(), "You need to enable your WIFI.", Toast.LENGTH_SHORT).show();
+                return false;
             }
             else {
                 return true;
@@ -124,10 +170,12 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.d(TAG,"onDestroy()");
         try {
-            Client.getInstance().destroy();
-        } catch (IOException e) {
-            e.printStackTrace();
+            //Client.getInstance().destroy();
+            Communication.getInstance().destroy();
+        } catch (Exception e) {
+            //e.printStackTrace();
         }
     }
 }

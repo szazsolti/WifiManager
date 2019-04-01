@@ -13,6 +13,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import java.io.IOException;
+
+import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
+import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.NotifyToDraw;
 import ro.ms.sapientia.zsolti.wifimanager.MyCanvas;
@@ -52,10 +56,6 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-        if (getArguments() != null) {
-        }
     }
 
     @Override
@@ -64,6 +64,7 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
         // Inflate the layout for this fragment
 
         //receiver.setNotifyToDraw(notifyToDraw);
+
 
         View view =  inflater.inflate(R.layout.fragment_draw_position, container, false);
 
@@ -86,7 +87,6 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
 
         myCanvas = new MyCanvas(context,user);
         //Log.d(TAG,point.x + " " + point.y);
-
         //myCanvas.setParameters(point.x+"", point.y+"");
         myCanvas.setContext(context);
         myCanvas.setBackgroundResource(R.drawable.szoba2);
@@ -94,6 +94,12 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
 
         return view;
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
     void updateCanvasData(){
         point.set((int)Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
         myCanvas.setParameters(point.x+"", point.y+"");
@@ -110,12 +116,35 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        context.unregisterReceiver(receiver);
+        Log.d(TAG, "onDestroyView: ");
+        try {
+            context.unregisterReceiver(receiver);
+        }
+        catch (Exception ignored){}
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        try {
+            //Client.getInstance().destroy();
+            Log.d(TAG, "onStop: called");
+            //Communication.getInstance().sendMessage("[Logout-]");
+           // Communication.getInstance().destroy();
+            context.unregisterReceiver(receiver);
+        } catch (Exception ignored) {
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        try {
+            context.unregisterReceiver(receiver);
+        }
+        catch (Exception ignored){}
+        //context.unregisterReceiver(receiver);
+        Log.d(TAG, "onDetach: ");
     }
 
     @Override
@@ -123,20 +152,8 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
         Log.d(TAG,"Notified from reciver"+message);
         updateCanvasData();
     }
-/*
-    @Override
-    public void returnMessageToDraw(String text) {
-
-        if(text.equals("draw")){
-
-        }
-    }*/
 
     public void setISendDataToUIListener(ISendDataToUIListener ISendDataToUIListener){
         this.sendDataToUIListener = ISendDataToUIListener;
-    }
-
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
     }
 }

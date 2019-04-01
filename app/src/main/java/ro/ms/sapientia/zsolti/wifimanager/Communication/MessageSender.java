@@ -28,11 +28,11 @@ public class MessageSender extends AsyncTask<String,Void,Void> {
 
         try {
 
-            //clientSocket = service.getClientSocket();
-            clientSocket = Client.getInstance().getClientSocket();
+            clientSocket = Communication.getInstance().getClientSocket();
+            //clientSocket = Client.getInstance().getClientSocket();
             //Client.getInstance().setSocket(clientSocket);
 
-            if(clientSocket.isConnected() && clientSocket.isBound()){
+            if(clientSocket != null && clientSocket.isConnected() && clientSocket.isBound()){
                 //ISendDataToUIListener.returnMessage("The socket is OK.");
                 pw = new PrintWriter(clientSocket.getOutputStream());
                 Log.d(TAG,"Kuldott uzenet: "+message);
@@ -56,14 +56,14 @@ public class MessageSender extends AsyncTask<String,Void,Void> {
                     clientSocket.close();
                     ISendDataToUIListener.returnMessage("The socket is closed. Server is not available.");
                 }
-
             }
             else{
                 //assert pw != null;
+                /*
                 pw.flush();
                 pw.close();
                 clientSocket.close();
-                ISendDataToUIListener.returnMessage("The socket is closed. Server is not available.");
+                ISendDataToUIListener.returnMessage("The socket is closed. Server is not available.");*/
             }
             
 

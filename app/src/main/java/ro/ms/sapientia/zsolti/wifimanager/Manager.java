@@ -9,11 +9,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.MessageSender;
 import ro.ms.sapientia.zsolti.wifimanager.Fragments.DrawPositionFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
@@ -53,7 +55,6 @@ public class Manager implements ISendWiFiListFromDeviceArrayListFromWifiScanRece
     public void returnWiFiListFromDevice(ArrayList<WiFi> wifisFromDevice) {
         //Log.d(TAG, "Wifis returned: " + stringArray[0]);
         try{
-
             calculateTrilateration(wifisFromDevice);
         }
         catch (Exception e){
@@ -101,7 +102,7 @@ public class Manager implements ISendWiFiListFromDeviceArrayListFromWifiScanRece
         return true;
     }*/
 
-    public void calculateTrilateration(ArrayList<WiFi> wifilistFromDevice){
+    public void calculateTrilateration(ArrayList<WiFi> wifilistFromDevice) throws IOException {
 
         //Log.d(TAG,"From phone: "+wifilistFromDevice.get(0).getName()+wifilistFromDevice.get(0).getFrequency()+wifilistFromDevice.get(0).getPercentage());
 
@@ -118,12 +119,12 @@ public class Manager implements ISendWiFiListFromDeviceArrayListFromWifiScanRece
             trilateration.setR();
             trilateration.setParameters();
             Log.d(TAG,"X: " + trilateration.getX() + " Y: " + trilateration.getY());
-
+            /*
             MessageSender messageSender = new MessageSender();
-            messageSender.execute("[Position]-"+trilateration.getX() +" "+ trilateration.getY());
+            messageSender.execute("[Position]-"+trilateration.getX() +" "+ trilateration.getY());*/
+
+            Communication.getInstance().sendMessage("[Position]-"+trilateration.getX() +" "+ trilateration.getY());
             sendBroadcastNotify();
-
-
             //getMessageToDraw.returnMessageToDraw("draw");
         }
         //Log.d(TAG,"Wifis: " + message);

@@ -33,13 +33,8 @@ public class WifiScanReceiver extends BroadcastReceiver {
             for(int i = 0; i < wifiScanList.size(); i++){
                 wifis.add((wifiScanList.get(i)).toString());
             }
-
-            String filtered[] = new String[wifis.size()];
-            int counter = 0;
             //Log.d(TAG, "Wifis: " + wifis.toString());
             //int point = 70; //dist = point*(1-percentage) - hatotavolsag merese
-
-
 
             for (String wifi : wifis){
                 String[] temp = wifi.split(",");
@@ -49,12 +44,7 @@ public class WifiScanReceiver extends BroadcastReceiver {
 
                 WiFi tempWifi = new WiFi(ssid,level,frequency);
 
-                //Log.d(TAG,"TempWiFi: " + tempWifi.getName()+tempWifi.getPercentage()+tempWifi.getFrequency());
-
                 wifisFromDevice.add(tempWifi);
-                //filtered[counter] = ssid + " - str: " +level + " - frequency: " + frequency + " GHz";
-                //Log.d(TAG, "Wifis filtered: " + filtered[counter]);
-                counter++;
             }
             sendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager.returnWiFiListFromDevice(wifisFromDevice);
 

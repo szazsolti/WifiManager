@@ -5,14 +5,18 @@ import java.net.Socket;
 
 public class Client {
     private static Client sinlge_instance = null;
-    private Socket clientSocket = new Socket("192.168.173.1",6554);
+    private String username="User";
 
     private Client() throws IOException {
     }
 
     public static Client getInstance() throws IOException {
-        if(sinlge_instance==null){
-            sinlge_instance = new Client();
+        if (sinlge_instance == null) {
+            synchronized (Client.class) {
+                if (sinlge_instance == null) {
+                    sinlge_instance = new Client();
+                }
+            }
         }
         return sinlge_instance;
     }
@@ -21,16 +25,13 @@ public class Client {
         this.clientSocket = socket;
     }*/
 
-    public Socket getClientSocket(){
-        return clientSocket;
+    public void setUsername(String username){
+        this.username = username;
     }
 
-    public void destroy(){
-        try{
-            clientSocket.close();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+    public String getUsername(){
+        return this.username;
     }
+
+
 }

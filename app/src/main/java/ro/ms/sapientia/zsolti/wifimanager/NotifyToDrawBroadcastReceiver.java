@@ -18,7 +18,6 @@ public class NotifyToDrawBroadcastReceiver extends BroadcastReceiver {
         if (notifyToDraw != null) {
             notifyToDraw.notifyToDraw("draw");
         }
-
     }
 
     public void setNotifyToDraw (NotifyToDraw notifyToDraw){
@@ -26,5 +25,4 @@ public class NotifyToDrawBroadcastReceiver extends BroadcastReceiver {
         NotifyToDrawBroadcastReceiver.notifyToDraw = notifyToDraw;
         //this.notifyToDraw = notifyToDraw;
     }
-
 }

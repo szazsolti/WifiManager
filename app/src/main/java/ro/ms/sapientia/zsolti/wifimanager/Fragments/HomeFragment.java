@@ -12,8 +12,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
+import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
+import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.MessageSender;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.ReaderThread;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromReaderThreadToHomeFragment;
@@ -29,7 +32,9 @@ public class HomeFragment extends Fragment implements ISendMessageFromReaderThre
     private EditText et_username;
     private Thread readerThread = new Thread();
     private Thread managerThread;
+    private Thread startConnection;
     private ISendDataToUIListener sendDataToUIListener;
+    private ISendMessageFromReaderThreadToHomeFragment sendMessageFromReaderThreadToHomeFragment = HomeFragment.this;
     private String TAG="HOMEFRAGMENT";
     private Context context;
     private ArrayList<WiFi> wifiList = new ArrayList<>();
@@ -55,7 +60,6 @@ public class HomeFragment extends Fragment implements ISendMessageFromReaderThre
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -66,23 +70,48 @@ public class HomeFragment extends Fragment implements ISendMessageFromReaderThre
         bt_connect = view.findViewById(R.id.bt_connect);
         tw_test = view.findViewById(R.id.tw_instruction);
         et_username = view.findViewById(R.id.et_username);
-
-
+        startConnection=new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Communication.getInstance();
+                    Communication.getInstance().setSendDataToUIListener(sendDataToUIListener);
+                    Communication.getInstance().setSendMessageFromReaderThreadToHomeFragment(sendMessageFromReaderThreadToHomeFragment);
+                    if(!Communication.getInstance().readerThreadIsRunning()){
+                        Communication.getInstance().initParams();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        startConnection.start();
+/*
         if(!HomeFragment.this.readerThread.isAlive()) {
             ReaderThread readerThread = new ReaderThread();
             readerThread.setISendDataToUIListener(sendDataToUIListener);
             readerThread.setISendMessageFromReaderThreadToHomeFragment(this);
-            this.readerThread = new Thread(readerThread);
+            HomeFragment.this.readerThread = new Thread(readerThread);
         }
-
+*/
         //((MainActivity)Objects.requireNonNull(getActivity())).setISendMessageFromReaderThreadToHomeFragment((ISendMessageFromReaderThreadToHomeFragment) getContext());
         //context.startService(new Intent(context, SocketService.class));
         bt_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //context.bindService(new Intent(context, SocketService.class));
-                sendMyUsername();
-                HomeFragment.this.readerThread.start();
+                try {
+                    if(!Communication.getInstance().readerThreadIsRunning()){
+                        Communication.getInstance().startReaderThread();
+                    }
+                    sendMyUsername();
+                } catch (Exception ignored) {
+                    Log.d(TAG,"Exception, failed to send username.");
+                    sendDataToUIListener.returnMessage("Failed to connect to server.");
+                }/*
+                if(!HomeFragment.this.readerThread.isAlive()){
+                    HomeFragment.this.readerThread.start();
+                }*/
                 //((MainActivity)Objects.requireNonNull(getActivity())).setISendMessageFromReaderThreadToHomeFragment((ISendMessageFromReaderThreadToHomeFragment) getContext());
             }
         });
@@ -97,6 +126,19 @@ public class HomeFragment extends Fragment implements ISendMessageFromReaderThre
     @Override
     public void onDetach() {
         super.onDetach();
+    
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause: ");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: ");
 
     }
 
@@ -107,10 +149,8 @@ public class HomeFragment extends Fragment implements ISendMessageFromReaderThre
 
     public void processingMessage(String message){
         String[] parts = message.split("-");
-        if(message.equals("OK")){
-            sendDataToUIListener.returnMessage("Waiting for data...");
-        }
-        else if(parts[0].equals("[Wifis]")){
+
+        if(parts[0].equals("[Wifis]")){
              makeWifis(parts[1]);
              if(wifiList.size()>=3){
                 //Bundle bundle = new Bundle();
@@ -148,10 +188,16 @@ public class HomeFragment extends Fragment implements ISendMessageFromReaderThre
         this.sendDataToUIListener = ISendDataToUIListener;
     }
 
-    public void sendMyUsername(){
+    public void sendMyUsername() throws IOException {
+        /*
         MessageSender messageSender = new MessageSender();
         messageSender.setISendDataToUIListener(sendDataToUIListener);
         messageSender.execute("[Username]-"+et_username.getText());
+        */
+        Communication.getInstance().sendMessage("[Username]-"+et_username.getText());
+
+        //Log.d(TAG,"Username sent in sendMyUsername.");
+        Client.getInstance().setUsername(et_username.getText()+"");
         //send.setVisibility(View.VISIBLE);
         et_username.setText("");
         //connect.setVisibility(View.INVISIBLE);

@@ -18,14 +18,15 @@ public class ReaderThread implements Runnable{
     private InputStreamReader inputStreamReader=null;
     private BufferedReader bufferedReader=null;
     private Boolean logged=false;
+
     @Override
     public void run() {
         String mess;
         logged=false;
         try{
-            socket = Client.getInstance().getClientSocket();
+            //socket = Client.getInstance().getClientSocket();
             //SocketService service = new SocketService();
-            //socket = service.getClientSocket();
+            //socket = Communication.getInstance().getClientSocket();
             inputStreamReader = new InputStreamReader(socket.getInputStream());
             bufferedReader = new BufferedReader(inputStreamReader);
             logged=true;
@@ -42,8 +43,9 @@ public class ReaderThread implements Runnable{
                     catch (Exception e){
                         inputStreamReader.close();
                         bufferedReader.close();
-                        //socket.close();
-                        sendDataToUIListener.returnMessage("Socket is closed.");
+                        socket.close();
+                        sendDataToUIListener.returnMessage("Socket is closed1.");
+                        //Client.getInstance().destroy();
                         logged=false;
                     }
                     //Log.d(TAG,"Message: "+mess);
@@ -56,28 +58,32 @@ public class ReaderThread implements Runnable{
                     inputStreamReader.close();
                     bufferedReader.close();
                     socket.close();
-                    sendDataToUIListener.returnMessage("Socket is closed.");
+                    sendDataToUIListener.returnMessage("Socket is closed2.");
                     logged=false;
                 }
                 else{
                     inputStreamReader.close();
                     bufferedReader.close();
                     socket.close();
-                    sendDataToUIListener.returnMessage("Socket is closed.");
+                    sendDataToUIListener.returnMessage("Socket is closed3.");
                     logged=false;
                 }
             }
         }catch (Exception e){
-            sendDataToUIListener.returnMessage("Socket is closed.");
+            sendDataToUIListener.returnMessage("Socket is closed4.");
                 //e1.printStackTrace();
             }
+    }
+
+    public void setSocket(Socket socket){
+        this.socket=socket;
     }
 
     public void processingPachet(String input){
         String[] parts = input.split("-");
         try {
             if(parts[0].equals("[ConnectionOK]")){
-                sendMessageFromReaderThreadToHomeFragment.returnMessage("OK");
+                sendDataToUIListener.returnMessage("Waiting for data...");
             }
             else if(parts[0].equals("[Wifis]")){
                 sendMessageFromReaderThreadToHomeFragment.returnMessage(input);
