@@ -262,7 +262,7 @@ public class SearchWifiFragment extends Fragment implements ISendWiFiListFromDev
         double AGtx = 5.0;
         double AGrx = 0.0;
         double FM = 22.0;
-        double FSPL =Ptx - CLtx + AGtx + AGrx - CLrx - (level + 10)- FM; // - Free Space Loss
+        double FSPL =Ptx - CLtx + AGtx + AGrx - CLrx - (level + 10)- FM; // - Free Space Path Loss
         double dist = round(Math.pow(10.0,((FSPL - K - 20*Math.log10(frequency))/20)),3);
         int percentage = getWifiStrengthPercentage((int)wifiDevice.getLevel());
         wifiDevice.setDistance(dist);
