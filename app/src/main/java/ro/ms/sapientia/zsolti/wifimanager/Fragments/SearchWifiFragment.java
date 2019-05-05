@@ -13,8 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +26,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.MessageSender;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromWifiScanReceiverToManager;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.NotifyToDraw;
 import ro.ms.sapientia.zsolti.wifimanager.R;
 import ro.ms.sapientia.zsolti.wifimanager.Trilateration;
@@ -36,7 +34,7 @@ import ro.ms.sapientia.zsolti.wifimanager.WiFi;
 import ro.ms.sapientia.zsolti.wifimanager.WifiScanReceiver;
 
 
-public class SearchWifiFragment extends Fragment implements ISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager {
+public class SearchWifiFragment extends Fragment implements ISendWiFiListFromWifiScanReceiverToManager {
 
     private Thread refreshWifi = new Thread();
     private NotifyToDraw notifyToDraw;
@@ -45,7 +43,7 @@ public class SearchWifiFragment extends Fragment implements ISendWiFiListFromDev
     private ListView list;
     private Context context;
     private String TAG = "SEARCHWIFIFRAGMENT";
-    private ArrayList<WiFi> wifiListFromDataBase;
+    //private ArrayList<WiFi> wifiListFromDataBase;
 
 
     public SearchWifiFragment() {
@@ -75,7 +73,7 @@ public class SearchWifiFragment extends Fragment implements ISendWiFiListFromDev
                              Bundle savedInstanceState) {
 
         Log.d(TAG, "onCreateView: ");
-        wifiListFromDataBase = (ArrayList<WiFi>) getArguments().getSerializable("wifilist");
+        //wifiListFromDataBase = (ArrayList<WiFi>) getArguments().getSerializable("wifilist");
 
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_search_wifi, container, false);
@@ -83,13 +81,13 @@ public class SearchWifiFragment extends Fragment implements ISendWiFiListFromDev
         list=view.findViewById(R.id.list);
         //refreshWifi.start();
 
-        DrawPositionFragment drawPositionFragment = new DrawPositionFragment(context);
+       /* DrawPositionFragment drawPositionFragment = new DrawPositionFragment(context);
         //drawPositionFragment.setArguments(bundle);
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, drawPositionFragment);
         fragmentTransaction.addToBackStack("searchwifi");
-        fragmentTransaction.commit();
+        fragmentTransaction.commit();*/
 
 
         if(checkPermission()) {
@@ -129,7 +127,7 @@ public class SearchWifiFragment extends Fragment implements ISendWiFiListFromDev
     public void returnWiFiListFromDevice(ArrayList<WiFi> wifisFromDevice) {
         //Log.d(TAG, "Wifis returned: " + stringArray[0]);
         try{
-            calculateTrilateration(wifisFromDevice);
+            //calculateTrilateration(wifisFromDevice);
             //notifyToDraw.notifyToDraw("DRAW!");
 
             //list.setAdapter(new ArrayAdapter<>(context,R.layout.list_item,R.id.label, stringArray));
@@ -184,7 +182,7 @@ public class SearchWifiFragment extends Fragment implements ISendWiFiListFromDev
 
         //Log.d(TAG,"From phone: "+wifilistFromDevice.get(0).getName()+wifilistFromDevice.get(0).getFrequency()+wifilistFromDevice.get(0).getPercentage());
 
-        ArrayList<WiFi> choosedWifis =  chooseWifis(wifilistFromDevice, wifiListFromDataBase);
+        ArrayList<WiFi> choosedWifis =  chooseWifis(wifilistFromDevice, wifilistFromDevice);
 
         if(choosedWifis!=null){
             //Log.d(TAG,"Sorted 3: " + choosedWifis.toString());

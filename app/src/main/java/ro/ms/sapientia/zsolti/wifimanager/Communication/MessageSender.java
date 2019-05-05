@@ -62,8 +62,11 @@ public class MessageSender extends AsyncTask<String,Void,Void> {
                 /*
                 pw.flush();
                 pw.close();
-                clientSocket.close();
-                ISendDataToUIListener.returnMessage("The socket is closed. Server is not available.");*/
+                clientSocket.close();*/
+                try{
+                    ISendDataToUIListener.returnMessage("The socket is closed. Server is not available.");
+                }
+                catch (Exception ignored){}
             }
             
 

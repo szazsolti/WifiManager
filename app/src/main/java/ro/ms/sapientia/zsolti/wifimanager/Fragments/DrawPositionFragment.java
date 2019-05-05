@@ -4,21 +4,27 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.graphics.Point;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
-import java.io.IOException;
+import java.util.Objects;
 
-import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
-import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.NotifyToDraw;
+import ro.ms.sapientia.zsolti.wifimanager.Manager;
 import ro.ms.sapientia.zsolti.wifimanager.MyCanvas;
 import ro.ms.sapientia.zsolti.wifimanager.NotifyToDrawBroadcastReceiver;
 import ro.ms.sapientia.zsolti.wifimanager.R;
@@ -36,7 +42,9 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
     private NotifyToDrawBroadcastReceiver receiver = new NotifyToDrawBroadcastReceiver();
     private ISendDataToUIListener sendDataToUIListener;
     private IntentFilter filter = new IntentFilter("draw");
-
+    private Toolbar myToolbar;
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
     @SuppressLint("ValidFragment")
     public DrawPositionFragment (Context context){
         this.context = context;
@@ -82,8 +90,27 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
         }
 
         relativeLayout = view.findViewById(R.id.rect);
+        myToolbar = view.findViewById(R.id.toolBar);
+        drawerLayout = view.findViewById(R.id.drawer_layout);
+        navigationView = view.findViewById(R.id.navigationView);
 
-        UserOnCanvas user = new UserOnCanvas(point.x+"",point.y+"","Me");
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                switch (menuItem.getItemId()){
+                    case R.id.save_as_reference:
+                        menuItem.setChecked(true);
+                        startListWifisToSetReference();
+                        drawerLayout.closeDrawers();
+                        return true;
+                }
+
+                return false;
+            }
+        });
+
+        ((AppCompatActivity) Objects.requireNonNull(getActivity())).setSupportActionBar(myToolbar);
+        UserOnCanvas user = new UserOnCanvas(point.x+"", point.y+"","Me");
 
         myCanvas = new MyCanvas(context,user);
         //Log.d(TAG,point.x + " " + point.y);
@@ -103,13 +130,29 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
     void updateCanvasData(){
         point.set((int)Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
         myCanvas.setParameters(point.x+"", point.y+"");
+        //Log.d(TAG, "updateCanvasData: WifiListFromDevice: "+ Manager.getInstance().getWifisFromDevice().toString());
+        //Manager.getInstance().getWifisFromDevice().clear();
         myCanvas.invalidate();
+    }
+
+    public void startListWifisToSetReference(){
+        ListWiFisToSetReference searchWifiFragment = new ListWiFisToSetReference(context);
+        //searchWifiFragment.setArguments(bundle);
+        //searchWifiFragment.setNotifyToDraw(notifyDraw);
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, searchWifiFragment);
+        fragmentTransaction.addToBackStack("drawPositionFragment");
+        fragmentTransaction.commit();
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        context.registerReceiver(receiver, filter);
+        try{
+            context.registerReceiver(receiver, filter);
+        }
+        catch (Exception ignored){}
         receiver.setNotifyToDraw(this);
     }
 
@@ -149,7 +192,7 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
 
     @Override
     public void notifyToDraw(String message) {
-        Log.d(TAG,"Notified from reciver"+message);
+        //Log.d(TAG,"Notified from reciver"+message);
         updateCanvasData();
     }
 

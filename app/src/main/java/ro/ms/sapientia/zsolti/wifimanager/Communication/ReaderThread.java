@@ -8,6 +8,7 @@ import java.net.Socket;
 
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromReaderThreadToHomeFragment;
+import ro.ms.sapientia.zsolti.wifimanager.Manager;
 
 public class ReaderThread implements Runnable{
 
@@ -45,6 +46,7 @@ public class ReaderThread implements Runnable{
                         bufferedReader.close();
                         socket.close();
                         sendDataToUIListener.returnMessage("Socket is closed1.");
+
                         //Client.getInstance().destroy();
                         logged=false;
                     }

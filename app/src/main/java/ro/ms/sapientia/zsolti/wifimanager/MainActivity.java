@@ -11,6 +11,7 @@ import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -27,10 +28,14 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
 
     private boolean doubleBackToExitPressedOnce = false;
     private String TAG = "MainActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //myToolbar = findViewById(R.id.toolBar);
+        //setSupportActionBar(myToolbar);
 
         if(checkPermission()){
             HomeFragment homeFragment = new HomeFragment(getApplicationContext());
@@ -51,8 +56,8 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(text.equals("Socket is closed.")){
-                    //startHomeFragment();
+                if(text.contains("Socket is closed.")){
+                    startHomeFragment();
                     Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
                 }
                 Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();

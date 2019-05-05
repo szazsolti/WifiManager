@@ -16,17 +16,16 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
-import ro.ms.sapientia.zsolti.wifimanager.Communication.MessageSender;
 import ro.ms.sapientia.zsolti.wifimanager.Fragments.DrawPositionFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromWifiScanReceiverToManager;
 
-public class Manager implements ISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager, Runnable{
+public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runnable{
 
-    //private static Manager single_instance = null;
+    private static Manager sinlge_instance = null;
     private String TAG = "MANAGER";
     private ArrayList<WiFi> wifiListFromDataBase;
-    private ArrayList<WiFi> wifiList = new ArrayList<>();
+    private ArrayList<WiFi> wifiListFromDevice;
     private WifiManager mainWifiObj;
     private WifiScanReceiver wifiReciever;
     private Thread refreshWifi = new Thread();
@@ -37,9 +36,8 @@ public class Manager implements ISendWiFiListFromDeviceArrayListFromWifiScanRece
     private ISendDataToUIListener sendDataToUIListener;
 
 
-    public Manager(Context context){
+    private Manager(Context context){
         this.context = context;
-
         //if(checkPermission()) {
             mainWifiObj = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
             startRefresh();
@@ -49,11 +47,35 @@ public class Manager implements ISendWiFiListFromDeviceArrayListFromWifiScanRece
         //}
     }
 
+    public static void init(Context context) {
+        if (sinlge_instance == null) {
+            synchronized (Manager.class) {
+                if (sinlge_instance == null) {
+                    sinlge_instance = new Manager(context.getApplicationContext());
+                }
+            }
+        }
+    }
 
+    public static Manager getInstance(){
+        /*if (sinlge_instance == null) {
+            synchronized (Manager.class) {
+                if (sinlge_instance == null) {
+                    sinlge_instance = new Manager();
+                }
+            }
+        }*/
+        return sinlge_instance;
+    }
 
     @Override
     public void returnWiFiListFromDevice(ArrayList<WiFi> wifisFromDevice) {
         //Log.d(TAG, "Wifis returned: " + stringArray[0]);
+
+        //Log.d(TAG, "returnWiFiListFromDevice: "+wifisFromDevice.toString());
+        this.wifiListFromDevice=new ArrayList<>();
+        this.wifiListFromDevice=wifisFromDevice;
+        Log.d(TAG, "returnWiFiListFromDeviceInManager: " + wifiListFromDevice.toString());
         try{
             calculateTrilateration(wifisFromDevice);
         }
@@ -214,6 +236,10 @@ public class Manager implements ISendWiFiListFromDeviceArrayListFromWifiScanRece
 
     public void setFragmentManager(FragmentManager fragmentManager){
         this.fragmentManager=fragmentManager;
+    }
+
+    public ArrayList<WiFi> getWifisFromDevice(){
+        return this.wifiListFromDevice;
     }
 
     public void setContext(Context context) {

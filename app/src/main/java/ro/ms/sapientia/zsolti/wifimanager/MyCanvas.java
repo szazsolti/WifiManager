@@ -57,8 +57,8 @@ public class MyCanvas extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        float x = Float.parseFloat(userOnCanvas.getXCoord()+"");
-        float y = Float.parseFloat(userOnCanvas.getYCoord()+"");
+        float x = 1440-Float.parseFloat(userOnCanvas.getXCoord()+"");
+        float y = 2560-Float.parseFloat(userOnCanvas.getYCoord()+"");
         if(x != 0.0 && y != 0.0){
             canvas.drawCircle(x,y,20, userOnCanvas.getPoint());
             canvas.drawText(userOnCanvas.getUserName(),x-60,y+90, userOnCanvas.getText());
@@ -71,7 +71,7 @@ public class MyCanvas extends View {
         if(checkX(event.getX()) && checkY(event.getY())){
             int width  = Resources.getSystem().getDisplayMetrics().widthPixels;
             Toast toast = new Toast(context);
-            toast.setGravity(Gravity.TOP|Gravity.LEFT, (int)Math.round(userOnCanvas.getXCoord())-280,(int) Math.round(userOnCanvas.getYCoord())+(int) Math.round((width/100)*3.472)-20);
+            toast.setGravity(Gravity.TOP|Gravity.LEFT, 1440-(int)Math.round(userOnCanvas.getXCoord())-280,2560-(int) Math.round(userOnCanvas.getYCoord())+(int) Math.round((width/100)*3.472)-20);
 
             TextView tv = new TextView(context);
             //tv.setBackgroundColor(Color.BLUE);
@@ -99,10 +99,10 @@ public class MyCanvas extends View {
 
     private boolean checkX(float touchedX){
         int width  = Resources.getSystem().getDisplayMetrics().widthPixels;
-        return (userOnCanvas.getXCoord() + (width/100)*3.472 >= touchedX) && (userOnCanvas.getXCoord() - (width/100)*3.472 <= touchedX); //50 pixel, 3,472 szazaleka a kepernyo szelessegenek
+        return (1440-userOnCanvas.getXCoord() + (width/100)*3.472 >= touchedX) && (1440-userOnCanvas.getXCoord() - (width/100)*3.472 <= touchedX); //50 pixel, 3,472 szazaleka a kepernyo szelessegenek
     }
     private boolean checkY(float touchedY){
         int width  = Resources.getSystem().getDisplayMetrics().widthPixels;
-        return (userOnCanvas.getYCoord() + (width/100)*3.472 >= touchedY) && (userOnCanvas.getYCoord() - (width/100)*3.472 <= touchedY);
+        return (2560-userOnCanvas.getYCoord() + (width/100)*3.472 >= touchedY) && (2560-userOnCanvas.getYCoord() - (width/100)*3.472 <= touchedY);
     }
 }

@@ -111,6 +111,7 @@ public class WiFi implements Serializable {
                 ", distance=" + distance +
                 ", percentage=" + percentage +
                 ", frequency=" + frequency +
+                ", level=" + level +
                 '}';
     }
 }

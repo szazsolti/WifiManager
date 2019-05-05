@@ -5,4 +5,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="bt_connect">Connect</string>
     <string name="homefragment_instruction">Please enter your username</string>
+    <string name="save_as_reference">Save point as reference</string>
+    <string name="getWifiItems">Get WiFis</string>
 </resources>
