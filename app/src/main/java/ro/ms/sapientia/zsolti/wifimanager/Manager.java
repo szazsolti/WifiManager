@@ -25,67 +25,74 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
     private static Manager sinlge_instance = null;
     private String TAG = "MANAGER";
     private ArrayList<WiFi> wifiListFromDataBase;
-    private ArrayList<WiFi> wifiListFromDevice;
+    private ArrayList<WiFi> wifiListFromDevice = new ArrayList<>();
     private WifiManager mainWifiObj;
     private WifiScanReceiver wifiReciever;
     private Thread refreshWifi = new Thread();
     //private NotifyToDraw notifyToDraw;
-    private Thread refreshData;
-    private Context context;
+    //private Thread refreshData;
+    //private Context context;
     private FragmentManager fragmentManager;
     private ISendDataToUIListener sendDataToUIListener;
 
 
-    private Manager(Context context){
-        this.context = context;
+    private Manager(){
+        //this.context = context;
         //if(checkPermission()) {
-            mainWifiObj = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            mainWifiObj = (WifiManager) WiFiManagerSuperClass.getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
             startRefresh();
             wifiReciever = new WifiScanReceiver(mainWifiObj);
-            wifiReciever.setISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager(this);
-            context.registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+            wifiReciever.setISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager(Manager.this);
+            WiFiManagerSuperClass.getContext().registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
         //}
     }
-
-    public static void init(Context context) {
+/*
+    public static boolean init(Context context) {
         if (sinlge_instance == null) {
             synchronized (Manager.class) {
                 if (sinlge_instance == null) {
                     sinlge_instance = new Manager(context.getApplicationContext());
+                    return true;
                 }
             }
         }
+        return false;
     }
-
+*/
     public static Manager getInstance(){
-        /*if (sinlge_instance == null) {
+        if (sinlge_instance == null) {
             synchronized (Manager.class) {
                 if (sinlge_instance == null) {
                     sinlge_instance = new Manager();
                 }
             }
-        }*/
+        }
         return sinlge_instance;
     }
 
     @Override
-    public void returnWiFiListFromDevice(ArrayList<WiFi> wifisFromDevice) {
+    public void returnWiFiListFromDevice(ArrayList<WiFi> wifilistFromDevice) {
         //Log.d(TAG, "Wifis returned: " + stringArray[0]);
 
         //Log.d(TAG, "returnWiFiListFromDevice: "+wifisFromDevice.toString());
         this.wifiListFromDevice=new ArrayList<>();
-        this.wifiListFromDevice=wifisFromDevice;
-        Log.d(TAG, "returnWiFiListFromDeviceInManager: " + wifiListFromDevice.toString());
+        this.wifiListFromDevice=wifilistFromDevice;
+        //Log.d(TAG, "returnWiFiListFromDeviceInManager: " + wifiListFromDevice.toString());
         try{
-            calculateTrilateration(wifisFromDevice);
+            calculateTrilateration(wifilistFromDevice);
         }
         catch (Exception e){
             //e.printStackTrace();
         }
     }
 
+
     public void setWifiListFromDataBase(ArrayList<WiFi> wifis){
         this.wifiListFromDataBase = wifis;
+    }
+
+    public ArrayList<WiFi> getWifiListFromDataBase() {
+        return wifiListFromDataBase;
     }
 
     public void startRefresh(){
@@ -155,22 +162,24 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
     public void sendBroadcastNotify(){
         Intent intent = new Intent("ro.ms.sapientia.zsolti.draw");
         intent.putExtra("notifyToDraw","Broadcast received");
-        context.sendBroadcast(intent);
+        WiFiManagerSuperClass.getContext().sendBroadcast(intent);
     }
 
     public ArrayList<WiFi> chooseWifis(ArrayList<WiFi> wifilistFromDevice, ArrayList<WiFi> wifiListFromDataBase){
+        ArrayList<WiFi> tempListFromDevice=new ArrayList<>();
+        tempListFromDevice.addAll(wifilistFromDevice);
         ArrayList<WiFi> choosedWifis = new ArrayList<>();
 
         choosedWifis.clear();
 
         for(WiFi databaseList : wifiListFromDataBase){
-            for(WiFi deviceList : wifilistFromDevice){
+            for(WiFi deviceList : tempListFromDevice){
                 if(databaseList.getName().equals(deviceList.getName())){
                     choosedWifis.add(calculateDistance(databaseList,deviceList));
                 }
             }
         }
-        wifilistFromDevice.clear();
+        tempListFromDevice.clear();
         Collections.sort(choosedWifis, new Comparator<WiFi>() {
             @Override
             public int compare(WiFi o1, WiFi o2) {
@@ -239,16 +248,16 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
     }
 
     public ArrayList<WiFi> getWifisFromDevice(){
-        return this.wifiListFromDevice;
+        return wifiListFromDevice;
     }
-
+/*
     public void setContext(Context context) {
         this.context = context;
     }
-
+*/
     @Override
     public void run() {
-        DrawPositionFragment drawPositionFragment = new DrawPositionFragment(context);
+        DrawPositionFragment drawPositionFragment = new DrawPositionFragment(WiFiManagerSuperClass.getContext());
         //drawPositionFragment.setArguments(bundle);
         //FragmentManager fragmentManager = fragmentManager;
         drawPositionFragment.setISendDataToUIListener(sendDataToUIListener);

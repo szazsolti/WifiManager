@@ -7,4 +7,11 @@
     <string name="homefragment_instruction">Please enter your username</string>
     <string name="save_as_reference">Save point as reference</string>
     <string name="getWifiItems">Get WiFis</string>
+    <string name="saveRef">Save reference</string>
+    <string name="dialog_title">Select the floor and coordinates</string>
+    <string name="message_item">Message</string>
+    <string name="update">Update</string>
+    <string name="floor_number">Floor number</string>
+    <string name="x_coord">X coordiante</string>
+    <string name="y_coord">Y coordiante</string>
 </resources>

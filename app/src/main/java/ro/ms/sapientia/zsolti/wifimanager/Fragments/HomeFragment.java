@@ -156,14 +156,15 @@ public class HomeFragment extends Fragment implements ISendMessageFromReaderThre
                 //Bundle bundle = new Bundle();
                 //bundle.putSerializable("wifilist", wifiList);
                 //Manager manager = new Manager(context);
-                Manager.init(context);
-                Manager manager = Manager.getInstance();
-                manager.setWifiListFromDataBase(wifiList);
-                manager.setFragmentManager(getFragmentManager());
-                manager.setISendDataToUIListener(sendDataToUIListener);
-                managerThread = new Thread(manager);
-                managerThread.start();
-                Log.d(TAG,"WiFilista"+wifiList.toString());
+
+                    Manager manager = Manager.getInstance();
+                    manager.setWifiListFromDataBase(wifiList);
+                    manager.setFragmentManager(getFragmentManager());
+                    manager.setISendDataToUIListener(sendDataToUIListener);
+                    managerThread = new Thread(manager);
+                    managerThread.start();
+                    Log.d(TAG,"WiFilista"+wifiList.toString());
+
 /*
                 SearchWifiFragment searchWifiFragment = new SearchWifiFragment(context);
                 searchWifiFragment.setArguments(bundle);

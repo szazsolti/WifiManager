@@ -45,6 +45,7 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
     private Toolbar myToolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+    private Manager manager = Manager.getInstance();
     @SuppressLint("ValidFragment")
     public DrawPositionFragment (Context context){
         this.context = context;
@@ -130,9 +131,11 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
     void updateCanvasData(){
         point.set((int)Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
         myCanvas.setParameters(point.x+"", point.y+"");
-        //Log.d(TAG, "updateCanvasData: WifiListFromDevice: "+ Manager.getInstance().getWifisFromDevice().toString());
+
         //Manager.getInstance().getWifisFromDevice().clear();
         myCanvas.invalidate();
+        Log.d(TAG, "updateCanvasData: WifiListFromDevice: "+ manager.getWifisFromDevice());
+        Log.d(TAG, "updateCanvasData: WiFiListFromDataBase: " + manager.getWifiListFromDataBase());
     }
 
     public void startListWifisToSetReference(){

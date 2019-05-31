@@ -40,6 +40,8 @@ public class WifiScanReceiver extends BroadcastReceiver {
             //Log.d(TAG, "Wifis: " + wifis.toString());
             //int point = 70; //dist = point*(1-percentage) - hatotavolsag merese
 
+            wifisFromDevice.clear();
+
             for (String wifi : wifis){
                 String[] temp = wifi.split(",");
                 String ssid = temp[0].substring(5).trim();
