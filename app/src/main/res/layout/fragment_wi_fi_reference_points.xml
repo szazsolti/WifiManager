@@ -6,25 +6,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".Fragments.DrawPositionFragment"
+    tools:context=".Fragments.WiFiReferencePointsFragment"
     android:id="@+id/drawer_layout"
     android:fitsSystemWindows="true"
     >
 
 
-    <RelativeLayout
-        android:id="@+id/rect"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:background="#444"
+    <ro.ms.sapientia.zsolti.wifimanager.PinchZoomPan
+        android:id="@+id/ivImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
-    </RelativeLayout>
 
 
 

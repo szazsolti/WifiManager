@@ -3,8 +3,16 @@
     <group android:checkableBehavior="single">
 
         <item
+            android:id="@+id/trilateration"
+            android:icon="@drawable/share"
+            android:title="@string/trilateration"/>
+        <item
             android:id="@+id/save_as_reference"
             android:icon="@drawable/download"
             android:title="@string/save_as_reference"/>
+        <item
+            android:id="@+id/reference_points"
+            android:icon="@drawable/meeting_point"
+            android:title="@string/reference_points"/>
     </group>
 </menu>

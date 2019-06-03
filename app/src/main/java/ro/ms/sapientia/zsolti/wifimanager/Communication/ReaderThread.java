@@ -1,14 +1,20 @@
 package ro.ms.sapientia.zsolti.wifimanager.Communication;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.Calendar;
 
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromReaderThreadToHomeFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Manager;
+import ro.ms.sapientia.zsolti.wifimanager.WiFiManagerSuperClass;
 
 public class ReaderThread implements Runnable{
 
@@ -49,6 +55,7 @@ public class ReaderThread implements Runnable{
 
                         //Client.getInstance().destroy();
                         logged=false;
+                        killApp();
                     }
                     //Log.d(TAG,"Message: "+mess);
                     if(mess!=null){
@@ -62,6 +69,7 @@ public class ReaderThread implements Runnable{
                     socket.close();
                     sendDataToUIListener.returnMessage("Socket is closed2.");
                     logged=false;
+                    killApp();
                 }
                 else{
                     inputStreamReader.close();
@@ -69,13 +77,21 @@ public class ReaderThread implements Runnable{
                     socket.close();
                     sendDataToUIListener.returnMessage("Socket is closed3.");
                     logged=false;
+                    killApp();
                 }
             }
         }catch (Exception e){
             sendDataToUIListener.returnMessage("Socket is closed4.");
                 //e1.printStackTrace();
+            killApp();
             }
     }
+
+    private void killApp(){
+        android.os.Process.killProcess(android.os.Process.myPid());
+        System.exit(1);
+    }
+
 
     public void setSocket(Socket socket){
         this.socket=socket;

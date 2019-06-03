@@ -1,7 +1,10 @@
 package ro.ms.sapientia.zsolti.wifimanager.Fragments;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -14,6 +17,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
@@ -132,13 +136,13 @@ public class HomeFragment extends Fragment implements ISendMessageFromReaderThre
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(TAG, "onPause: ");
+        //Log.d(TAG, "onPause: ");
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume: ");
+        //Log.d(TAG, "onResume: ");
 
     }
 
@@ -190,6 +194,8 @@ public class HomeFragment extends Fragment implements ISendMessageFromReaderThre
     public void setISendDataToUIListener(ISendDataToUIListener ISendDataToUIListener){
         this.sendDataToUIListener = ISendDataToUIListener;
     }
+
+
 
     public void sendMyUsername() throws IOException {
         /*

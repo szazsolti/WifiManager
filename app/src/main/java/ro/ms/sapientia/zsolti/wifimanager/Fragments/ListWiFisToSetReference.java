@@ -36,6 +36,8 @@ import ro.ms.sapientia.zsolti.wifimanager.WiFiManagerSuperClass;
 import ro.ms.sapientia.zsolti.wifimanager.WifiListAdapter;
 import ro.ms.sapientia.zsolti.wifimanager.WifiScanReceiver;
 
+import static java.lang.StrictMath.abs;
+
 public class ListWiFisToSetReference extends Fragment implements ISendWiFiListFromWiFiScanReceiverToListWiFisToSetReference {
 
     private Context context;
@@ -162,6 +164,12 @@ public class ListWiFisToSetReference extends Fragment implements ISendWiFiListFr
         y.setTextColor(ContextCompat.getColor(context, R.color.black));
         y.setInputType(InputType.TYPE_CLASS_NUMBER);
 
+        if(floor.getParent() != null || x.getParent() != null || y.getParent() != null){
+            ((ViewGroup)floor.getParent()).removeView(floor);
+            ((ViewGroup)x.getParent()).removeView(x);
+            ((ViewGroup)y.getParent()).removeView(y);
+        }
+
         layout.addView(floor);
         layout.addView(x);
         layout.addView(y);
@@ -174,14 +182,16 @@ public class ListWiFisToSetReference extends Fragment implements ISendWiFiListFr
                     public void onClick(DialogInterface dialog, int which) {
 //Positive button click event
                         if(!floor.getText().toString().equals("") && !x.getText().toString().equals("") && !y.getText().toString().equals("")){
-                            try {
-                                Communication.getInstance().sendMessage("[WifiToReferenceStart]-"+wifisFromDevice.size());
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
                             for(int i = 0;i< wifisFromDevice.size();i++){
                                 try {
-                                    Communication.getInstance().sendMessage("[WifiToReference]-"+floor.getText().toString()+"~"+x.getText().toString()+"~"+y.getText().toString()+"~"+wifisFromDevice.get(i).getName()+"~"+ wifisFromDevice.get(i).getLevel()+"~"+ wifisFromDevice.get(i).getFrequency());
+                                    Communication.getInstance().sendMessage("[WifiToReference]-"
+                                            +wifisFromDevice.size()
+                                            +"~"+floor.getText().toString()
+                                            +"~"+x.getText().toString()
+                                            +"~"+y.getText().toString()
+                                            +"~"+wifisFromDevice.get(i).getName()
+                                            +"~"+abs(wifisFromDevice.get(i).getLevel())
+                                            +"~"+ wifisFromDevice.get(i).getFrequency());
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }

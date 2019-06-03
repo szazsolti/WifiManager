@@ -8,11 +8,16 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 
@@ -21,14 +26,18 @@ import java.io.IOException;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.MessageSender;
+import ro.ms.sapientia.zsolti.wifimanager.Fragments.DrawPositionFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Fragments.HomeFragment;
+import ro.ms.sapientia.zsolti.wifimanager.Fragments.ListWiFisToSetReference;
+import ro.ms.sapientia.zsolti.wifimanager.Fragments.WiFiReferencePointsFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 
 public class MainActivity extends AppCompatActivity implements ISendDataToUIListener {
 
     private boolean doubleBackToExitPressedOnce = false;
     private String TAG = "MainActivity";
-
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +45,33 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
 
         //myToolbar = findViewById(R.id.toolBar);
         //setSupportActionBar(myToolbar);
+
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.navigationView);
+
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                switch (menuItem.getItemId()){
+                    case R.id.trilateration:
+                        //menuItem.setChecked(true);
+                        startTrilateration();
+                        drawerLayout.closeDrawers();
+                        return true;
+                    case R.id.save_as_reference:
+                        //menuItem.setChecked(true);
+                        startListWifisToSetReference();
+                        drawerLayout.closeDrawers();
+                        return true;
+                    case R.id.reference_points:
+                        //menuItem.setChecked(true);
+                        startWiFiReferencePoints();
+                        drawerLayout.closeDrawers();
+                        return true;
+                }
+                return false;
+            }
+        });
 
         if(checkPermission()){
             HomeFragment homeFragment = new HomeFragment(getApplicationContext());
@@ -46,6 +82,38 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
             fragmentTransaction.replace(R.id.fragment_container, homeFragment);
             fragmentTransaction.commit();
         }
+
+    }
+
+    public void startTrilateration(){
+        DrawPositionFragment drawPositionFragment = new DrawPositionFragment(WiFiManagerSuperClass.getContext());
+        //drawPositionFragment.setArguments(bundle);
+        FragmentManager fragmentManager = getSupportFragmentManager();;
+        //drawPositionFragment.setISendDataToUIListener(sendDataToUIListener);
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, drawPositionFragment);
+        fragmentTransaction.addToBackStack("WiFiReferencePointsFragment");
+        fragmentTransaction.commit();
+    }
+
+    public void startListWifisToSetReference(){
+        ListWiFisToSetReference searchWifiFragment = new ListWiFisToSetReference(this);
+        //searchWifiFragment.setArguments(bundle);
+        //searchWifiFragment.setNotifyToDraw(notifyDraw);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, searchWifiFragment);
+        fragmentTransaction.addToBackStack("drawPositionFragment");
+        fragmentTransaction.commit();
+    }
+
+    public void startWiFiReferencePoints(){
+        WiFiReferencePointsFragment wiFiReferencePointsFragment = new WiFiReferencePointsFragment(this);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, wiFiReferencePointsFragment);
+        fragmentTransaction.addToBackStack("drawPositionFragment");
+        fragmentTransaction.commit();
     }
 
     @Override
@@ -103,7 +171,11 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
     @Override
     protected void onStop() {
         super.onStop();
-        //sendMessage("[Logout]-");
+        try {
+            Communication.getInstance().sendMessage("[Logout]-");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         /*
         Thread logout = new Thread(new Runnable() {
             @Override
@@ -120,12 +192,6 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
         });
         logout.start();*/
         //stopService(new Intent(getBaseContext(),SocketService.class));
-    }
-
-    public void sendMessage(String message){
-        MessageSender messageSender = new MessageSender();
-        messageSender.setISendDataToUIListener(this);
-        messageSender.execute(message);
     }
 
     public boolean checkPermission(){
@@ -152,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
         }
         return true;
     }
-
+/*
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
@@ -171,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
             }
         }, 2000);
     }
-
+*/
     @Override
     protected void onDestroy() {
         super.onDestroy();

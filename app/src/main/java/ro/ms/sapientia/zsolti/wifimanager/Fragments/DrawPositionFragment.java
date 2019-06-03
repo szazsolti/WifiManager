@@ -43,8 +43,7 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
     private ISendDataToUIListener sendDataToUIListener;
     private IntentFilter filter = new IntentFilter("draw");
     private Toolbar myToolbar;
-    private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
+
     private Manager manager = Manager.getInstance();
     @SuppressLint("ValidFragment")
     public DrawPositionFragment (Context context){
@@ -91,26 +90,10 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
         }
 
         relativeLayout = view.findViewById(R.id.rect);
-        myToolbar = view.findViewById(R.id.toolBar);
-        drawerLayout = view.findViewById(R.id.drawer_layout);
-        navigationView = view.findViewById(R.id.navigationView);
+        //myToolbar = view.findViewById(R.id.toolBar);
 
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                switch (menuItem.getItemId()){
-                    case R.id.save_as_reference:
-                        menuItem.setChecked(true);
-                        startListWifisToSetReference();
-                        drawerLayout.closeDrawers();
-                        return true;
-                }
 
-                return false;
-            }
-        });
-
-        ((AppCompatActivity) Objects.requireNonNull(getActivity())).setSupportActionBar(myToolbar);
+        //((AppCompatActivity) Objects.requireNonNull(getActivity())).setSupportActionBar(myToolbar);
         UserOnCanvas user = new UserOnCanvas(point.x+"", point.y+"","Me");
 
         myCanvas = new MyCanvas(context,user);
@@ -119,7 +102,7 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
         myCanvas.setContext(context);
         myCanvas.setBackgroundResource(R.drawable.szoba2);
         relativeLayout.addView(myCanvas);
-
+        //Log.d(TAG, "onCreateView: ");
         return view;
     }
 
@@ -134,20 +117,11 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
 
         //Manager.getInstance().getWifisFromDevice().clear();
         myCanvas.invalidate();
-        Log.d(TAG, "updateCanvasData: WifiListFromDevice: "+ manager.getWifisFromDevice());
-        Log.d(TAG, "updateCanvasData: WiFiListFromDataBase: " + manager.getWifiListFromDataBase());
+        //Log.d(TAG, "updateCanvasData: WifiListFromDevice: "+ manager.getWifisFromDevice());
+        //Log.d(TAG, "updateCanvasData: WiFiListFromDataBase: " + manager.getWifiListFromDataBase());
     }
 
-    public void startListWifisToSetReference(){
-        ListWiFisToSetReference searchWifiFragment = new ListWiFisToSetReference(context);
-        //searchWifiFragment.setArguments(bundle);
-        //searchWifiFragment.setNotifyToDraw(notifyDraw);
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, searchWifiFragment);
-        fragmentTransaction.addToBackStack("drawPositionFragment");
-        fragmentTransaction.commit();
-    }
+
 
     @Override
     public void onAttach(Context context) {
@@ -162,7 +136,7 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.d(TAG, "onDestroyView: ");
+        //Log.d(TAG, "onDestroyView: ");
         try {
             context.unregisterReceiver(receiver);
         }
@@ -174,7 +148,7 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
         super.onStop();
         try {
             //Client.getInstance().destroy();
-            Log.d(TAG, "onStop: called");
+            //Log.d(TAG, "onStop: called");
             //Communication.getInstance().sendMessage("[Logout-]");
            // Communication.getInstance().destroy();
             context.unregisterReceiver(receiver);
@@ -190,7 +164,7 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
         }
         catch (Exception ignored){}
         //context.unregisterReceiver(receiver);
-        Log.d(TAG, "onDetach: ");
+        //Log.d(TAG, "onDetach: ");
     }
 
     @Override

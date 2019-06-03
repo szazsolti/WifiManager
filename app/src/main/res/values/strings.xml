@@ -6,6 +6,8 @@
     <string name="bt_connect">Connect</string>
     <string name="homefragment_instruction">Please enter your username</string>
     <string name="save_as_reference">Save point as reference</string>
+    <string name="reference_points">Reference points</string>
+    <string name="trilateration">Trilateration</string>
     <string name="getWifiItems">Get WiFis</string>
     <string name="saveRef">Save reference</string>
     <string name="dialog_title">Select the floor and coordinates</string>
