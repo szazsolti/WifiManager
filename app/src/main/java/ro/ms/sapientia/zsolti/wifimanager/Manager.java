@@ -16,25 +16,28 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
-import ro.ms.sapientia.zsolti.wifimanager.Fragments.DrawPositionFragment;
+import ro.ms.sapientia.zsolti.wifimanager.Fragments.DrawPositionFragmentI;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromReaderThreadToManager;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromWifiScanReceiverToManager;
 
-public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runnable{
+public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runnable, ISendMessageFromReaderThreadToManager {
 
     private static Manager sinlge_instance = null;
     private String TAG = "MANAGER";
-    private ArrayList<WiFi> wifiListFromDataBase;
+    private ArrayList<WiFi> wifiListFromDataBase = new ArrayList<>();
     private ArrayList<WiFi> wifiListFromDevice = new ArrayList<>();
     private WifiManager mainWifiObj;
     private WifiScanReceiver wifiReciever;
     private Thread refreshWifi = new Thread();
-    //private NotifyToDraw notifyToDraw;
+    private Thread startConnection;
+
+    //private INotifyToDraw INotifyToDraw;
     //private Thread refreshData;
     //private Context context;
     private FragmentManager fragmentManager;
     private ISendDataToUIListener sendDataToUIListener;
-
+    private ISendMessageFromReaderThreadToManager sendMessageFromReaderThreadToManager = Manager.this;
 
     private Manager(){
         //this.context = context;
@@ -44,8 +47,21 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
             wifiReciever = new WifiScanReceiver(mainWifiObj);
             wifiReciever.setISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager(Manager.this);
             WiFiManagerSuperClass.getContext().registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
         //}
     }
+
+    public static Manager getInstance(){
+        if (sinlge_instance == null) {
+            synchronized (Manager.class) {
+                if (sinlge_instance == null) {
+                    sinlge_instance = new Manager();
+                }
+            }
+        }
+        return sinlge_instance;
+    }
+
 /*
     public static boolean init(Context context) {
         if (sinlge_instance == null) {
@@ -59,16 +75,47 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
         return false;
     }
 */
-    public static Manager getInstance(){
-        if (sinlge_instance == null) {
-            synchronized (Manager.class) {
-                if (sinlge_instance == null) {
-                    sinlge_instance = new Manager();
+
+
+    public boolean startCommunication() throws IOException {
+
+        startConnection=new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Communication.getInstance().setSendDataToUIListener(sendDataToUIListener);
+                    //Communication.getInstance().setSendMessageFromReaderThreadToHomeFragment(sendMessageFromReaderThreadToHomeFragment);
+                    Communication.getInstance().setSendMessageFromReaderThreadToManager(sendMessageFromReaderThreadToManager);
+                    if(!Communication.getInstance().readerThreadIsRunning()){
+                        Communication.getInstance().initParams();
+                        Communication.getInstance().startReaderThread();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    sendDataToUIListener.returnMessage("Failed to connect to server.");
                 }
             }
+        });
+        if(!startConnection.isAlive()){
+            startConnection.start();
         }
-        return sinlge_instance;
+        //Log.d(TAG, "startCommunication: startCommunication");
+       /* try {
+            Log.d(TAG, "startCommunication: out of if");
+            if(!Communication.getInstance().readerThreadIsRunning()){
+                Log.d(TAG, "startCommunication: in if");
+                Communication.getInstance().initParams();
+                Communication.getInstance().startReaderThread();
+            }
+        } catch (Exception ignored) {
+            Log.d(TAG,"Exception, failed to start communication." + ignored);
+            sendDataToUIListener.returnMessage("Failed to connect to server.");
+        }*/
+
+        return startConnection.isAlive();
     }
+
+
 
     @Override
     public void returnWiFiListFromDevice(ArrayList<WiFi> wifilistFromDevice) {
@@ -161,7 +208,7 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
 
     public void sendBroadcastNotify(){
         Intent intent = new Intent("ro.ms.sapientia.zsolti.draw");
-        intent.putExtra("notifyToDraw","Broadcast received");
+        intent.putExtra("INotifyToDraw","Broadcast received");
         WiFiManagerSuperClass.getContext().sendBroadcast(intent);
     }
 
@@ -255,9 +302,21 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
         this.context = context;
     }
 */
+
+
     @Override
     public void run() {
-        DrawPositionFragment drawPositionFragment = new DrawPositionFragment(WiFiManagerSuperClass.getContext());
+        /*
+        try {
+            startCommunication();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+*/
+    }
+
+    private void startDrawPositionFragment(){
+        DrawPositionFragmentI drawPositionFragment = new DrawPositionFragmentI(WiFiManagerSuperClass.getContext());
         //drawPositionFragment.setArguments(bundle);
         //FragmentManager fragmentManager = fragmentManager;
         drawPositionFragment.setISendDataToUIListener(sendDataToUIListener);
@@ -265,9 +324,66 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
         fragmentTransaction.replace(R.id.fragment_container, drawPositionFragment);
         fragmentTransaction.addToBackStack("searchwifi");
         fragmentTransaction.commit();
-
     }
+
     public void setISendDataToUIListener(ISendDataToUIListener ISendDataToUIListener){
         this.sendDataToUIListener = ISendDataToUIListener;
+    }
+
+    @Override
+    public void returnMessageFromReaderThread(String message) {
+
+        String[] parts = message.split("-");
+        Log.d(TAG, "returnMessageFromReaderThread: message:" + message);
+        try {
+            if(parts[0].equals("[ConnectionOK]")){
+                sendDataToUIListener.returnMessage("Waiting for data...");
+                //Log.d(TAG, "returnMessageFromReaderThread: ConnectionOK is received");
+                startDrawPositionFragment();
+            }
+            else if(parts[0].equals("[Wifis]")){
+                //sendMessageFromReaderThreadToHomeFragment.returnMessage(message);
+                Log.d(TAG, "returnMessageFromReaderThread: parts[1]" + parts[1]);
+                setWifisFromDatabase(parts[1]);
+
+            }
+            else if(parts[0].equals("[ReferencePoints]")){
+
+            }
+            else if(parts[0].equals("[Exit]")){
+                /*
+                inputStreamReader.close();
+                bufferedReader.close();
+                socket.close();
+                logged=false;
+                sendMessageFromReaderThreadToHomeFragment.returnMessage("Exit");*/
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    private void setWifisFromDatabase(String message){
+        makeWifis(message);
+        if(wifiListFromDataBase.size()>=3){
+            Log.d(TAG,"WiFilista"+wifiListFromDataBase.toString());
+        }
+        else{
+            sendDataToUIListener.returnMessage("Not enough wifi.");
+        }
+    }
+    public void makeWifis(String input){
+        String[] parts = input.split("~");
+        for(int i=0;i<parts.length;i++){
+            String[] data = parts[i].split(" ");
+            if(data.length == 4){
+                try{
+                    wifiListFromDataBase.add(new WiFi(Integer.valueOf(data[0]),data[1],Integer.valueOf(data[2]),Integer.valueOf(data[3])));
+                }
+                catch (Exception ignored){}
+            }
+        }
     }
 }

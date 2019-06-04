@@ -6,8 +6,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.NotifyToDraw;
-
 public class Trilateration implements Serializable{
 
 
@@ -125,7 +123,7 @@ public class Trilateration implements Serializable{
         if(message.equals("calculate")){
             calculateX();
             calculateY();
-            //notifyToDraw();
+            //INotifyToDraw();
         }
     }
 

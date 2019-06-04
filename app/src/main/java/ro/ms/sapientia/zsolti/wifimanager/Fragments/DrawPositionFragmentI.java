@@ -5,25 +5,16 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
-import java.util.Objects;
-
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.IDrawerLocker;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.INotifyToDraw;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.NotifyToDraw;
 import ro.ms.sapientia.zsolti.wifimanager.Manager;
 import ro.ms.sapientia.zsolti.wifimanager.MyCanvas;
 import ro.ms.sapientia.zsolti.wifimanager.NotifyToDrawBroadcastReceiver;
@@ -32,7 +23,7 @@ import ro.ms.sapientia.zsolti.wifimanager.Trilateration;
 import ro.ms.sapientia.zsolti.wifimanager.UserOnCanvas;
 
 
-public class DrawPositionFragment extends Fragment implements NotifyToDraw {
+public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
 
     private MyCanvas myCanvas;
     private Point point = new Point();
@@ -46,16 +37,16 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
 
     private Manager manager = Manager.getInstance();
     @SuppressLint("ValidFragment")
-    public DrawPositionFragment (Context context){
+    public DrawPositionFragmentI(Context context){
         this.context = context;
     }
 
-    public DrawPositionFragment() {
+    public DrawPositionFragmentI() {
         // Required empty public constructor
     }
 
-    public static DrawPositionFragment newInstance() {
-        DrawPositionFragment fragment = new DrawPositionFragment();
+    public static DrawPositionFragmentI newInstance() {
+        DrawPositionFragmentI fragment = new DrawPositionFragmentI();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -76,9 +67,11 @@ public class DrawPositionFragment extends Fragment implements NotifyToDraw {
 
         View view =  inflater.inflate(R.layout.fragment_draw_position, container, false);
 
+        ((IDrawerLocker) getActivity()).setDrawerEnabled(true);
+
         point.set((int) Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
 
-        Log.d(TAG,"X: " + Trilateration.getInstance().getX() + "Y: " + Trilateration.getInstance().getY());
+        //Log.d(TAG,"X: " + Trilateration.getInstance().getX() + "Y: " + Trilateration.getInstance().getY());
 
         try{
             context.registerReceiver(receiver, filter);

@@ -27,7 +27,7 @@ import java.util.Comparator;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.MessageSender;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromWifiScanReceiverToManager;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.NotifyToDraw;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.INotifyToDraw;
 import ro.ms.sapientia.zsolti.wifimanager.R;
 import ro.ms.sapientia.zsolti.wifimanager.Trilateration;
 import ro.ms.sapientia.zsolti.wifimanager.WiFi;
@@ -37,7 +37,7 @@ import ro.ms.sapientia.zsolti.wifimanager.WifiScanReceiver;
 public class SearchWifiFragment extends Fragment implements ISendWiFiListFromWifiScanReceiverToManager {
 
     private Thread refreshWifi = new Thread();
-    private NotifyToDraw notifyToDraw;
+    private INotifyToDraw INotifyToDraw;
     private WifiManager mainWifiObj;
     private WifiScanReceiver wifiReciever;
     private ListView list;
@@ -81,7 +81,7 @@ public class SearchWifiFragment extends Fragment implements ISendWiFiListFromWif
         list=view.findViewById(R.id.list);
         //refreshWifi.start();
 
-       /* DrawPositionFragment drawPositionFragment = new DrawPositionFragment(context);
+       /* DrawPositionFragmentI drawPositionFragment = new DrawPositionFragmentI(context);
         //drawPositionFragment.setArguments(bundle);
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -128,7 +128,7 @@ public class SearchWifiFragment extends Fragment implements ISendWiFiListFromWif
         //Log.d(TAG, "Wifis returned: " + stringArray[0]);
         try{
             //calculateTrilateration(wifisFromDevice);
-            //notifyToDraw.notifyToDraw("DRAW!");
+            //INotifyToDraw.INotifyToDraw("DRAW!");
 
             //list.setAdapter(new ArrayAdapter<>(context,R.layout.list_item,R.id.label, stringArray));
         }
@@ -207,7 +207,7 @@ public class SearchWifiFragment extends Fragment implements ISendWiFiListFromWif
 
     public void sendBroadcastNotify(){
         Intent intent = new Intent("ro.ms.sapientia.zsolti.draw");
-        intent.putExtra("notifyToDraw","Broadcast received");
+        intent.putExtra("INotifyToDraw","Broadcast received");
         context.sendBroadcast(intent);
     }
 

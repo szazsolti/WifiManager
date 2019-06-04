@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
@@ -15,11 +16,15 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class PinchZoomPan extends View {
     private Bitmap mBitmap;
     private int mImageWidth;
     private int mImageHeight;
+    private int x;
+    private int y;
+    ArrayList<Point> points = new ArrayList<>();
 
     private float mPositionX;
     private float mPositionY;
@@ -33,7 +38,7 @@ public class PinchZoomPan extends View {
     private float mScaleFactor = 1.0f;
     private final static float mMinZoom = 0.5f;
     private final static float mMaxZoom = 5.0f;
-    private Paint p = new Paint();
+    private Paint paint = new Paint();
     public PinchZoomPan(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
@@ -43,7 +48,6 @@ public class PinchZoomPan extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
         if(mBitmap != null){
             canvas.save();
             /*
@@ -64,11 +68,30 @@ public class PinchZoomPan extends View {
             canvas.translate(mPositionX,mPositionY);
             canvas.scale(mScaleFactor, mScaleFactor);
             canvas.drawBitmap(mBitmap,0,0,null);
+            //canvas.drawCircle(x,y,5,pBlack);
 
-            //p.setColor(Color.BLACK);
-            //canvas.drawCircle(50,80,15,p);
+            for(Point p: points){
+                canvas.drawCircle(p.x, p.y, 5, paint);
+            }
+            canvas.save();
             canvas.restore();
         }
+    }
+
+    public void drawPoints(ArrayList<Point> points, Paint p){
+        this.points = points;
+        this.paint = p;
+        invalidate();
+    }
+
+    public void drawCircle(int x, int y, Paint p){
+
+        //pBlack.setColor(Color.BLACK);
+        this.paint = p;
+        this.x = x;
+        this.y = y;
+        invalidate();
+
     }
 
     @Override
@@ -140,7 +163,8 @@ public class PinchZoomPan extends View {
 
             case MotionEvent.ACTION_POINTER_UP:{
                 //extract the index of the pointer that left the screen
-                final int pointerIndex = (action & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+                final int pointerIndex = (action & MotionEvent.ACTION_POINTER_INDEX_MASK)
+                        >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
                 final int pointerId = event.getPointerId(pointerIndex);
                 if(pointerId == mActivePointerID){
                     final int newPointerIndex = pointerIndex == 0 ? 1 : 0;

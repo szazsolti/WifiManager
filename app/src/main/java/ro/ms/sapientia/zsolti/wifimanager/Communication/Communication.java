@@ -5,7 +5,8 @@ import java.net.Socket;
 
 import ro.ms.sapientia.zsolti.wifimanager.Fragments.HomeFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromReaderThreadToHomeFragment;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromReaderThreadToManager;
+import ro.ms.sapientia.zsolti.wifimanager.Manager;
 
 public class Communication {
     private Socket clientSocket = new Socket("192.168.173.1",6554);
@@ -14,7 +15,8 @@ public class Communication {
     private Thread readerThread = new Thread();
 
     private ISendDataToUIListener sendDataToUIListener;
-    private ISendMessageFromReaderThreadToHomeFragment sendMessageFromReaderThreadToHomeFragment;
+    //private ISendMessageFromReaderThreadToHomeFragment sendMessageFromReaderThreadToHomeFragment;
+    private ISendMessageFromReaderThreadToManager sendMessageFromReaderThreadToManager;
 
     private Communication() throws IOException {
     }
@@ -22,7 +24,8 @@ public class Communication {
     public void initParams(){
         ReaderThread readerThread = new ReaderThread();
         readerThread.setISendDataToUIListener(sendDataToUIListener);
-        readerThread.setISendMessageFromReaderThreadToHomeFragment(sendMessageFromReaderThreadToHomeFragment);
+        readerThread.setISendMessageFromReaderThreadToManager(sendMessageFromReaderThreadToManager);
+        //readerThread.setISendMessageFromReaderThreadToHomeFragment(sendMessageFromReaderThreadToHomeFragment);
         readerThread.setSocket(clientSocket);
         Communication.this.readerThread = new Thread(readerThread);
     }
@@ -70,9 +73,13 @@ public class Communication {
     public void setSendDataToUIListener(ISendDataToUIListener sendDataToUIListener){
         this.sendDataToUIListener=sendDataToUIListener;
     }
-
+/*
     public void setSendMessageFromReaderThreadToHomeFragment(ISendMessageFromReaderThreadToHomeFragment sendMessageFromReaderThreadToHomeFragment){
         this.sendMessageFromReaderThreadToHomeFragment=sendMessageFromReaderThreadToHomeFragment;
+    }
+*/
+    public void setSendMessageFromReaderThreadToManager(ISendMessageFromReaderThreadToManager sendMessageFromReaderThreadToManager){
+        this.sendMessageFromReaderThreadToManager=sendMessageFromReaderThreadToManager;
     }
 
     public void sendUsername() throws IOException {

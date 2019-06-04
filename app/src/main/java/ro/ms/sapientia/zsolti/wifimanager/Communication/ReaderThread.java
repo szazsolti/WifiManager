@@ -12,14 +12,15 @@ import java.net.Socket;
 import java.util.Calendar;
 
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromReaderThreadToHomeFragment;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromReaderThreadToManager;
 import ro.ms.sapientia.zsolti.wifimanager.Manager;
 import ro.ms.sapientia.zsolti.wifimanager.WiFiManagerSuperClass;
 
 public class ReaderThread implements Runnable{
 
     private ISendDataToUIListener sendDataToUIListener;
-    private ISendMessageFromReaderThreadToHomeFragment sendMessageFromReaderThreadToHomeFragment;
+    //private ISendMessageFromReaderThreadToHomeFragment sendMessageFromReaderThreadToHomeFragment;
+    private ISendMessageFromReaderThreadToManager sendMessageFromReaderThreadToManager;
     private String TAG = "READERTHREAD_CLASS";
     private Socket socket=null;
     private InputStreamReader inputStreamReader=null;
@@ -42,7 +43,7 @@ public class ReaderThread implements Runnable{
                 //socket=ss.accept();
                 //Log.d(TAG,socket.getInetAddress().toString());
                 if(socket.isConnected() && socket.isBound()){
-                    Log.d(TAG,"In if, socket is connected: "+socket.isConnected()+ " and bound: "+socket.isBound());
+                    //Log.d(TAG,"In if, socket is connected: "+socket.isConnected()+ " and bound: "+socket.isBound());
                     try{
                         mess = bufferedReader.readLine();
                         //Log.d(TAG,"Message: "+ mess);
@@ -81,7 +82,7 @@ public class ReaderThread implements Runnable{
                 }
             }
         }catch (Exception e){
-            sendDataToUIListener.returnMessage("Socket is closed4.");
+            //sendDataToUIListener.returnMessage("Socket is closed4.");
                 //e1.printStackTrace();
             killApp();
             }
@@ -97,7 +98,13 @@ public class ReaderThread implements Runnable{
         this.socket=socket;
     }
 
+
     public void processingPachet(String input){
+
+        //Log.d(TAG, "processingPachet: input: " + input);
+        sendMessageFromReaderThreadToManager.returnMessageFromReaderThread(input);
+
+        /*
         String[] parts = input.split("-");
         try {
             if(parts[0].equals("[ConnectionOK]")){
@@ -105,6 +112,9 @@ public class ReaderThread implements Runnable{
             }
             else if(parts[0].equals("[Wifis]")){
                 sendMessageFromReaderThreadToHomeFragment.returnMessage(input);
+            }
+            else if(parts[0].equals("[ReferencePoints]")){
+
             }
             else if(parts[0].equals("[Exit]")){
                 inputStreamReader.close();
@@ -116,11 +126,15 @@ public class ReaderThread implements Runnable{
         }
         catch (Exception e){
             e.printStackTrace();
-        }
+        }*/
     }
-
+/*
     public void setISendMessageFromReaderThreadToHomeFragment(ISendMessageFromReaderThreadToHomeFragment ISendMessageFromReaderThreadToHomeFragment){
         this.sendMessageFromReaderThreadToHomeFragment = ISendMessageFromReaderThreadToHomeFragment;
+    }*/
+
+    public void setISendMessageFromReaderThreadToManager(ISendMessageFromReaderThreadToManager ISendMessageFromReaderThreadToManager){
+        this.sendMessageFromReaderThreadToManager = ISendMessageFromReaderThreadToManager;
     }
 
     public void setISendDataToUIListener(ISendDataToUIListener ISendDataToUIListener){

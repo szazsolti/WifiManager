@@ -14,31 +14,29 @@ import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.IDrawerLocker;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromWiFiScanReceiverToListWiFisToSetReference;
 import ro.ms.sapientia.zsolti.wifimanager.ListWifiItem;
 import ro.ms.sapientia.zsolti.wifimanager.Manager;
 import ro.ms.sapientia.zsolti.wifimanager.R;
 import ro.ms.sapientia.zsolti.wifimanager.WiFi;
-import ro.ms.sapientia.zsolti.wifimanager.WiFiManagerSuperClass;
 import ro.ms.sapientia.zsolti.wifimanager.WifiListAdapter;
 import ro.ms.sapientia.zsolti.wifimanager.WifiScanReceiver;
 
 import static java.lang.StrictMath.abs;
 
-public class ListWiFisToSetReference extends Fragment implements ISendWiFiListFromWiFiScanReceiverToListWiFisToSetReference {
+public class ListWiFisToSetReferenceFragment extends Fragment implements ISendWiFiListFromWiFiScanReceiverToListWiFisToSetReference {
 
     private Context context;
     private RecyclerView recyclerView;
@@ -56,16 +54,16 @@ public class ListWiFisToSetReference extends Fragment implements ISendWiFiListFr
 
 
     @SuppressLint("ValidFragment")
-    public ListWiFisToSetReference(Context context) {
+    public ListWiFisToSetReferenceFragment(Context context) {
         this.context=context;
     }
 
-    public ListWiFisToSetReference() {
+    public ListWiFisToSetReferenceFragment() {
         // Required empty public constructor
     }
 
-    public static ListWiFisToSetReference newInstance(String param1, String param2) {
-        ListWiFisToSetReference fragment = new ListWiFisToSetReference();
+    public static ListWiFisToSetReferenceFragment newInstance(String param1, String param2) {
+        ListWiFisToSetReferenceFragment fragment = new ListWiFisToSetReferenceFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -82,6 +80,9 @@ public class ListWiFisToSetReference extends Fragment implements ISendWiFiListFr
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_list_wifis_to_set_reference, container, false);
+
+        ((IDrawerLocker) getActivity()).setDrawerEnabled(true);
+
         floor = new EditText(context);
         x = new EditText(context);
         y = new EditText(context);
@@ -105,7 +106,7 @@ public class ListWiFisToSetReference extends Fragment implements ISendWiFiListFr
         getWifis.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "getWifis: in onClickListener");
+                //Log.d(TAG, "getWifis: in onClickListener");
                 wifisFromDevice = Manager.getInstance().getWifisFromDevice();
                 //Log.d(TAG, "onTouch: "+ wifisFromDevice.toString());
                 //Log.d(TAG, "onTouch: tempSize"+wifisFromDevice.size());
@@ -121,7 +122,7 @@ public class ListWiFisToSetReference extends Fragment implements ISendWiFiListFr
             @Override
             public void onClick(View v) {
                 if(wifisFromDevice!=null){
-                    Log.d(TAG, "getLevelCoord: in onClickListener");
+                    //Log.d(TAG, "getLevelCoord: in onClickListener");
                     getLevelCoord(v);
                 }
             }
@@ -233,8 +234,8 @@ public class ListWiFisToSetReference extends Fragment implements ISendWiFiListFr
 
     @Override
     public void returnWiFiListFromDevice(ArrayList<WiFi> wifisFromDevice) {
-        Log.d(TAG, "returnWiFiListFromDevice: "+wifisFromDevice.toString());
-        Log.d(TAG, "WifiListFromDevice: "+ Manager.getInstance().getWifisFromDevice().toString());
+        //Log.d(TAG, "returnWiFiListFromDevice: "+wifisFromDevice.toString());
+        //Log.d(TAG, "WifiListFromDevice: "+ Manager.getInstance().getWifisFromDevice().toString());
         /*for(int i=0;i<wifisFromDevice.size();i++){
             listWifiItems.add(new ListWifiItem(wifisFromDevice.get(i).getName()+" "+wifisFromDevice.get(i).getLevel()+" "+wifisFromDevice.get(i).getFrequency()));
         }*/

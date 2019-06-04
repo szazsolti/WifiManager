@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
-import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -15,7 +14,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -23,21 +21,21 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
-import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
-import ro.ms.sapientia.zsolti.wifimanager.Communication.MessageSender;
-import ro.ms.sapientia.zsolti.wifimanager.Fragments.DrawPositionFragment;
+import ro.ms.sapientia.zsolti.wifimanager.Fragments.DrawPositionFragmentI;
 import ro.ms.sapientia.zsolti.wifimanager.Fragments.HomeFragment;
-import ro.ms.sapientia.zsolti.wifimanager.Fragments.ListWiFisToSetReference;
+import ro.ms.sapientia.zsolti.wifimanager.Fragments.ListWiFisToSetReferenceFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Fragments.WiFiReferencePointsFragment;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.IDrawerLocker;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 
-public class MainActivity extends AppCompatActivity implements ISendDataToUIListener {
+public class MainActivity extends AppCompatActivity implements ISendDataToUIListener, IDrawerLocker {
 
     private boolean doubleBackToExitPressedOnce = false;
     private String TAG = "MainActivity";
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+    private Thread managerThread;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigationView);
+
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -74,6 +73,9 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
         });
 
         if(checkPermission()){
+
+            startManager();
+
             HomeFragment homeFragment = new HomeFragment(getApplicationContext());
             homeFragment.setISendDataToUIListener(this);
             //Manager.getInstance().setContext(getApplicationContext());
@@ -86,24 +88,24 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
     }
 
     public void startTrilateration(){
-        DrawPositionFragment drawPositionFragment = new DrawPositionFragment(WiFiManagerSuperClass.getContext());
+        DrawPositionFragmentI drawPositionFragment = new DrawPositionFragmentI(WiFiManagerSuperClass.getContext());
         //drawPositionFragment.setArguments(bundle);
         FragmentManager fragmentManager = getSupportFragmentManager();;
         //drawPositionFragment.setISendDataToUIListener(sendDataToUIListener);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, drawPositionFragment);
-        fragmentTransaction.addToBackStack("WiFiReferencePointsFragment");
+        //fragmentTransaction.addToBackStack("WiFiReferencePointsFragment");
         fragmentTransaction.commit();
     }
 
     public void startListWifisToSetReference(){
-        ListWiFisToSetReference searchWifiFragment = new ListWiFisToSetReference(this);
+        ListWiFisToSetReferenceFragment searchWifiFragment = new ListWiFisToSetReferenceFragment(this);
         //searchWifiFragment.setArguments(bundle);
         //searchWifiFragment.setNotifyToDraw(notifyDraw);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, searchWifiFragment);
-        fragmentTransaction.addToBackStack("drawPositionFragment");
+        //fragmentTransaction.addToBackStack("drawPositionFragment");
         fragmentTransaction.commit();
     }
 
@@ -112,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, wiFiReferencePointsFragment);
-        fragmentTransaction.addToBackStack("drawPositionFragment");
+       // fragmentTransaction.addToBackStack("drawPositionFragment");
         fragmentTransaction.commit();
     }
 
@@ -131,6 +133,15 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
                 Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void startManager(){
+        Manager manager = Manager.getInstance();
+        //manager.setWifiListFromDataBase(wifiList);
+        manager.setFragmentManager(getSupportFragmentManager());
+        manager.setISendDataToUIListener(this);
+        managerThread = new Thread(manager);
+        managerThread.start();
     }
 
     private void startHomeFragment(){
@@ -248,5 +259,13 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
         } catch (Exception e) {
             //e.printStackTrace();
         }
+    }
+
+    @Override
+    public void setDrawerEnabled(boolean enabled) {
+        int lockMode = enabled ? DrawerLayout.LOCK_MODE_UNLOCKED :
+                DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
+        drawerLayout.setDrawerLockMode(lockMode);
+        //toggle.setDrawerIndicatorEnabled(enabled);
     }
 }

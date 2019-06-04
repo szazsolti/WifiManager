@@ -2,36 +2,31 @@ package ro.ms.sapientia.zsolti.wifimanager.Fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 
-import java.util.Objects;
+import java.util.ArrayList;
 
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.IDrawerLocker;
 import ro.ms.sapientia.zsolti.wifimanager.PinchZoomPan;
 import ro.ms.sapientia.zsolti.wifimanager.R;
-import ro.ms.sapientia.zsolti.wifimanager.WiFiManagerSuperClass;
 
 
 public class WiFiReferencePointsFragment extends Fragment {
 
     private Context context;
     protected PinchZoomPan pinchZoomPan;
-    private Toolbar myToolbar;
-    private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
+    private ArrayList<Point> points = new ArrayList<>();
+    private Paint paint = new Paint();
 
     public WiFiReferencePointsFragment() {
         // Required empty public constructor
@@ -60,23 +55,35 @@ public class WiFiReferencePointsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_wi_fi_reference_points, container, false);
 
+        ((IDrawerLocker) getActivity()).setDrawerEnabled(true);
+
         Uri selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/elso_emelet");
         pinchZoomPan = view.findViewById(R.id.ivImage);
 
         pinchZoomPan.loadImageOnCanvas(selectedImage);
 
-       // myToolbar = view.findViewById(R.id.toolBar);
-        //drawerLayout = view.findViewById(R.id.drawer_layout);
-       // navigationView = view.findViewById(R.id.navigationView);
 
 
 
-        //((AppCompatActivity) Objects.requireNonNull(getActivity())).setSupportActionBar(myToolbar);
+        paint.setColor(Color.BLACK);
+
+        for(int i=0;i<6;i++){
+            Point point = new Point();
+
+            point.x = i*50;
+            point.y = i*30-25;
+
+            points.add(point);
+        }
+
+        pinchZoomPan.drawPoints(points, paint);
+
+        //pinchZoomPan.invalidate();
         return view;
     }
 
     public void startListWifisToSetReference(){
-        ListWiFisToSetReference searchWifiFragment = new ListWiFisToSetReference(context);
+        ListWiFisToSetReferenceFragment searchWifiFragment = new ListWiFisToSetReferenceFragment(context);
         //searchWifiFragment.setArguments(bundle);
         //searchWifiFragment.setNotifyToDraw(notifyDraw);
         FragmentManager fragmentManager = getFragmentManager();
