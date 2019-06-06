@@ -56,7 +56,7 @@ public class ReaderThread implements Runnable{
 
                         //Client.getInstance().destroy();
                         logged=false;
-                        killApp();
+                        //killApp();
                     }
                     //Log.d(TAG,"Message: "+mess);
                     if(mess!=null){
@@ -70,7 +70,7 @@ public class ReaderThread implements Runnable{
                     socket.close();
                     sendDataToUIListener.returnMessage("Socket is closed2.");
                     logged=false;
-                    killApp();
+                    //killApp();
                 }
                 else{
                     inputStreamReader.close();
@@ -78,13 +78,13 @@ public class ReaderThread implements Runnable{
                     socket.close();
                     sendDataToUIListener.returnMessage("Socket is closed3.");
                     logged=false;
-                    killApp();
+                    //killApp();
                 }
             }
         }catch (Exception e){
             //sendDataToUIListener.returnMessage("Socket is closed4.");
                 //e1.printStackTrace();
-            killApp();
+            //killApp();
             }
     }
 

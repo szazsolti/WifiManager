@@ -21,7 +21,11 @@ public class Communication {
     private Communication() throws IOException {
     }
 
-    public void initParams(){
+    public void initParams() throws IOException {
+        if(clientSocket==null){
+            clientSocket = new Socket("192.168.173.1",6554);
+        }
+
         ReaderThread readerThread = new ReaderThread();
         readerThread.setISendDataToUIListener(sendDataToUIListener);
         readerThread.setISendMessageFromReaderThreadToManager(sendMessageFromReaderThreadToManager);
@@ -50,7 +54,12 @@ public class Communication {
     }
 
     public boolean connected(){
-        return clientSocket.isConnected();
+        if(clientSocket!=null){
+            return clientSocket.isConnected();
+        }
+        else {
+            return false;
+        }
     }
 
     public void startReaderThread(){
@@ -65,8 +74,9 @@ public class Communication {
         return readerThread.isAlive();
     }
 
-    public void sendMessage(String message){
+    public void sendMessage(final String message){
         MessageSender messageSender = new MessageSender();
+        messageSender.setISendDataToUIListener(sendDataToUIListener);
         messageSender.execute(message);
     }
 
@@ -82,14 +92,15 @@ public class Communication {
         this.sendMessageFromReaderThreadToManager=sendMessageFromReaderThreadToManager;
     }
 
-    public void sendUsername() throws IOException {
-        sendMessage("[Username-]"+Client.getInstance().getUsername());
+    public void sendUsername(){
+        sendMessage("[Username]-"+Client.getInstance().getUsername());
     }
 
     public void destroy(){
         try{
             clientSocket.close();
             clientSocket=null;
+            //readerThread.stop();
         }
         catch (Exception e){
             e.printStackTrace();

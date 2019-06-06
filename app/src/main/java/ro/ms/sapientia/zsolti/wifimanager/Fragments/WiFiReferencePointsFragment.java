@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +18,10 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.IDrawerLocker;
+import ro.ms.sapientia.zsolti.wifimanager.Manager;
 import ro.ms.sapientia.zsolti.wifimanager.PinchZoomPan;
 import ro.ms.sapientia.zsolti.wifimanager.R;
+import ro.ms.sapientia.zsolti.wifimanager.ReferencePoint;
 
 
 public class WiFiReferencePointsFragment extends Fragment {
@@ -27,6 +30,8 @@ public class WiFiReferencePointsFragment extends Fragment {
     protected PinchZoomPan pinchZoomPan;
     private ArrayList<Point> points = new ArrayList<>();
     private Paint paint = new Paint();
+    private ArrayList<ReferencePoint> referencePointsFromDatabase = new ArrayList<>();
+    private String TAG = "WIFIREFERENCEPOINTSFRAGMENT";
 
     public WiFiReferencePointsFragment() {
         // Required empty public constructor
@@ -62,11 +67,26 @@ public class WiFiReferencePointsFragment extends Fragment {
 
         pinchZoomPan.loadImageOnCanvas(selectedImage);
 
+        //referencePointsFromDatabase = Manager.getInstance().getReferencePointsFromDatabase();
 
-
+        for(ReferencePoint it : referencePointsFromDatabase){
+            Log.d(TAG, "onCreateView: " + it.toString());
+        }
 
         paint.setColor(Color.BLACK);
 
+        for(ReferencePoint it : referencePointsFromDatabase){
+            Point point = new Point();
+
+            point.x = it.getReferenceWifis().get(0).getX();
+            point.y = it.getReferenceWifis().get(0).getY();
+
+            Log.d(TAG, "onCreateView: " + "x: " + point.x + " y: " + point.y);
+
+            points.add(point);
+        }
+
+/*
         for(int i=0;i<6;i++){
             Point point = new Point();
 
@@ -75,7 +95,7 @@ public class WiFiReferencePointsFragment extends Fragment {
 
             points.add(point);
         }
-
+*/
         pinchZoomPan.drawPoints(points, paint);
 
         //pinchZoomPan.invalidate();
@@ -93,7 +113,9 @@ public class WiFiReferencePointsFragment extends Fragment {
         fragmentTransaction.commit();
     }
 
-
+    public void setReferencePointsFromDatabaseList(ArrayList<ReferencePoint> referencePointsFromDatabase){
+        this.referencePointsFromDatabase = referencePointsFromDatabase;
+    }
 
     public void onButtonPressed(Uri uri) {
     }

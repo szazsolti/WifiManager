@@ -120,10 +120,10 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
     public void onAttach(Context context) {
         super.onAttach(context);
         try{
-            context.registerReceiver(receiver, filter);
+            //context.registerReceiver(receiver, filter);
+            //receiver.setNotifyToDraw(this);
         }
         catch (Exception ignored){}
-        receiver.setNotifyToDraw(this);
     }
 
     @Override
@@ -132,6 +132,7 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
         //Log.d(TAG, "onDestroyView: ");
         try {
             context.unregisterReceiver(receiver);
+            receiver = null;
         }
         catch (Exception ignored){}
     }
@@ -145,6 +146,7 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
             //Communication.getInstance().sendMessage("[Logout-]");
            // Communication.getInstance().destroy();
             context.unregisterReceiver(receiver);
+            receiver = null;
         } catch (Exception ignored) {
         }
     }
@@ -154,6 +156,7 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
         super.onDetach();
         try {
             context.unregisterReceiver(receiver);
+            receiver = null;
         }
         catch (Exception ignored){}
         //context.unregisterReceiver(receiver);

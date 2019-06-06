@@ -7,10 +7,10 @@ public class Client {
     private static Client sinlge_instance = null;
     private String username="User";
 
-    private Client() throws IOException {
+    private Client(){
     }
 
-    public static Client getInstance() throws IOException {
+    public static Client getInstance(){
         if (sinlge_instance == null) {
             synchronized (Client.class) {
                 if (sinlge_instance == null) {

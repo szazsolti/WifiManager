@@ -1,6 +1,7 @@
 package ro.ms.sapientia.zsolti.wifimanager;
 
 import android.graphics.Point;
+import android.util.Log;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -12,7 +13,7 @@ public class Trilateration implements Serializable{
     private static Trilateration single_instance = null;
     private double x;
     private double y;
-
+    private String TAG = "TRILATERATION";
 
     private Trilateration() {
     }

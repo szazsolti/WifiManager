@@ -90,24 +90,37 @@ public class HomeFragment extends Fragment {
 
                     //Log.d(TAG, "onClick: startCommunication: " + Manager.getInstance().startCommunication());
 
-                try {
-                    if(Manager.getInstance().startCommunication()){
-                        Thread thread = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
+                    //Log.d(TAG, "onClick: ");
+                if(Manager.getInstance().startCommunication()){
+                    //Log.d(TAG, "onClick: in if");
+
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                if(!Communication.getInstance().connected()){
+                                    Communication.getInstance().initParams();
+                                    Communication.getInstance().startReaderThread();
+                                    Manager.getInstance().startCommunication();
                                     sendMyUsername();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
                                 }
+                                else {
+                                    sendMyUsername();
+                                }
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-                        });
-                        thread.start();
-                    }
-                    //et_username.setText("");
-                } catch (IOException e) {
-                    e.printStackTrace();
+                        }
+                    });
+                    thread.start();
+
                 }
+                else{
+                    sendDataToUIListener.returnMessage("Server is not available.");
+                }
+                //et_username.setText("");
+
 
 
 /*
@@ -119,6 +132,7 @@ public class HomeFragment extends Fragment {
         });
         return view;
     }
+
 
     @Override
     public void onAttach(Context context) {
@@ -196,10 +210,8 @@ public class HomeFragment extends Fragment {
 
 
     public void sendMyUsername() throws IOException {
-
         Communication.getInstance().sendMessage("[Username]-"+et_username.getText());
         Client.getInstance().setUsername(et_username.getText()+"");
-
 
     }
 
