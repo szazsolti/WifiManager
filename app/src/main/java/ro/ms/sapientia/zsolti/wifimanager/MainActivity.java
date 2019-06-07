@@ -31,6 +31,7 @@ import ro.ms.sapientia.zsolti.wifimanager.Fragments.WiFiReferencePointsFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.IDrawerLocker;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromManagerToMainActivity;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromManagerToWiFiReferencePointsFragment;
 
 public class MainActivity extends AppCompatActivity implements ISendDataToUIListener, IDrawerLocker, ISendMessageFromManagerToMainActivity {
 
@@ -41,8 +42,9 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
     private Thread managerThread;
     static final String USERNAME = "username";
     private DrawPositionFragmentI drawPositionFragment;
-    private ListWiFisToSetReferenceFragment searchWifiFragment;
+    private ListWiFisToSetReferenceFragment listWiFisToSetReferenceFragment;
     private WiFiReferencePointsFragment wiFiReferencePointsFragment;
+    //private ISendWiFiListFromManagerToWiFiReferencePointsFragment sendWiFiListFromManagerToWiFiReferencePointsFragment = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,14 +139,14 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
     }
 
     public void startListWifisToSetReference(){
-        if(searchWifiFragment==null){
-            searchWifiFragment = new ListWiFisToSetReferenceFragment(this);
+        if(listWiFisToSetReferenceFragment ==null){
+            listWiFisToSetReferenceFragment = new ListWiFisToSetReferenceFragment(this);
         }
-        //searchWifiFragment.setArguments(bundle);
-        //searchWifiFragment.setNotifyToDraw(notifyDraw);
+        //listWiFisToSetReferenceFragment.setArguments(bundle);
+        //listWiFisToSetReferenceFragment.setNotifyToDraw(notifyDraw);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, searchWifiFragment);
+        fragmentTransaction.replace(R.id.fragment_container, listWiFisToSetReferenceFragment);
         fragmentTransaction.addToBackStack("mainActivity2");
         fragmentTransaction.commit();
     }
@@ -196,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
         manager.setISendDataToUIListener(this);
         manager.startCommunication();
         manager.setISendMessageFromManagerToMainActivity(this);
+        //manager.setISendWiFiListFromManagerToWiFiReferencePointsFragment(sendWiFiListFromManagerToWiFiReferencePointsFragment);
         managerThread = new Thread(manager);
         managerThread.start();
 

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
-import android.os.Looper;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -15,15 +14,13 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
 import ro.ms.sapientia.zsolti.wifimanager.Fragments.DrawPositionFragmentI;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromManagerToMainActivity;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromReaderThreadToManager;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromManagerToWiFiReferencePointsFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromWifiScanReceiverToManager;
 
 public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runnable, ISendMessageFromReaderThreadToManager {
@@ -38,6 +35,7 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
     private Thread refreshWifi = new Thread();
     private Thread startConnection;
     private ISendMessageFromManagerToMainActivity sendMessageFromManagerToMainActivity;
+    //private ISendWiFiListFromManagerToWiFiReferencePointsFragment sendWiFiListFromManagerToWiFiReferencePointsFragment;
 
     //private INotifyToDraw INotifyToDraw;
     //private Thread refreshData;
@@ -145,6 +143,10 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
         Log.d(TAG, "returnWiFiListFromDevice: "+wifilistFromDevice.toString());
         this.wifiListFromDevice=new ArrayList<>();
         this.wifiListFromDevice=wifilistFromDevice;
+
+        //ertesiteni a wifireferencepointsfragment-et
+        //sendWiFiListFromManagerToWiFiReferencePointsFragment.returnWiFiListFromDevice(wifilistFromDevice);
+
         //Log.d(TAG, "returnWiFiListFromDeviceInManager: " + wifiListFromDevice.toString());
         try{
             calculateTrilateration(wifilistFromDevice);
@@ -441,6 +443,7 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
             sendDataToUIListener.returnMessage("Not enough wifi.");
         }
     }
+
     public void makeWifis(String input){
         String[] parts = input.split("~");
         wifiListFromDataBase.clear();
@@ -458,4 +461,8 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
     public void setISendMessageFromManagerToMainActivity(ISendMessageFromManagerToMainActivity sendMessageFromManagerToMainActivity){
         this.sendMessageFromManagerToMainActivity = sendMessageFromManagerToMainActivity;
     }
+/*
+    public void setISendWiFiListFromManagerToWiFiReferencePointsFragment(ISendWiFiListFromManagerToWiFiReferencePointsFragment sendWiFiListFromManagerToWiFiReferencePointsFragment){
+        this.sendWiFiListFromManagerToWiFiReferencePointsFragment = sendWiFiListFromManagerToWiFiReferencePointsFragment;
+    }*/
 }

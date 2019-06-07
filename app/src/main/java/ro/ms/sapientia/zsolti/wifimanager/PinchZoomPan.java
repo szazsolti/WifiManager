@@ -1,5 +1,6 @@
 package ro.ms.sapientia.zsolti.wifimanager;
 
+import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -7,10 +8,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -22,9 +25,11 @@ public class PinchZoomPan extends View {
     private Bitmap mBitmap;
     private int mImageWidth;
     private int mImageHeight;
-    private int x;
-    private int y;
-    ArrayList<Point> points = new ArrayList<>();
+    private int xUser = -1;
+    private int yUser = -1;
+    private ArrayList<Point> points = new ArrayList<>();
+    private Paint paintReferencePoint = new Paint();
+    private Paint paintUser = new Paint();
 
     private float mPositionX;
     private float mPositionY;
@@ -38,7 +43,7 @@ public class PinchZoomPan extends View {
     private float mScaleFactor = 1.0f;
     private final static float mMinZoom = 0.5f;
     private final static float mMaxZoom = 5.0f;
-    private Paint paint = new Paint();
+
     public PinchZoomPan(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
@@ -71,29 +76,42 @@ public class PinchZoomPan extends View {
             //canvas.drawCircle(x,y,5,pBlack);
 
             for(Point p: points){
-                canvas.drawCircle(p.x, p.y, 5, paint);
+                canvas.drawCircle(p.x, p.y, 5, paintReferencePoint);
             }
-            canvas.save();
+
+            paintUser.setColor(Color.RED);
+
+            if(xUser != -1 && yUser != -1){
+                canvas.drawCircle(xUser,yUser,8,paintUser);
+            }
+
+            //canvas.save();
             canvas.restore();
         }
     }
 
     public void drawPoints(ArrayList<Point> points, Paint p){
         this.points = points;
-        this.paint = p;
+        this.paintReferencePoint = p;
         invalidate();
     }
 
+    public void drawUser(int x, int y){
+        this.xUser = x;
+        this.yUser = y;
+        postInvalidate();
+    }
+/*
     public void drawCircle(int x, int y, Paint p){
 
         //pBlack.setColor(Color.BLACK);
-        this.paint = p;
+        this.paintReferencePoint = p;
         this.x = x;
         this.y = y;
         invalidate();
 
     }
-
+*/
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 

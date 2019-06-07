@@ -6,12 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromWiFiScanReceiverToListWiFisToSetReference;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromManagerToWiFiReferencePointsFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromWifiScanReceiverToManager;
 
 public class WifiScanReceiver extends BroadcastReceiver {
@@ -19,7 +18,7 @@ public class WifiScanReceiver extends BroadcastReceiver {
     private ArrayList<String> wifis;
     private ArrayList<WiFi> wifisFromDevice=new ArrayList<>();
     private ISendWiFiListFromWifiScanReceiverToManager sendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager;
-    private ISendWiFiListFromWiFiScanReceiverToListWiFisToSetReference sendWiFiListFromWiFiScanReceiverToListWiFisToSetReference;
+    //private ISendWiFiListFromManagerToWiFiReferencePointsFragment sendWiFiListFromWiFiScanReceiverToListWiFisToSetReference;
 
     private String TAG = "WIFISCANRECEIVER";
 
@@ -53,17 +52,15 @@ public class WifiScanReceiver extends BroadcastReceiver {
             }
             //Log.d(TAG, "onReceive: WifiList: " + wifisFromDevice.toString());
             sendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager.returnWiFiListFromDevice(wifisFromDevice);
+            /*
             try{
                 sendWiFiListFromWiFiScanReceiverToListWiFisToSetReference.returnWiFiListFromDevice(wifisFromDevice);
             }
-            catch (Exception ignored){}
+            catch (Exception ignored){}*/
         }
     }
     public void setISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager(ISendWiFiListFromWifiScanReceiverToManager ISendWiFiListFromWifiScanReceiverToManager){
         this.sendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager = ISendWiFiListFromWifiScanReceiverToManager;
     }
 
-    public void setISendWiFiListFromWiFiScanReceiverToListWiFisToSetReference(ISendWiFiListFromWiFiScanReceiverToListWiFisToSetReference sendWiFiListFromWiFiScanReceiverToListWiFisToSetReference){
-        this.sendWiFiListFromWiFiScanReceiverToListWiFisToSetReference = sendWiFiListFromWiFiScanReceiverToListWiFisToSetReference;
-    }
 }

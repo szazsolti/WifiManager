@@ -12,7 +12,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +25,7 @@ import java.util.List;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.IDrawerLocker;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromWiFiScanReceiverToListWiFisToSetReference;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromManagerToWiFiReferencePointsFragment;
 import ro.ms.sapientia.zsolti.wifimanager.ListWifiItem;
 import ro.ms.sapientia.zsolti.wifimanager.Manager;
 import ro.ms.sapientia.zsolti.wifimanager.R;
@@ -36,7 +35,7 @@ import ro.ms.sapientia.zsolti.wifimanager.WifiScanReceiver;
 
 import static java.lang.StrictMath.abs;
 
-public class ListWiFisToSetReferenceFragment extends Fragment implements ISendWiFiListFromWiFiScanReceiverToListWiFisToSetReference {
+public class ListWiFisToSetReferenceFragment extends Fragment   {
 
     private Context context;
     private RecyclerView recyclerView;
@@ -231,17 +230,17 @@ public class ListWiFisToSetReferenceFragment extends Fragment implements ISendWi
     public void onDetach() {
         super.onDetach();
     }
-
+/*
     @Override
     public void returnWiFiListFromDevice(ArrayList<WiFi> wifisFromDevice) {
         //Log.d(TAG, "returnWiFiListFromDevice: "+wifisFromDevice.toString());
         //Log.d(TAG, "WifiListFromDevice: "+ Manager.getInstance().getWifisFromDevice().toString());
-        /*for(int i=0;i<wifisFromDevice.size();i++){
-            listWifiItems.add(new ListWifiItem(wifisFromDevice.get(i).getName()+" "+wifisFromDevice.get(i).getLevel()+" "+wifisFromDevice.get(i).getFrequency()));
-        }*/
+        //for(int i=0;i<wifisFromDevice.size();i++){
+        //    listWifiItems.add(new ListWifiItem(wifisFromDevice.get(i).getName()+" "+wifisFromDevice.get(i).getLevel()+" "+wifisFromDevice.get(i).getFrequency()));
+        //}
         adapter.notifyDataSetChanged();
     }
-
+    */
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
     }
