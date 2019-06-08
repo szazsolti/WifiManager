@@ -11,7 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.IDrawerLocker;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.INotifyToDraw;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
@@ -69,6 +71,10 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
 
         ((IDrawerLocker) getActivity()).setDrawerEnabled(true);
 
+
+        //tw_username = headerView.findViewById(R.id.tw_username);
+
+
         point.set((int) Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
 
         //Log.d(TAG,"X: " + Trilateration.getInstance().getX() + "Y: " + Trilateration.getInstance().getY());
@@ -79,7 +85,7 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
         }
         catch (Exception e){
             //ISendDataToUIListener.returnMessage("Helytelen hivatkozás. Az alkalmazás kilép.");
-            System.exit(2);
+            //System.exit(2);
         }
 
         relativeLayout = view.findViewById(R.id.rect);
@@ -87,7 +93,7 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
 
 
         //((AppCompatActivity) Objects.requireNonNull(getActivity())).setSupportActionBar(myToolbar);
-        UserOnCanvas user = new UserOnCanvas(point.x+"", point.y+"","Me");
+        UserOnCanvas user = new UserOnCanvas(point.x+"", point.y+"", Client.getInstance().getUsername());
 
         myCanvas = new MyCanvas(context,user);
         //Log.d(TAG,point.x + " " + point.y);
@@ -107,7 +113,6 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
     void updateCanvasData(){
         point.set((int)Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
         myCanvas.setParameters(point.x+"", point.y+"");
-
         //Manager.getInstance().getWifisFromDevice().clear();
         myCanvas.invalidate();
         //Log.d(TAG, "updateCanvasData: WifiListFromDevice: "+ manager.getWifisFromDevice());

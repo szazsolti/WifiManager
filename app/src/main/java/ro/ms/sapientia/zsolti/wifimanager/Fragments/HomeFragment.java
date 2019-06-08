@@ -19,6 +19,7 @@ import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.IDrawerLocker;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromHomefragmentToMainActivity;
 import ro.ms.sapientia.zsolti.wifimanager.Manager;
 import ro.ms.sapientia.zsolti.wifimanager.R;
 import ro.ms.sapientia.zsolti.wifimanager.WiFi;
@@ -36,7 +37,9 @@ public class HomeFragment extends Fragment {
     private String TAG="HOMEFRAGMENT";
     private Context context;
     private ArrayList<WiFi> wifiList = new ArrayList<>();
-    String message="";
+    private ISendMessageFromHomefragmentToMainActivity sendMessageFromHomeFragmentToMainActivity;
+    //String message="";
+
 
     @SuppressLint("ValidFragment")
     public HomeFragment(Context context) {
@@ -66,12 +69,13 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_home, container, false);
 
+
         ((IDrawerLocker) getActivity()).setDrawerEnabled(false);
 
         bt_connect = view.findViewById(R.id.bt_connect);
         tw_test = view.findViewById(R.id.tw_instruction);
-        et_username = view.findViewById(R.id.et_username);
 
+        et_username = view.findViewById(R.id.et_username);
 
 /*
         if(!HomeFragment.this.readerThread.isAlive()) {
@@ -91,34 +95,41 @@ public class HomeFragment extends Fragment {
                     //Log.d(TAG, "onClick: startCommunication: " + Manager.getInstance().startCommunication());
 
                     //Log.d(TAG, "onClick: ");
-                if(Manager.getInstance().startCommunication()){
-                    //Log.d(TAG, "onClick: in if");
+                if(!et_username.getText().toString().equals("")){
+                    if(Manager.getInstance().startCommunication()){
+                        //Log.d(TAG, "onClick: in if");
+                        sendMessageFromHomeFragmentToMainActivity.setMessageFromHomeFragmentToMainActivity(et_username.getText().toString());
+                        Thread thread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
 
-                    Thread thread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                if(!Communication.getInstance().connected()){
-                                    Communication.getInstance().initParams();
-                                    Communication.getInstance().startReaderThread();
-                                    Manager.getInstance().startCommunication();
-                                    sendMyUsername();
-                                }
-                                else {
-                                    sendMyUsername();
-                                }
+                                try {
+                                    if(!Communication.getInstance().connected()){
+                                        Communication.getInstance().initParams();
+                                        Communication.getInstance().startReaderThread();
+                                        Manager.getInstance().startCommunication();
+                                        sendMyUsername();
+                                    }
+                                    else {
+                                        sendMyUsername();
+                                    }
 
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                             }
-                        }
-                    });
-                    thread.start();
+                        });
+                        thread.start();
 
+                    }
+                    else{
+                        sendDataToUIListener.returnMessage("Server is not available.");
+                    }
                 }
-                else{
-                    sendDataToUIListener.returnMessage("Server is not available.");
+                else {
+                    sendDataToUIListener.returnMessage("Username is needed.");
                 }
+
                 //et_username.setText("");
 
 
@@ -226,6 +237,10 @@ public class HomeFragment extends Fragment {
                 catch (Exception ignored){}
             }
         }
+    }
+
+    public void setISendMessageFromHomeFragmentToMainActivity(ISendMessageFromHomefragmentToMainActivity sendMessageFromHomeFragmentToMainActivity){
+        this.sendMessageFromHomeFragmentToMainActivity = sendMessageFromHomeFragmentToMainActivity;
     }
 
 }

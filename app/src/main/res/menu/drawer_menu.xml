@@ -14,5 +14,11 @@
             android:id="@+id/reference_points"
             android:icon="@drawable/meeting_point"
             android:title="@string/reference_points"/>
+        <item
+            android:id="@+id/settings"
+            android:icon="@drawable/settings"
+            android:title="@string/settings" />
+
     </group>
+
 </menu>

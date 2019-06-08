@@ -74,7 +74,7 @@ public class WiFiReferencePointsFragment extends Fragment {
 
         Uri selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/elso_emelet");
         pinchZoomPan = view.findViewById(R.id.ivImage);
-
+        pinchZoomPan.setContext(context);
         pinchZoomPan.loadImageOnCanvas(selectedImage);
 
         //referencePointsFromDatabase = Manager.getInstance().getReferencePointsFromDatabase();
@@ -92,16 +92,6 @@ public class WiFiReferencePointsFragment extends Fragment {
             points.add(point);
         }
 
-/*
-        for(int i=0;i<6;i++){
-            Point point = new Point();
-
-            point.x = i*50;
-            point.y = i*30-25;
-
-            points.add(point);
-        }
-*/
         refreshWiFiList();
 
         pinchZoomPan.drawPoints(points, paint);
@@ -176,10 +166,11 @@ public class WiFiReferencePointsFragment extends Fragment {
                 index = i;
             }
         }
+        /*
         Log.d(TAG, "calculateConvolution: max: " + maxx + "x: " +
                 referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX() +
                 " y: " + referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY());
-
+*/
 
         pinchZoomPan.drawUser(referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX(),referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY());
     }

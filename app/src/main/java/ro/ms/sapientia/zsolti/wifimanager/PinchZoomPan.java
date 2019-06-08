@@ -1,25 +1,35 @@
 package ro.ms.sapientia.zsolti.wifimanager;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothClass;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
+import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 
 public class PinchZoomPan extends View {
     private Bitmap mBitmap;
@@ -30,6 +40,7 @@ public class PinchZoomPan extends View {
     private ArrayList<Point> points = new ArrayList<>();
     private Paint paintReferencePoint = new Paint();
     private Paint paintUser = new Paint();
+    private Context context;
 
     private float mPositionX;
     private float mPositionY;
@@ -43,6 +54,8 @@ public class PinchZoomPan extends View {
     private float mScaleFactor = 1.0f;
     private final static float mMinZoom = 0.5f;
     private final static float mMaxZoom = 5.0f;
+
+    private String TAG = "PINCHZOOMPAN";
 
     public PinchZoomPan(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -83,6 +96,7 @@ public class PinchZoomPan extends View {
 
             if(xUser != -1 && yUser != -1){
                 canvas.drawCircle(xUser,yUser,8,paintUser);
+                canvas.drawText(Client.getInstance().getUsername(),xUser-20,yUser+25,paintUser);
             }
 
             //canvas.save();
@@ -90,6 +104,18 @@ public class PinchZoomPan extends View {
         }
     }
 
+    public void setContext(Context context){
+        this.context = context;
+    }
+
+    private boolean checkX(float touchedX){
+        int width  = Resources.getSystem().getDisplayMetrics().widthPixels;
+        return (1440-xUser + (width/100)*3.472 >= touchedX) && (1440-yUser - (width/100)*3.472 <= touchedX); //50 pixel, 3,472 szazaleka a kepernyo szelessegenek
+    }
+    private boolean checkY(float touchedY){
+        int width  = Resources.getSystem().getDisplayMetrics().widthPixels;
+        return (2560-xUser + (width/100)*3.472 >= touchedY) && (2560-yUser - (width/100)*3.472 <= touchedY);
+    }
     public void drawPoints(ArrayList<Point> points, Paint p){
         this.points = points;
         this.paintReferencePoint = p;
@@ -112,11 +138,37 @@ public class PinchZoomPan extends View {
 
     }
 */
+/*
+    private void drawToast(MotionEvent event){
+        if(checkX(event.getX()) && checkY(event.getY())){
+            int width  = Resources.getSystem().getDisplayMetrics().widthPixels;
+            Toast toast = new Toast(context);
+            toast.setGravity(Gravity.TOP|Gravity.LEFT, 1440-(int)Math.round(xUser)-280,2560-(int) Math.round(yUser)+(int) Math.round((width/100)*3.472)-20);
+
+            TextView tv = new TextView(context);
+            //tv.setBackgroundColor(Color.BLUE);
+            tv.setBackground(ContextCompat.getDrawable(context,R.drawable.bubble));
+            //tv.setBackgroundColor(Color.parseColor("#7e7e7e"));
+            tv.setTextColor(Color.BLACK);
+            tv.setTextSize(15);
+
+            Typeface t = Typeface.create("serif", Typeface.BOLD);
+            tv.setTypeface(t);
+            //tv.setPadding(10,10,10,10);
+            tv.setText("  x: " + xUser + " y: " + yUser);
+            toast.setView(tv);
+            toast.show();
+
+            Log.d(TAG,"Clicked x: " + event.getX() + " clicked y: " + event.getY());
+        }
+    }
+*/
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
         //the scale gesture detector should inspect all the touch events
         mScaleDetector.onTouchEvent(event);
+        //drawToast(event);
         final int action = event.getAction();
 
         switch (action & MotionEvent.ACTION_MASK){

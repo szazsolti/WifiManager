@@ -15,25 +15,31 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.zip.Inflater;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
 import ro.ms.sapientia.zsolti.wifimanager.Fragments.DrawPositionFragmentI;
 import ro.ms.sapientia.zsolti.wifimanager.Fragments.HomeFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Fragments.ListWiFisToSetReferenceFragment;
+import ro.ms.sapientia.zsolti.wifimanager.Fragments.SettingsFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Fragments.WiFiReferencePointsFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.IDrawerLocker;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromHomefragmentToMainActivity;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromManagerToMainActivity;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromManagerToWiFiReferencePointsFragment;
 
-public class MainActivity extends AppCompatActivity implements ISendDataToUIListener, IDrawerLocker, ISendMessageFromManagerToMainActivity {
+public class MainActivity extends AppCompatActivity implements ISendDataToUIListener, IDrawerLocker, ISendMessageFromManagerToMainActivity, ISendMessageFromHomefragmentToMainActivity {
 
     private boolean doubleBackToExitPressedOnce = false;
     private String TAG = "MainActivity";
@@ -44,6 +50,9 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
     private DrawPositionFragmentI drawPositionFragment;
     private ListWiFisToSetReferenceFragment listWiFisToSetReferenceFragment;
     private WiFiReferencePointsFragment wiFiReferencePointsFragment;
+    private SettingsFragment settingsFragment;
+    private TextView tw_username;
+
     //private ISendWiFiListFromManagerToWiFiReferencePointsFragment sendWiFiListFromManagerToWiFiReferencePointsFragment = null;
 
     @Override
@@ -57,6 +66,11 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigationView);
 
+        View headerView = getLayoutInflater().inflate(R.layout.header_main,null);
+
+        navigationView.addHeaderView(headerView);
+
+        tw_username = headerView.findViewById(R.id.tw_username);
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -75,6 +89,10 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
                     case R.id.reference_points:
                         //menuItem.setChecked(true);
                         startWiFiReferencePoints();
+                        drawerLayout.closeDrawers();
+                        return true;
+                    case R.id.settings:
+                        startSettingsFragment();
                         drawerLayout.closeDrawers();
                         return true;
                 }
@@ -127,14 +145,14 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
 
     public void startTrilateration(){
         if(drawPositionFragment==null){
-            drawPositionFragment = new DrawPositionFragmentI(WiFiManagerSuperClass.getContext());
+            drawPositionFragment = new DrawPositionFragmentI(this);
         }
         //drawPositionFragment.setArguments(bundle);
         FragmentManager fragmentManager = getSupportFragmentManager();;
         //drawPositionFragment.setISendDataToUIListener(sendDataToUIListener);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, drawPositionFragment);
-        fragmentTransaction.addToBackStack("mainActivity1");
+        //fragmentTransaction.addToBackStack("mainActivity1");
         fragmentTransaction.commit();
     }
 
@@ -147,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, listWiFisToSetReferenceFragment);
-        fragmentTransaction.addToBackStack("mainActivity2");
+        //fragmentTransaction.addToBackStack("mainActivity2");
         fragmentTransaction.commit();
     }
 
@@ -166,11 +184,21 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, wiFiReferencePointsFragment);
-            fragmentTransaction.addToBackStack("mainActivity3");
+            //fragmentTransaction.addToBackStack("mainActivity3");
             fragmentTransaction.commit();
         }
     }
 
+    public void startSettingsFragment(){
+        if(settingsFragment==null){
+            settingsFragment = new SettingsFragment(this);
+        }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, settingsFragment);
+        //fragmentTransaction.addToBackStack("mainActivity2");
+        fragmentTransaction.commit();
+    }
 
 
     @Override
@@ -207,12 +235,14 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
     private void startHomeFragment(){
         HomeFragment homeFragment = new HomeFragment(getApplicationContext());
         homeFragment.setISendDataToUIListener(this);
+        homeFragment.setISendMessageFromHomeFragmentToMainActivity(this);
         //Manager.getInstance().setContext(getApplicationContext());
         //homeFragment.setISendMessageFromReaderThreadToHomeFragment(getMessageInFragment);
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, homeFragment);
         fragmentTransaction.commitAllowingStateLoss();
     }
+
 
 
     @Override
@@ -242,8 +272,10 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
             @Override
             public void run() {
                 try {
-                    if(Communication.getInstance().connected()){
+                    if(Communication.getInstance().connected() && Communication.getInstance() != null){
                         Communication.getInstance().sendMessage("[Logout]-");
+                        Manager.getInstance().stopManager();
+                        Communication.getInstance().destroy();
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -329,5 +361,11 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
         fragmentTransaction.replace(R.id.fragment_container, wiFiReferencePointsFragment);
         fragmentTransaction.addToBackStack("mainActivity3");
         fragmentTransaction.commit();
+    }
+
+
+    @Override
+    public void setMessageFromHomeFragmentToMainActivity(String message) {
+        tw_username.setText(message);
     }
 }

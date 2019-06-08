@@ -6,4 +6,7 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="lightblack">#525252</color>
+    <color name="sapiGreen">#1C784A</color>
+    <color name="signUpGreen">#009100</color>
+    <color name="light_gray">#eff1f2</color>
 </resources>
