@@ -14,7 +14,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Random;
 
+import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
 import ro.ms.sapientia.zsolti.wifimanager.Fragments.DrawPositionFragmentI;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
@@ -26,9 +28,10 @@ import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromWifiScanRe
 public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runnable, ISendMessageFromReaderThreadToManager {
 
     private static Manager sinlge_instance = null;
-    private String TAG = "MANAGER";
+    private String TAG = "MYMANAGER";
     private ArrayList<WiFi> wifiListFromDataBase = new ArrayList<>();
     private ArrayList<WiFi> wifiListFromDevice = new ArrayList<>();
+    private ArrayList<UserOnCanvas> onlineUsers = new ArrayList<>();
     private ArrayList<ReferencePoint> referencePointsFromDatabase = new ArrayList<>();
     private WifiManager mainWifiObj;
     private WifiScanReceiver wifiReciever;
@@ -36,7 +39,7 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
     private Thread startConnection;
     private ISendMessageFromManagerToMainActivity sendMessageFromManagerToMainActivity;
     //private ISendWiFiListFromManagerToWiFiReferencePointsFragment sendWiFiListFromManagerToWiFiReferencePointsFragment;
-
+    private Random random = new Random();
     //private INotifyToDraw INotifyToDraw;
     //private Thread refreshData;
     //private Context context;
@@ -171,7 +174,7 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
                 while (true){
                     mainWifiObj.startScan();
                     try {
-                        Thread.sleep(15000);
+                        Thread.sleep(7000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -221,8 +224,9 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
             /*
             MessageSender messageSender = new MessageSender();
             messageSender.execute("[Position]-"+trilateration.getX() +" "+ trilateration.getY());*/
-
-            Communication.getInstance().sendMessage("[Position]-"+trilateration.getX() +" "+ trilateration.getY());
+            Client.getInstance().setXTrilat(trilateration.getX()+"");
+            Client.getInstance().setYTrilat(trilateration.getY()+"");
+            Communication.getInstance().sendMessage("[PositionTrilat]-"+trilateration.getX() +" "+ trilateration.getY());
             sendBroadcastNotify();
             //getMessageToDraw.returnMessageToDraw("draw");
         }
@@ -259,7 +263,7 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
                 return 1;
             }
         });
-        //Log.d(TAG,"Sorted in chooseWifis: " + choosedWifis.toString());
+        Log.d(TAG,"Sorted in chooseWifis: " + choosedWifis.toString());
         if(choosedWifis.size()>=3){
             return new ArrayList<>(choosedWifis.subList(0, 3));
         }
@@ -326,6 +330,10 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
     }
 */
 
+    public ArrayList<UserOnCanvas> getOnlineUsers() {
+        return onlineUsers;
+    }
+
     public ArrayList<ReferencePoint> getReferencePointsFromDatabase(){
         Log.d(TAG, "getReferencePointsFromDatabase: " + referencePointsFromDatabase.size());
         return referencePointsFromDatabase;
@@ -372,7 +380,6 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
                 //sendMessageFromReaderThreadToHomeFragment.returnMessage(message);
                 //Log.d(TAG, "returnMessageFromReaderThread: parts[1]" + parts[1]);
                 setWifisFromDatabase(parts[1]);
-
             }
             else if(parts[0].equals("[ReferencePoints]")){
                 //Log.d(TAG, "returnMessageFromReaderThread: " + parts[1]);
@@ -391,8 +398,11 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
                 socket.close();
                 logged=false;*/
                 Communication.getInstance().destroy();
-
                 //sendMessageFromReaderThreadToHomeFragment.returnMessage("Exit");
+            }
+            else if(parts[0].equals("[Users]")){
+                //Log.d(TAG, "returnMessageFromReaderThread: Users: " + parts[1]);
+                setUsers(parts[1]);
             }
         }
         catch (Exception e){
@@ -400,6 +410,17 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
             sendDataToUIListener.returnMessage("Hiba: " + e.toString());
         }
 
+    }
+
+    private void setUsers(String message){
+        String[] parts = message.split("'");
+        onlineUsers.clear();
+        for(int i=0;i<parts.length;i++){
+            String[] data = parts[i].split("~");
+            if(data.length == 3){
+                onlineUsers.add(new UserOnCanvas(data[0],Float.parseFloat(data[1])+random.nextInt(50)-25,Float.parseFloat(data[2])+random.nextInt(50)-25));
+            }
+        }
     }
 
     private void setReferencePointsFromDatabase(String message){
@@ -444,11 +465,11 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
         }
     }
 
-    public void makeWifis(String input){
-        String[] parts = input.split("~");
+    private void makeWifis(String input){
+        String[] parts = input.split("'");
         wifiListFromDataBase.clear();
         for(int i=0;i<parts.length;i++){
-            String[] data = parts[i].split(" ");
+            String[] data = parts[i].split("~");
             if(data.length == 4){
                 try{
                     wifiListFromDataBase.add(new WiFi(Integer.valueOf(data[0]),data[1],Integer.valueOf(data[2]),Integer.valueOf(data[3])));

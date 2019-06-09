@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 
@@ -38,8 +39,11 @@ public class PinchZoomPan extends View {
     private int xUser = -1;
     private int yUser = -1;
     private ArrayList<Point> points = new ArrayList<>();
+    private ArrayList<Point> userPoints = new ArrayList<>();
+    private ArrayList<UserOnCanvas> onlineUsers = new ArrayList<>();
     private Paint paintReferencePoint = new Paint();
     private Paint paintUser = new Paint();
+    private Paint paintUsers = new Paint();
     private Context context;
 
     private float mPositionX;
@@ -67,7 +71,8 @@ public class PinchZoomPan extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if(mBitmap != null){
-            canvas.save();
+
+            //canvas.save();
             /*
             if ((mPositionX * -1) < 0) {
                 mPositionX = 0;
@@ -98,9 +103,15 @@ public class PinchZoomPan extends View {
                 canvas.drawCircle(xUser,yUser,8,paintUser);
                 canvas.drawText(Client.getInstance().getUsername(),xUser-20,yUser+25,paintUser);
             }
+            for(UserOnCanvas p : onlineUsers){
+                //randomNumber=10;
+                canvas.drawCircle(p.getXRef(),p.getYRef(),5,paintUsers);
+                Log.d(TAG, "onDraw: username: " + p.getUserName() + p.getXRef() + " " + p.getYRef());
+                canvas.drawText(p.getUserName(),p.getXRef()-20,p.getYRef()+25,paintUsers);
+            }
 
             //canvas.save();
-            canvas.restore();
+            //canvas.restore();
         }
     }
 
@@ -119,7 +130,7 @@ public class PinchZoomPan extends View {
     public void drawPoints(ArrayList<Point> points, Paint p){
         this.points = points;
         this.paintReferencePoint = p;
-        invalidate();
+        postInvalidate();
     }
 
     public void drawUser(int x, int y){
@@ -127,6 +138,24 @@ public class PinchZoomPan extends View {
         this.yUser = y;
         postInvalidate();
     }
+
+    public void drawUsers(ArrayList<UserOnCanvas> onlineUsers, Paint p){
+        //this.userPoints = points;
+        Log.d(TAG, "drawUsers: onlineUsers: " + onlineUsers.size());
+
+/*
+        for(UserOnCanvas uoc : onlineUsers){
+            float randomNumberX = uoc.getXRef()+ random.nextInt(20)-10;
+            float randomNumberY = uoc.getYRef() + random.nextInt(20)-10;
+            uoc.setXRef(randomNumberX);
+            uoc.setYRef(randomNumberY);
+        }
+*/
+        this.onlineUsers = onlineUsers;
+        this.paintUsers = p;
+        postInvalidate();
+    }
+
 /*
     public void drawCircle(int x, int y, Paint p){
 

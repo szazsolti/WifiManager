@@ -6,6 +6,10 @@ import java.net.Socket;
 public class Client {
     private static Client sinlge_instance = null;
     private String username="User";
+    private String xTrilat="0";
+    private String yTrilat="0";
+    private String xRef="0";
+    private String yRef="0";
 
     private Client(){
     }
@@ -33,5 +37,35 @@ public class Client {
         return this.username;
     }
 
+    public String getXRef() {
+        return xRef;
+    }
 
+    public void setXRef(String xRef) {
+        this.xRef = xRef;
+    }
+
+    public String getYRef() {
+        return yRef;
+    }
+
+    public void setYRef(String yRef) {
+        this.yRef = yRef;
+    }
+
+    public String getXTrilat() {
+        return xTrilat;
+    }
+
+    public void setXTrilat(String x) {
+        this.xTrilat = x;
+    }
+
+    public String getYTrilat() {
+        return yTrilat;
+    }
+
+    public void setYTrilat(String y) {
+        this.yTrilat = y;
+    }
 }

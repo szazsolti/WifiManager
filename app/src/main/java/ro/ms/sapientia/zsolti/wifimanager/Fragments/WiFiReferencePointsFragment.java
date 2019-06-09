@@ -16,8 +16,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.zip.Inflater;
 
+import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
+import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.IDrawerLocker;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromManagerToWiFiReferencePointsFragment;
 import ro.ms.sapientia.zsolti.wifimanager.MainActivity;
@@ -25,6 +29,7 @@ import ro.ms.sapientia.zsolti.wifimanager.Manager;
 import ro.ms.sapientia.zsolti.wifimanager.PinchZoomPan;
 import ro.ms.sapientia.zsolti.wifimanager.R;
 import ro.ms.sapientia.zsolti.wifimanager.ReferencePoint;
+import ro.ms.sapientia.zsolti.wifimanager.UserOnCanvas;
 import ro.ms.sapientia.zsolti.wifimanager.WiFi;
 import ro.ms.sapientia.zsolti.wifimanager.WiFiReference;
 
@@ -37,9 +42,11 @@ public class WiFiReferencePointsFragment extends Fragment {
     private Context context;
     private PinchZoomPan pinchZoomPan;
     private ArrayList<Point> points = new ArrayList<>();
+    private ArrayList<Point> userPoints = new ArrayList<>();
     private Paint paint = new Paint();
     private ArrayList<ReferencePoint> referencePointsFromDatabase = new ArrayList<>();
     private ArrayList<WiFi> wifiListFromDevice = new ArrayList<>();
+    private ArrayList<UserOnCanvas> onlineUsers = new ArrayList<>();
     private Thread refreshWifi = new Thread();
     private String TAG = "WIFIREFERENCEPOINTSFRAGMENT";
 
@@ -95,7 +102,16 @@ public class WiFiReferencePointsFragment extends Fragment {
         refreshWiFiList();
 
         pinchZoomPan.drawPoints(points, paint);
+/*
+        for(UserOnCanvas uc : onlineUsers){
+            Point point = new Point();
 
+            point.x = Integer.parseInt(uc.getXRef()+"");
+            point.y = Integer.parseInt(uc.getYRef()+"");
+
+            userPoints.add(point);
+        }
+*/
 
         return view;
     }
@@ -107,7 +123,9 @@ public class WiFiReferencePointsFragment extends Fragment {
                 while (true) {
                     wifiListFromDevice=Manager.getInstance().getWifisFromDevice();
                     calculateConvolution(wifiListFromDevice,referencePointsFromDatabase);
-                    Log.d(TAG, "run: wifiListFromDevice" + wifiListFromDevice.size());
+                    onlineUsers = Manager.getInstance().getOnlineUsers();
+                    Log.d(TAG, "run: onlineUsers: " + onlineUsers.size());
+                    pinchZoomPan.drawUsers(onlineUsers,paint);
                     try {
                         Thread.sleep(15000);
                     } catch (InterruptedException e) {
@@ -171,8 +189,14 @@ public class WiFiReferencePointsFragment extends Fragment {
                 referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX() +
                 " y: " + referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY());
 */
-
+        Client.getInstance().setXRef(referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX()+"");
+        Client.getInstance().setYRef(referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY()+"");
         pinchZoomPan.drawUser(referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX(),referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY());
+        try {
+            Communication.getInstance().sendMessage("[PositionConv]-"+referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX() + " " + referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY());
+        } catch (IOException e) {
+            //e.printStackTrace();
+        }
     }
 
     private Double[] makeDoubleListFromReferenceWifi(ArrayList<WiFiReference> wiFiReferences, int N){

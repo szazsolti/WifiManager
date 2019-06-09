@@ -7,13 +7,16 @@ import android.util.Log;
 public class UserOnCanvas {
     private Paint point = new Paint();
     private Paint text = new Paint();
-    private Double x_coord;
-    private Double y_coord;
+    private float xTrilat =0.0f;
+    private float yTrilat =0.0f;
+    private float xRef = 0.0f;
+    private float yRef = 0.0f;
     private String userName;
 
-    public UserOnCanvas(String x, String y, String userName){
-        double x_1 = 99999999;
-        double y_1 = 99999999;
+
+    public UserOnCanvas(String xTrilat, String yTrilat, String userName){
+        float x_1 = 99999999;
+        float y_1 = 99999999;
 
         this.userName=userName;
         point.setColor(Color.BLACK);
@@ -21,8 +24,8 @@ public class UserOnCanvas {
         text.setFakeBoldText(true);
         text.setTextSize(80);
         try {
-            x_1 = Double.parseDouble(x);
-            y_1 = Double.parseDouble(y);
+            x_1 = Float.parseFloat(xTrilat);
+            y_1 = Float.parseFloat(yTrilat);
 
         }
         catch(NumberFormatException e){
@@ -30,25 +33,35 @@ public class UserOnCanvas {
         }
 
         if (x_1 != 99999999 && y_1 != 99999999){
-            x_coord = x_1;
-            y_coord = y_1;
+            this.xTrilat = x_1;
+            this.yTrilat = y_1;
         }
     }
 
-    public Double getXCoord() {
-        return x_coord;
+    public UserOnCanvas(String userName, Float xRef, Float yRef){
+        this.userName = userName;
+        this.xRef = xRef;
+        this.yRef = yRef;
+        point.setColor(Color.BLACK);
+        text.setColor(Color.BLACK);
+        //text.setFakeBoldText(true);
+        text.setTextSize(80);
     }
 
-    public void setXCoord(Double x_coord) {
-        this.x_coord = x_coord;
+    public float getXCoordTrilat() {
+        return xTrilat;
     }
 
-    public Double getYCoord() {
-        return y_coord;
+    public void setXCoordTrilat(float x_coord) {
+        this.xTrilat = x_coord;
     }
 
-    public void setYCoord(Double y_coord) {
-        this.y_coord = y_coord;
+    public float getYCoordTrilat() {
+        return yTrilat;
+    }
+
+    public void setYCoordTrilat(float y_coord) {
+        this.yTrilat = y_coord;
     }
 
     public String getUserName() {
@@ -66,4 +79,21 @@ public class UserOnCanvas {
     public Paint getText() {
         return text;
     }
+
+    public float getXRef() {
+        return xRef;
+    }
+
+    public void setXRef(float xRef) {
+        this.xRef = xRef;
+    }
+
+    public float getYRef() {
+        return yRef;
+    }
+
+    public void setYRef(float yRef) {
+        this.yRef = yRef;
+    }
+
 }

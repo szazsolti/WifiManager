@@ -3,10 +3,12 @@ package ro.ms.sapientia.zsolti.wifimanager.Fragments;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,8 +76,7 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
 
         //tw_username = headerView.findViewById(R.id.tw_username);
 
-
-        point.set((int) Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
+        point.set((int)Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
 
         //Log.d(TAG,"X: " + Trilateration.getInstance().getX() + "Y: " + Trilateration.getInstance().getY());
 
@@ -93,6 +94,7 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
 
 
         //((AppCompatActivity) Objects.requireNonNull(getActivity())).setSupportActionBar(myToolbar);
+
         UserOnCanvas user = new UserOnCanvas(point.x+"", point.y+"", Client.getInstance().getUsername());
 
         myCanvas = new MyCanvas(context,user);
@@ -100,6 +102,7 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
         //myCanvas.setParameters(point.x+"", point.y+"");
         myCanvas.setContext(context);
         myCanvas.setBackgroundResource(R.drawable.szoba2);
+
         relativeLayout.addView(myCanvas);
         //Log.d(TAG, "onCreateView: ");
         return view;
@@ -111,6 +114,9 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
     }
 
     void updateCanvasData(){
+
+        Log.d(TAG, "updateCanvasData: x: " + (int)Trilateration.getInstance().getX() + " y: " + (int)Trilateration.getInstance().getY());
+
         point.set((int)Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
         myCanvas.setParameters(point.x+"", point.y+"");
         //Manager.getInstance().getWifisFromDevice().clear();
