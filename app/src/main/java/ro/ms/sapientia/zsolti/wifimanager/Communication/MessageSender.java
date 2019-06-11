@@ -15,7 +15,6 @@ public class MessageSender extends AsyncTask<String,Void,Void> {
     private DataOutputStream dataOutputStream;
     private ISendDataToUIListener ISendDataToUIListener;
     private String TAG = "MESSAGESENDER_CLASS";
-    String message;
 
     //public MessageSender(Socket socket){
     //     this.clientSocket = socket;

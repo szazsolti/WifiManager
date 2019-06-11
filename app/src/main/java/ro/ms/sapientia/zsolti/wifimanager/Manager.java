@@ -97,6 +97,7 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
         //Looper.getMainLooper().quit();
 
         try{
+
             WiFiManagerSuperClass.getContext().unregisterReceiver(wifiReciever);
         }catch (Exception e){}
 

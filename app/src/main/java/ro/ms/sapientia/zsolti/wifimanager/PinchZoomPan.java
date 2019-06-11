@@ -32,6 +32,8 @@ import java.util.Random;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 
+import static java.lang.StrictMath.abs;
+
 public class PinchZoomPan extends View {
     private Bitmap mBitmap;
     private int mImageWidth;
@@ -94,20 +96,27 @@ public class PinchZoomPan extends View {
             //canvas.drawCircle(x,y,5,pBlack);
 
             for(Point p: points){
-                canvas.drawCircle(p.x, p.y, 5, paintReferencePoint);
+                float x = calculateX(p.x);
+                float y = calculateY(p.y);
+
+                Log.d(TAG, "onDraw: x: " + x + " y: " + y);
+
+                canvas.drawCircle(x, y, 5, paintReferencePoint);
             }
 
             paintUser.setColor(Color.RED);
 
             if(xUser != -1 && yUser != -1){
-                canvas.drawCircle(xUser,yUser,8,paintUser);
-                canvas.drawText(Client.getInstance().getUsername(),xUser-20,yUser+25,paintUser);
+                canvas.drawCircle(calculateX(xUser),calculateY(yUser),8,paintUser);
+                canvas.drawText(Client.getInstance().getUsername(),calculateX(xUser)-20,calculateY(yUser)+25,paintUser);
             }
             for(UserOnCanvas p : onlineUsers){
                 //randomNumber=10;
-                canvas.drawCircle(p.getXRef(),p.getYRef(),5,paintUsers);
-                Log.d(TAG, "onDraw: username: " + p.getUserName() + p.getXRef() + " " + p.getYRef());
-                canvas.drawText(p.getUserName(),p.getXRef()-20,p.getYRef()+25,paintUsers);
+                if(!p.getUserName().equals(Client.getInstance().getUsername())){
+                    canvas.drawCircle(calculateX((int)p.getXRef()),calculateY((int)p.getYRef()),5,paintUsers);
+                    Log.d(TAG, "onDraw: username: " + p.getUserName() + p.getXRef() + " " + p.getYRef());
+                    canvas.drawText(p.getUserName(),calculateX((int)p.getXRef())-20,calculateY((int)p.getYRef())+25,paintUsers);
+                }
             }
 
             //canvas.save();
@@ -117,6 +126,24 @@ public class PinchZoomPan extends View {
 
     public void setContext(Context context){
         this.context = context;
+    }
+
+    private float calculateX(int xCoord){
+        /*float x;
+        float xRatio = 1384/8600;
+        float referenceRatioX = 1384/xCoord;
+        float screenRatioX = abs(xRatio - referenceRatioX)/10;
+        x = (abs(screenRatioX * getWidth())%getWidth());*/
+        return (1384*xCoord)/8560;
+    }
+
+    private float calculateY(int yCoord){
+       /* float y;
+        float yRatio = 637/3700;
+        float referenceRatioY = 637/yCoord;
+        float screenRatioY = abs(yRatio - referenceRatioY);
+        y = (abs(screenRatioY * getHeight())%getHeight());*/
+        return (637*yCoord)/3630;
     }
 
     private boolean checkX(float touchedX){
@@ -291,6 +318,7 @@ public class PinchZoomPan extends View {
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         mImageWidth = displayMetrics.widthPixels;
         mImageHeight = Math.round(mImageWidth * aspectRatio);
+        Log.d(TAG, "loadImageOnCanvas: mImageWidth: " + mImageWidth + " mImageHeight: " + mImageHeight);
         mBitmap = bitmap.createScaledBitmap(bitmap,mImageWidth,mImageHeight,false);
         invalidate();
         //requestLayout();

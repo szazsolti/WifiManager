@@ -3,16 +3,15 @@ package ro.ms.sapientia.zsolti.wifimanager.Communication;
 import java.io.IOException;
 import java.net.Socket;
 
-import ro.ms.sapientia.zsolti.wifimanager.Fragments.HomeFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromReaderThreadToManager;
-import ro.ms.sapientia.zsolti.wifimanager.Manager;
 
 public class Communication {
     private Socket clientSocket = new Socket("192.168.173.1",6554);
 
     private static Communication sinlge_instance = null;
-    private Thread readerThread = new Thread();
+    private Thread threadRead = new Thread();
+    private ReaderThread readerThread;
 
     private ISendDataToUIListener sendDataToUIListener;
     //private ISendMessageFromReaderThreadToHomeFragment sendMessageFromReaderThreadToHomeFragment;
@@ -26,12 +25,12 @@ public class Communication {
             clientSocket = new Socket("192.168.173.1",6554);
         }
 
-        ReaderThread readerThread = new ReaderThread();
+        readerThread = new ReaderThread();
         readerThread.setISendDataToUIListener(sendDataToUIListener);
         readerThread.setISendMessageFromReaderThreadToManager(sendMessageFromReaderThreadToManager);
-        //readerThread.setISendMessageFromReaderThreadToHomeFragment(sendMessageFromReaderThreadToHomeFragment);
+        //threadRead.setISendMessageFromReaderThreadToHomeFragment(sendMessageFromReaderThreadToHomeFragment);
         readerThread.setSocket(clientSocket);
-        Communication.this.readerThread = new Thread(readerThread);
+        this.threadRead = new Thread(readerThread);
     }
 
     public static Communication getInstance() throws IOException {
@@ -63,15 +62,17 @@ public class Communication {
     }
 
     public void startReaderThread(){
-        Communication.this.readerThread.start();
+        if(!this.threadRead.isAlive()){
+            this.threadRead.start();
+        }
     }
 
     public void stopReaderThread(){
-        Communication.this.readerThread.stop();
+        Communication.this.threadRead.stop();
     }
 
     public boolean readerThreadIsRunning(){
-        return readerThread.isAlive();
+        return threadRead.isAlive();
     }
 
     public void sendMessage(final String message){
@@ -100,10 +101,11 @@ public class Communication {
         try{
             clientSocket.close();
             clientSocket=null;
-            //readerThread.stop();
+            readerThread.myStop();
+            //threadRead.stop();
         }
         catch (Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 

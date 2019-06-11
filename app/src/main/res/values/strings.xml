@@ -19,5 +19,6 @@
     <string name="hint_connect">Username</string>
     <string name="appName">WiFiManager</string>
     <string name="listWifis">Available Wi-Fi networks </string>
+    <string name="selectFloor">Floor selection: </string>
 
 </resources>

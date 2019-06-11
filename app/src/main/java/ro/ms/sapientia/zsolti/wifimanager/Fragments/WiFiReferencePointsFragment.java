@@ -14,7 +14,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,6 +26,7 @@ import java.util.zip.Inflater;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.IDrawerLocker;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromManagerToWiFiReferencePointsFragment;
 import ro.ms.sapientia.zsolti.wifimanager.MainActivity;
 import ro.ms.sapientia.zsolti.wifimanager.Manager;
@@ -48,7 +52,10 @@ public class WiFiReferencePointsFragment extends Fragment {
     private ArrayList<WiFi> wifiListFromDevice = new ArrayList<>();
     private ArrayList<UserOnCanvas> onlineUsers = new ArrayList<>();
     private Thread refreshWifi = new Thread();
+    private Spinner selectFloor;
+    private Uri selectedImage;
     private String TAG = "WIFIREFERENCEPOINTSFRAGMENT";
+    private ISendDataToUIListener sendDataToUIListener;
 
     public WiFiReferencePointsFragment() {
         // Required empty public constructor
@@ -78,30 +85,60 @@ public class WiFiReferencePointsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_wi_fi_reference_points, container, false);
 
         ((IDrawerLocker) getActivity()).setDrawerEnabled(true);
-
-        Uri selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/elso_emelet");
         pinchZoomPan = view.findViewById(R.id.ivImage);
         pinchZoomPan.setContext(context);
-        pinchZoomPan.loadImageOnCanvas(selectedImage);
+
+        selectFloor = view.findViewById(R.id.floorSelect);
+
+        String[] floors = new String[]{"Ground floor","First","Second","Third"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context,android.R.layout.simple_spinner_dropdown_item,floors);
+        selectFloor.setAdapter(adapter);
+
+        selectFloor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position){
+                    case 0:
+                        //Log.d(TAG, "onItemClick: selected 0");
+                        //sendDataToUIListener.returnMessage("No data from this floor.");
+                        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/foldszint_100");
+                        pinchZoomPan.loadImageOnCanvas(selectedImage);
+                        setPointsToFloor(0);
+                        break;
+                    case 1:
+                        //Log.d(TAG, "onItemClick: selected 1");
+                        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/elso_emelet_200");
+                        pinchZoomPan.loadImageOnCanvas(selectedImage);
+                        setPointsToFloor(1);
+                        break;
+                    case 2:
+                        //Log.d(TAG, "onItemClick: selected 2");
+                        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+ "/drawable/masodik_emelet_300");
+                        pinchZoomPan.loadImageOnCanvas(selectedImage);
+                        setPointsToFloor(2);
+                        break;
+                    case 3:
+                        //Log.d(TAG, "onItemClick: selected 3");
+                        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/harmadik_emelet_400");
+                        pinchZoomPan.loadImageOnCanvas(selectedImage);
+                        setPointsToFloor(3);
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         //referencePointsFromDatabase = Manager.getInstance().getReferencePointsFromDatabase();
 
         paint.setColor(Color.BLACK);
 
-        for(ReferencePoint it : referencePointsFromDatabase){
-            Point point = new Point();
-
-            point.x = it.getReferenceWifis().get(0).getX();
-            point.y = it.getReferenceWifis().get(0).getY();
-
-            //Log.d(TAG, "onCreateView: " + "x: " + point.x + " y: " + point.y);
-
-            points.add(point);
-        }
-
         refreshWiFiList();
 
-        pinchZoomPan.drawPoints(points, paint);
+
 /*
         for(UserOnCanvas uc : onlineUsers){
             Point point = new Point();
@@ -137,9 +174,27 @@ public class WiFiReferencePointsFragment extends Fragment {
         refreshWifi.start();
     }
 
+    private void setPointsToFloor(int floor){
+        points.clear();
+        for(ReferencePoint it : referencePointsFromDatabase){
+            Log.d(TAG, "setPointsToFloor: " + it.getReferenceWifis().get(0).getFloor());
+            if(it.getReferenceWifis().get(0).getFloor() == floor){
+                Point point = new Point();
+
+                point.x = it.getReferenceWifis().get(0).getX();
+                point.y = it.getReferenceWifis().get(0).getY();
+
+                //Log.d(TAG, "onCreateView: " + "x: " + point.x + " y: " + point.y);
+                points.add(point);
+            }
+        }
+        pinchZoomPan.drawPoints(points, paint);
+    }
+
+
     private void calculateConvolution(ArrayList<WiFi> wifiListFromDevice, ArrayList<ReferencePoint> referencePointsFromDatabase){
-        wifiListFromDevice.get(0).getLevel();
-        referencePointsFromDatabase.get(0).getReferenceWifis().get(0).getLevel();
+        //wifiListFromDevice.get(0).getLevel();
+        //referencePointsFromDatabase.get(0).getReferenceWifis().get(0).getLevel();
         //ArrayList<Double> result = new ArrayList<>();
         Double[] result;
         Double[] max = new Double[referencePointsFromDatabase.size()];
@@ -227,19 +282,11 @@ public class WiFiReferencePointsFragment extends Fragment {
         return list;
     }
 
-    public void startListWifisToSetReference(){
-        ListWiFisToSetReferenceFragment searchWifiFragment = new ListWiFisToSetReferenceFragment(context);
-        //searchWifiFragment.setArguments(bundle);
-        //searchWifiFragment.setNotifyToDraw(notifyDraw);
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, searchWifiFragment);
-        fragmentTransaction.addToBackStack("wifiReferencePointsFragment");
-        fragmentTransaction.commit();
-    }
-
     public void setReferencePointsFromDatabaseList(ArrayList<ReferencePoint> referencePointsFromDatabase){
         this.referencePointsFromDatabase = referencePointsFromDatabase;
+    }
+    public void setISendDataToUIListener(ISendDataToUIListener ISendDataToUIListener){
+        this.sendDataToUIListener = ISendDataToUIListener;
     }
 
 }

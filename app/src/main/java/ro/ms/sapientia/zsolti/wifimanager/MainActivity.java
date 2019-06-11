@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -181,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
             //wiFiReferencePointsFragment = new WiFiReferencePointsFragment(this);
         }
         else{
+
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, wiFiReferencePointsFragment);
@@ -224,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
         //manager.setWifiListFromDataBase(wifiList);
         manager.setFragmentManager(getSupportFragmentManager());
         manager.setISendDataToUIListener(this);
-        manager.startCommunication();
+        //manager.startCommunication();
         manager.setISendMessageFromManagerToMainActivity(this);
         //manager.setISendWiFiListFromManagerToWiFiReferencePointsFragment(sendWiFiListFromManagerToWiFiReferencePointsFragment);
         managerThread = new Thread(manager);
@@ -243,11 +245,21 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
         fragmentTransaction.commitAllowingStateLoss();
     }
 
-
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        try {
+            Communication.getInstance().sendMessage("[Username]-"+Client.getInstance().getUsername());
+        } catch (IOException e) {
+            //e.printStackTrace();
+        }
+        //startHomeFragment();
+    }
 
     @Override
     protected void onStop() {
         super.onStop();
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -263,11 +275,27 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
             }
         });
         thread.start();
+        /*
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if(Communication.getInstance().connected() && Communication.getInstance() != null){
+                        Communication.getInstance().sendMessage("[Logout]-");
+                        Manager.getInstance().stopManager();
+                        Communication.getInstance().destroy();
+
+                    }
+                } catch (IOException e) {
+                    //e.printStackTrace();
+                }
+            }}, 0);*/
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -283,6 +311,20 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
             }
         });
         thread.start();
+        /*
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if(Communication.getInstance().connected() && Communication.getInstance() != null){
+                        Communication.getInstance().sendMessage("[Logout]-");
+                        Manager.getInstance().stopManager();
+                        Communication.getInstance().destroy();
+                    }
+                } catch (IOException e) {
+                    //e.printStackTrace();
+                }
+            }}, 0);*/
     }
 
     public boolean checkPermission(){
@@ -354,6 +396,7 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
         if(wiFiReferencePointsFragment==null){
             wiFiReferencePointsFragment = new WiFiReferencePointsFragment(this);
             wiFiReferencePointsFragment.setReferencePointsFromDatabaseList(referencePointsFromDatabase);
+            wiFiReferencePointsFragment.setISendDataToUIListener(this);
         }
         //Log.d(TAG, "messageFromManagerToMainActivity: " + referencePointsFromDatabase.size());
         FragmentManager fragmentManager = getSupportFragmentManager();
