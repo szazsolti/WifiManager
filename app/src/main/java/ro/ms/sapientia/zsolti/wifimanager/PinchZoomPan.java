@@ -101,7 +101,7 @@ public class PinchZoomPan extends View {
                 float x = calculateX(p.x);
                 float y = calculateY(p.y);
 
-                //Log.d(TAG, "onDraw: x: " + x + " y: " + y);
+                Log.d(TAG, "onDraw in for: x: " + x + " y: " + y);
 
                 canvas.drawCircle(x, y, 5, paintReferencePoint);
             }

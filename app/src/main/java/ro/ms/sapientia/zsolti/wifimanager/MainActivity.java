@@ -171,18 +171,23 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
     }
 
     public void startWiFiReferencePoints(){
-        if(wiFiReferencePointsFragment==null){
+        if(wiFiReferencePointsFragment==null){/*
             try {
                 Communication.getInstance().sendMessage("[ReferenceWifiPointsFromDatabase]-");
             } catch (IOException ignored) {
                 Toast.makeText(getApplicationContext(),
                         "Failed to send message from StartWiFiReferencePoints.",
                         Toast.LENGTH_SHORT).show();
-            }
-            //wiFiReferencePointsFragment = new WiFiReferencePointsFragment(this);
+            }*/
+            wiFiReferencePointsFragment = new WiFiReferencePointsFragment(this);
+            wiFiReferencePointsFragment.setReferencePointsFromDatabaseList(new ArrayList<ReferencePoint>());
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container, wiFiReferencePointsFragment);
+            //fragmentTransaction.addToBackStack("mainActivity3");
+            fragmentTransaction.commit();
         }
         else{
-
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, wiFiReferencePointsFragment);
@@ -214,6 +219,11 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
                 if(text.contains("The socket is closed. Server is not available.") || text.contains("Server is not available.")){
                     startHomeFragment();
                     Manager.getInstance().stopManager();
+                    try {
+                        Communication.getInstance().destroy();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
                 }
                 Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
@@ -395,10 +405,10 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
     public void messageFromManagerToMainActivity(ArrayList<ReferencePoint> referencePointsFromDatabase) {
         if(wiFiReferencePointsFragment==null){
             wiFiReferencePointsFragment = new WiFiReferencePointsFragment(this);
-            wiFiReferencePointsFragment.setReferencePointsFromDatabaseList(referencePointsFromDatabase);
             wiFiReferencePointsFragment.setISendDataToUIListener(this);
         }
         //Log.d(TAG, "messageFromManagerToMainActivity: " + referencePointsFromDatabase.size());
+        wiFiReferencePointsFragment.setReferencePointsFromDatabaseList(referencePointsFromDatabase);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, wiFiReferencePointsFragment);

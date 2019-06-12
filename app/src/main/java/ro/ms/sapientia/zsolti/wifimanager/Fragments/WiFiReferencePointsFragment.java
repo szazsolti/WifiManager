@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.IDrawerLocker;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromManagerToWiFiReferencePointsFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromManagerToWiFiReferencePointsFragment;
 import ro.ms.sapientia.zsolti.wifimanager.MainActivity;
 import ro.ms.sapientia.zsolti.wifimanager.Manager;
@@ -41,7 +43,7 @@ import static java.lang.StrictMath.abs;
 import static java.lang.StrictMath.log;
 
 
-public class WiFiReferencePointsFragment extends Fragment {
+public class WiFiReferencePointsFragment extends Fragment implements ISendMessageFromManagerToWiFiReferencePointsFragment {
 
     private Context context;
     private PinchZoomPan pinchZoomPan;
@@ -77,6 +79,7 @@ public class WiFiReferencePointsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Manager.getInstance().setISendMessageFromManagerToWiFiReferencePointsFragment(this);
     }
 
     @Override
@@ -88,6 +91,8 @@ public class WiFiReferencePointsFragment extends Fragment {
         ((IDrawerLocker) getActivity()).setDrawerEnabled(true);
         pinchZoomPan = view.findViewById(R.id.ivImage);
         pinchZoomPan.setContext(context);
+
+
 
         selectFloor = view.findViewById(R.id.floorSelect);
 
@@ -104,26 +109,33 @@ public class WiFiReferencePointsFragment extends Fragment {
                         //sendDataToUIListener.returnMessage("No data from this floor.");
                         selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/foldszint_100");
                         pinchZoomPan.loadImageOnCanvas(selectedImage);
-
-                        setPointsToFloor(0);
+                        referencePointsFromDatabase.clear();
+                        makeQuery(0);
+                        //setPointsToFloor(0);
                         break;
                     case 1:
                         //Log.d(TAG, "onItemClick: selected 1");
                         selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/elso_emelet_200");
                         pinchZoomPan.loadImageOnCanvas(selectedImage);
-                        setPointsToFloor(1);
+                        referencePointsFromDatabase.clear();
+                        makeQuery(1);
+                        //setPointsToFloor(1);
                         break;
                     case 2:
                         //Log.d(TAG, "onItemClick: selected 2");
                         selectedImage = Uri.parse("android.resource://"+context.getPackageName()+ "/drawable/masodik_emelet_300");
                         pinchZoomPan.loadImageOnCanvas(selectedImage);
-                        setPointsToFloor(2);
+                        referencePointsFromDatabase.clear();
+                        makeQuery(2);
+                        //setPointsToFloor(2);
                         break;
                     case 3:
                         //Log.d(TAG, "onItemClick: selected 3");
                         selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/harmadik_emelet_400");
                         pinchZoomPan.loadImageOnCanvas(selectedImage);
-                        setPointsToFloor(3);
+                        referencePointsFromDatabase.clear();
+                        makeQuery(3);
+                        //setPointsToFloor(3);
                         break;
                 }
             }
@@ -161,12 +173,16 @@ public class WiFiReferencePointsFragment extends Fragment {
             public void run() {
                 while (true) {
                     wifiListFromDevice=Manager.getInstance().getWifisFromDevice();
-                    calculateConvolution(wifiListFromDevice,referencePointsFromDatabase);
+                    if(referencePointsFromDatabase.size()!=0){
+                        calculateConvolution(wifiListFromDevice,referencePointsFromDatabase);
+                    }
                     onlineUsers = Manager.getInstance().getOnlineUsers();
                     Log.d(TAG, "run: onlineUsers: " + onlineUsers.size());
                     pinchZoomPan.drawUsers(onlineUsers,paintUsers);
+                    //pinchZoomPan.postInvalidate();
+                    //setPointsToFloor();
                     try {
-                        Thread.sleep(15000);
+                        Thread.sleep(5000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -176,11 +192,19 @@ public class WiFiReferencePointsFragment extends Fragment {
         refreshWifi.start();
     }
 
-    private void setPointsToFloor(int floor){
+    private void makeQuery(int i){
+        try {
+            Communication.getInstance().sendMessage("[ReferenceWifiPointsFromDatabase]-"+i);
+        } catch (IOException ignored) {
+            sendDataToUIListener.returnMessage("Failed to send message from StartWiFiReferencePoints.");
+        }
+    }
+
+    private void setPointsToFloor(){
         points.clear();
         for(ReferencePoint it : referencePointsFromDatabase){
             Log.d(TAG, "setPointsToFloor: " + it.getReferenceWifis().get(0).getFloor());
-            if(it.getReferenceWifis().get(0).getFloor() == floor){
+            //if(it.getReferenceWifis().get(0).getFloor() == floor){
                 Point point = new Point();
 
                 point.x = it.getReferenceWifis().get(0).getX();
@@ -188,7 +212,7 @@ public class WiFiReferencePointsFragment extends Fragment {
 
                 //Log.d(TAG, "onCreateView: " + "x: " + point.x + " y: " + point.y);
                 points.add(point);
-            }
+            //}
         }
         pinchZoomPan.drawPoints(points, paintReference);
     }
@@ -246,14 +270,17 @@ public class WiFiReferencePointsFragment extends Fragment {
                 referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX() +
                 " y: " + referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY());
 */
-        Client.getInstance().setXRef(referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX()+"");
-        Client.getInstance().setYRef(referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY()+"");
-        pinchZoomPan.drawUser(referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX(),referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY());
-        try {
-            Communication.getInstance().sendMessage("[PositionConv]-"+referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX() + " " + referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY());
-        } catch (IOException e) {
-            //e.printStackTrace();
-        }
+
+        //if(referencePointsFromDatabase.size()!=0){
+            Client.getInstance().setXRef(referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX()+"");
+            Client.getInstance().setYRef(referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY()+"");
+            pinchZoomPan.drawUser(referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX(),referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY());
+            try {
+                Communication.getInstance().sendMessage("[PositionConv]-"+referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX() + " " + referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY());
+            } catch (IOException e) {
+                //e.printStackTrace();
+            }
+       // }
     }
 
     private Double[] makeDoubleListFromReferenceWifi(ArrayList<WiFiReference> wiFiReferences, int N){
@@ -291,4 +318,10 @@ public class WiFiReferencePointsFragment extends Fragment {
         this.sendDataToUIListener = ISendDataToUIListener;
     }
 
+    @Override
+    public void drawReferncePoints(boolean received) {
+        if(received){
+            setPointsToFloor();
+        }
+    }
 }

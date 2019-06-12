@@ -21,6 +21,7 @@ import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
 import ro.ms.sapientia.zsolti.wifimanager.Fragments.DrawPositionFragmentI;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromManagerToMainActivity;
+import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromManagerToWiFiReferencePointsFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromReaderThreadToManager;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromManagerToWiFiReferencePointsFragment;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromWifiScanReceiverToManager;
@@ -38,6 +39,8 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
     private Thread refreshWifi = new Thread();
     private Thread startConnection;
     private ISendMessageFromManagerToMainActivity sendMessageFromManagerToMainActivity;
+    private ISendMessageFromManagerToWiFiReferencePointsFragment sendMessageFromManagerToWiFiReferencePointsFragment;
+    private ISendWiFiListFromManagerToWiFiReferencePointsFragment sendWiFiListFromManagerToWiFiReferencePointsFragment;
     //private ISendWiFiListFromManagerToWiFiReferencePointsFragment sendWiFiListFromManagerToWiFiReferencePointsFragment;
     private Random random = new Random();
     //private INotifyToDraw INotifyToDraw;
@@ -375,7 +378,6 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
             if(parts[0].equals("[ConnectionOK]")){
                 sendDataToUIListener.returnMessage("Waiting for data...");
                 //Log.d(TAG, "returnMessageFromReaderThread: ConnectionOK is received");
-
                 startDrawPositionFragment();
             }
             else if(parts[0].equals("[Wifis]")){
@@ -385,13 +387,21 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
             }
             else if(parts[0].equals("[ReferencePoints]")){
                 //Log.d(TAG, "returnMessageFromReaderThread: " + parts[1]);
-                setReferencePointsFromDatabase(parts[1]);
+                if(parts[1].equals("non~")){
+                    sendDataToUIListener.returnMessage("No reference point in selected floor.");
+                }
+                else {
+                    setReferencePointsFromDatabase(parts[1]);
+                }
             }
             else if(parts[0].equals("[ReferencePointWifis]")){
                 setReferencePointWifisFromDatabase(parts[1]);
+
             }
             else if(parts[0].equals("[ReferenceWifiPointsFromDatabaseEnd]")){
                 sendDataToUIListener.returnMessage("All data is received.");
+                sendMessageFromManagerToWiFiReferencePointsFragment.drawReferncePoints(true);
+                //interface
             }
             else if(parts[0].equals("[Exit]")){
                 /*
@@ -408,10 +418,9 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
             }
         }
         catch (Exception e){
-            //e.printStackTrace();
+            e.printStackTrace();
             sendDataToUIListener.returnMessage("Hiba: " + e.toString());
         }
-
     }
 
     private void setUsers(String message){
@@ -427,12 +436,11 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
 
     private void setReferencePointsFromDatabase(String message){
        String[] parts = message.split("~");
-        for(int i=0;i<parts.length;i++){
-            referencePointsFromDatabase.add(new ReferencePoint(Integer.parseInt(parts[i])));
-        }/*
-        for (ReferencePoint it : referencePointsFromDatabase){
-            Log.d(TAG, "setReferencePointsFromDatabase: " + it.getId());
-        }*/
+       //Log.d(TAG, "setReferencePointsFromDatabase: message length: " + message.length() + " message: " + message);
+       referencePointsFromDatabase.clear();
+       for(int i=0;i<parts.length;i++){
+           referencePointsFromDatabase.add(new ReferencePoint(Integer.parseInt(parts[i])));
+       }
     }
 
     private void setReferencePointWifisFromDatabase(String message){
@@ -484,6 +492,11 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
     public void setISendMessageFromManagerToMainActivity(ISendMessageFromManagerToMainActivity sendMessageFromManagerToMainActivity){
         this.sendMessageFromManagerToMainActivity = sendMessageFromManagerToMainActivity;
     }
+
+    public void setISendMessageFromManagerToWiFiReferencePointsFragment(ISendMessageFromManagerToWiFiReferencePointsFragment received){
+        this.sendMessageFromManagerToWiFiReferencePointsFragment = received;
+    }
+
 /*
     public void setISendWiFiListFromManagerToWiFiReferencePointsFragment(ISendWiFiListFromManagerToWiFiReferencePointsFragment sendWiFiListFromManagerToWiFiReferencePointsFragment){
         this.sendWiFiListFromManagerToWiFiReferencePointsFragment = sendWiFiListFromManagerToWiFiReferencePointsFragment;
