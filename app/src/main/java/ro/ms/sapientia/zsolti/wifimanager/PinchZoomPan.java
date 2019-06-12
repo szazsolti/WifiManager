@@ -52,6 +52,8 @@ public class PinchZoomPan extends View {
     private float mPositionY;
     private float mLastTouchX;
     private float mLastTouchY;
+    private float imageX=1384;
+    private float imageY=637;
 
     private static final int INVALID_POINTER_ID = -1;
     private int mActivePointerID = INVALID_POINTER_ID;
@@ -99,7 +101,7 @@ public class PinchZoomPan extends View {
                 float x = calculateX(p.x);
                 float y = calculateY(p.y);
 
-                Log.d(TAG, "onDraw: x: " + x + " y: " + y);
+                //Log.d(TAG, "onDraw: x: " + x + " y: " + y);
 
                 canvas.drawCircle(x, y, 5, paintReferencePoint);
             }
@@ -114,7 +116,7 @@ public class PinchZoomPan extends View {
                 //randomNumber=10;
                 if(!p.getUserName().equals(Client.getInstance().getUsername())){
                     canvas.drawCircle(calculateX((int)p.getXRef()),calculateY((int)p.getYRef()),5,paintUsers);
-                    Log.d(TAG, "onDraw: username: " + p.getUserName() + p.getXRef() + " " + p.getYRef());
+                    //Log.d(TAG, "onDraw: username: " + p.getUserName() + p.getXRef() + " " + p.getYRef());
                     canvas.drawText(p.getUserName(),calculateX((int)p.getXRef())-20,calculateY((int)p.getYRef())+25,paintUsers);
                 }
             }
@@ -134,7 +136,10 @@ public class PinchZoomPan extends View {
         float referenceRatioX = 1384/xCoord;
         float screenRatioX = abs(xRatio - referenceRatioX)/10;
         x = (abs(screenRatioX * getWidth())%getWidth());*/
-        return (1384*xCoord)/8560;
+        float x = (imageX*xCoord)/8560;
+        Log.d(TAG, "calculateX: x: " + x + " imageX: " + imageX + " xCoord: " + xCoord);
+        //Log.d(TAG, "calculateX: x: " + x);
+        return x;
     }
 
     private float calculateY(int yCoord){
@@ -143,7 +148,10 @@ public class PinchZoomPan extends View {
         float referenceRatioY = 637/yCoord;
         float screenRatioY = abs(yRatio - referenceRatioY);
         y = (abs(screenRatioY * getHeight())%getHeight());*/
-        return (637*yCoord)/3630;
+        float y = (imageY*yCoord)/3630;
+        Log.d(TAG, "calculateY: y: " + y + " imageY: " + imageY + " yCoord: " + yCoord);
+        //Log.d(TAG, "calculateY: y: " + y);
+        return y;
     }
 
     private boolean checkX(float touchedX){
@@ -314,12 +322,19 @@ public class PinchZoomPan extends View {
             e.printStackTrace();
         }
 
-        float aspectRatio = (float) bitmap.getHeight()/(float) bitmap.getWidth();
+        imageX = bitmap.getWidth();
+        imageY = bitmap.getHeight();
+
+        Log.d(TAG, "loadImageOnCanvas: bitmapX: " + bitmap.getWidth() + " bitmapY: " + (float) bitmap.getHeight());
+
+        //float aspectRatio = (float) bitmap.getHeight()/(float) bitmap.getWidth();
+        float aspectRatio = imageY/imageX;
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        mImageWidth = displayMetrics.widthPixels;
-        mImageHeight = Math.round(mImageWidth * aspectRatio);
+        //mImageWidth = displayMetrics.widthPixels;
+        //mImageHeight = Math.round(mImageWidth * aspectRatio);
         Log.d(TAG, "loadImageOnCanvas: mImageWidth: " + mImageWidth + " mImageHeight: " + mImageHeight);
-        mBitmap = bitmap.createScaledBitmap(bitmap,mImageWidth,mImageHeight,false);
+        //mBitmap = bitmap.createScaledBitmap(bitmap,mImageWidth,mImageHeight,false);
+        mBitmap = bitmap.createScaledBitmap(bitmap,(int)imageX,(int)imageY,false);
         invalidate();
         //requestLayout();
     }

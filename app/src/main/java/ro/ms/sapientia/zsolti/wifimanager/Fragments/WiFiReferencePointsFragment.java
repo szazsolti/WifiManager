@@ -47,7 +47,8 @@ public class WiFiReferencePointsFragment extends Fragment {
     private PinchZoomPan pinchZoomPan;
     private ArrayList<Point> points = new ArrayList<>();
     private ArrayList<Point> userPoints = new ArrayList<>();
-    private Paint paint = new Paint();
+    private Paint paintReference = new Paint();
+    private Paint paintUsers = new Paint();
     private ArrayList<ReferencePoint> referencePointsFromDatabase = new ArrayList<>();
     private ArrayList<WiFi> wifiListFromDevice = new ArrayList<>();
     private ArrayList<UserOnCanvas> onlineUsers = new ArrayList<>();
@@ -103,6 +104,7 @@ public class WiFiReferencePointsFragment extends Fragment {
                         //sendDataToUIListener.returnMessage("No data from this floor.");
                         selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/foldszint_100");
                         pinchZoomPan.loadImageOnCanvas(selectedImage);
+
                         setPointsToFloor(0);
                         break;
                     case 1:
@@ -134,8 +136,8 @@ public class WiFiReferencePointsFragment extends Fragment {
 
         //referencePointsFromDatabase = Manager.getInstance().getReferencePointsFromDatabase();
 
-        paint.setColor(Color.BLACK);
-
+        paintUsers.setColor(Color.BLUE);
+        paintReference.setColor(Color.GREEN);
         refreshWiFiList();
 
 
@@ -162,7 +164,7 @@ public class WiFiReferencePointsFragment extends Fragment {
                     calculateConvolution(wifiListFromDevice,referencePointsFromDatabase);
                     onlineUsers = Manager.getInstance().getOnlineUsers();
                     Log.d(TAG, "run: onlineUsers: " + onlineUsers.size());
-                    pinchZoomPan.drawUsers(onlineUsers,paint);
+                    pinchZoomPan.drawUsers(onlineUsers,paintUsers);
                     try {
                         Thread.sleep(15000);
                     } catch (InterruptedException e) {
@@ -188,7 +190,7 @@ public class WiFiReferencePointsFragment extends Fragment {
                 points.add(point);
             }
         }
-        pinchZoomPan.drawPoints(points, paint);
+        pinchZoomPan.drawPoints(points, paintReference);
     }
 
 

@@ -375,6 +375,7 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
             if(parts[0].equals("[ConnectionOK]")){
                 sendDataToUIListener.returnMessage("Waiting for data...");
                 //Log.d(TAG, "returnMessageFromReaderThread: ConnectionOK is received");
+
                 startDrawPositionFragment();
             }
             else if(parts[0].equals("[Wifis]")){

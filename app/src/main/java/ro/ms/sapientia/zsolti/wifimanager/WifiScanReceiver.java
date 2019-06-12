@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,11 +44,15 @@ public class WifiScanReceiver extends BroadcastReceiver {
 
             for (String wifi : wifis){
                 String[] temp = wifi.split(",");
+                //Log.d(TAG, "onReceive: wifi:" + wifi);
                 String ssid = temp[0].substring(5).trim();
+                String macAddress =  temp[1].substring(8);
                 double frequency = Double.parseDouble(temp[4].substring(11));
                 double level = Double.parseDouble(temp[3].substring(7).trim());
 
-                WiFi tempWifi = new WiFi(ssid,level,frequency);
+                //Log.d(TAG, "onReceive: mac:" + macAddress);
+
+                WiFi tempWifi = new WiFi(macAddress,level,frequency);
                 wifisFromDevice.add(tempWifi);
             }
             //Log.d(TAG, "onReceive: WifiList: " + wifisFromDevice.toString());
