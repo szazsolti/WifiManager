@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Point;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -12,12 +13,17 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,7 +34,9 @@ import ro.ms.sapientia.zsolti.wifimanager.Interfaces.IDrawerLocker;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromManagerToWiFiReferencePointsFragment;
 import ro.ms.sapientia.zsolti.wifimanager.ListWifiItem;
 import ro.ms.sapientia.zsolti.wifimanager.Manager;
+import ro.ms.sapientia.zsolti.wifimanager.MyCanvasForReferencePoints;
 import ro.ms.sapientia.zsolti.wifimanager.R;
+import ro.ms.sapientia.zsolti.wifimanager.ReferencePoint;
 import ro.ms.sapientia.zsolti.wifimanager.WiFi;
 import ro.ms.sapientia.zsolti.wifimanager.WifiListAdapter;
 import ro.ms.sapientia.zsolti.wifimanager.WifiScanReceiver;
@@ -38,34 +46,23 @@ import static java.lang.StrictMath.abs;
 public class ListWiFisToSetReferenceFragment extends Fragment   {
 
     private Context context;
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
-    private WifiScanReceiver wifiReciever;
-    private List<ListWifiItem> listWifiItems;
-    private WifiManager mainWifiObj;
     private String TAG = "LISTWIFISTOSETREFERENCE";
-    private Button getWifis;
-    private Button saveRef;
     private ArrayList<WiFi> wifisFromDevice;
-    private EditText floor;
-    private EditText x;
-    private EditText y;
-
+    private RelativeLayout layout;
+    private MyCanvasForReferencePoints myCanvasForReferencePoints;
+    private Button selectFloor;
+    private Button saveButton;
+    private Uri selectedImage;
+    private Spinner selectFloorSpinner;
 
     @SuppressLint("ValidFragment")
     public ListWiFisToSetReferenceFragment(Context context) {
         this.context=context;
+        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/foldszint_100");
     }
 
     public ListWiFisToSetReferenceFragment() {
-        // Required empty public constructor
-    }
-
-    public static ListWiFisToSetReferenceFragment newInstance(String param1, String param2) {
-        ListWiFisToSetReferenceFragment fragment = new ListWiFisToSetReferenceFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
+        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/foldszint_100");
     }
 
     @Override
@@ -77,69 +74,64 @@ public class ListWiFisToSetReferenceFragment extends Fragment   {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_list_wifis_to_set_reference, container, false);
-
-        ((IDrawerLocker) getActivity()).setDrawerEnabled(true);
-
-        floor = new EditText(context);
-        x = new EditText(context);
-        y = new EditText(context);
-        //mainWifiObj = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-       // wifiReciever = new WifiScanReceiver(mainWifiObj);
-       // wifiReciever.setISendWiFiListFromWiFiScanReceiverToListWiFisToSetReference(this);
-
-        recyclerView = view.findViewById(R.id.recycle_wifis);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        getWifis = view.findViewById(R.id.getList);
-        saveRef = view.findViewById(R.id.bt_SaveRef);
-        listWifiItems = new ArrayList<>();
-
-        //ListWifiItem item = new ListWifiItem("Ez meg kell jelenjen!");
-        //listWifiItems.add(item);
-
-        adapter=new WifiListAdapter(listWifiItems,context);
-        recyclerView.setAdapter(adapter);
-
-        getWifis.setOnClickListener(new View.OnClickListener() {
+        layout = view.findViewById(R.id.rect);
+        myCanvasForReferencePoints = new MyCanvasForReferencePoints(context);
+        layout.addView(myCanvasForReferencePoints);
+        myCanvasForReferencePoints.loadImageOnCanvas(selectedImage);
+        selectFloor = view.findViewById(R.id.floorSelectButton);
+        saveButton = view.findViewById(R.id.saveButton);
+        selectFloorSpinner = new Spinner(context);
+        selectFloorSpinner.setSelection(0);
+        saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Log.d(TAG, "getWifis: in onClickListener");
                 wifisFromDevice = Manager.getInstance().getWifisFromDevice();
-                //Log.d(TAG, "onTouch: "+ wifisFromDevice.toString());
-                //Log.d(TAG, "onTouch: tempSize"+wifisFromDevice.size());
-                listWifiItems.clear();
-                for(int i = 0; i< wifisFromDevice.size(); i++){
-                    listWifiItems.add(new ListWifiItem(wifisFromDevice.get(i).getName()+" "+ wifisFromDevice.get(i).getLevel()+" "+ wifisFromDevice.get(i).getFrequency()));
+                //Log.d(TAG, "onClick: wifisFromDeive: " + wifisFromDevice.size());
+                int x = myCanvasForReferencePoints.getxCm();
+                int y =myCanvasForReferencePoints.getyCm();
+
+                if(x>0 && y>0){
+                    //Log.d(TAG, "onClick: selected item index: "+selectFloorSpinner.getSelectedItemPosition());
+                    for(int i = 0;i< wifisFromDevice.size();i++){
+                        try {
+                            Communication.getInstance().sendMessage("[WifiToReference]-"
+                                    +wifisFromDevice.size()
+                                    +"~"+selectFloorSpinner.getSelectedItemPosition()
+                                    +"~"+x
+                                    +"~"+y
+                                    +"~"+wifisFromDevice.get(i).getName()
+                                    +"~"+abs(wifisFromDevice.get(i).getLevel())
+                                    +"~"+ wifisFromDevice.get(i).getFrequency());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    try {
+                        Communication.getInstance().sendMessage("[WifiToReferenceStop]-");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-                adapter.notifyDataSetChanged();
+
             }
         });
-
-        saveRef.setOnClickListener(new View.OnClickListener() {
+        selectFloor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(wifisFromDevice!=null){
-                    //Log.d(TAG, "getLevelCoord: in onClickListener");
-                    getLevelCoord(v);
-                }
+                getLevelCoord(v);
             }
         });
-
         return view;
     }
+
 
     private void getLevelCoord(View v){
         AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());//Context is activity context
 
         LinearLayout layout = new LinearLayout(v.getContext());
         layout.setOrientation(LinearLayout.VERTICAL);
-
         builder.setTitle(getString(R.string.dialog_title));
-        //builder.setMessage(getString(R.string.message_item));
-        //builder.setTitle(getString(R.string.update));
-        //builder.setMessage("");
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
@@ -147,77 +139,79 @@ public class ListWiFisToSetReferenceFragment extends Fragment   {
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
 
-        floor.setLayoutParams(lp);
-        floor.setHint(getString(R.string.floor_number));
-        floor.setTextColor(ContextCompat.getColor(context, R.color.black));
-        floor.setInputType(InputType.TYPE_CLASS_NUMBER);
 
-        //floor.setText("String in edit text you want");
-        x.setLayoutParams(xAndYLayout);
-        y.setLayoutParams(xAndYLayout);
+        String[] floors = new String[]{"Ground floor","First","Second","Third"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context,android.R.layout.simple_spinner_dropdown_item,floors);
+        selectFloorSpinner.setAdapter(adapter);
+/*
+        selectFloorSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position){
+                    case 0:
+                        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/foldszint_100");
+                        break;
+                    case 1:
+                        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/elso_emelet_200");
+                        break;
+                    case 2:
+                        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+ "/drawable/masodik_emelet_300");
+                        break;
+                    case 3:
+                        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/harmadik_emelet_400");
+                        break;
+                    default:
+                        Log.e(TAG,"nincs kiválasztva semmi!");
+                        break;
+                }
 
-        x.setHint(getString(R.string.x_coord));
-        x.setTextColor(ContextCompat.getColor(context, R.color.black));
-        x.setInputType(InputType.TYPE_CLASS_NUMBER);
+            }
 
-        y.setHint(getString(R.string.y_coord));
-        y.setTextColor(ContextCompat.getColor(context, R.color.black));
-        y.setInputType(InputType.TYPE_CLASS_NUMBER);
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
 
-        if(floor.getParent() != null || x.getParent() != null || y.getParent() != null){
-            ((ViewGroup)floor.getParent()).removeView(floor);
-            ((ViewGroup)x.getParent()).removeView(x);
-            ((ViewGroup)y.getParent()).removeView(y);
+            }
+        });
+
+*/
+
+        if(selectFloorSpinner.getParent() != null){
+            ((ViewGroup)selectFloorSpinner.getParent()).removeView(selectFloorSpinner);
         }
 
-        layout.addView(floor);
-        layout.addView(x);
-        layout.addView(y);
+        layout.addView(selectFloorSpinner);
         builder.setView(layout);
-        //builder.setView(x);
-        //builder.setView(y);
+
         builder.setPositiveButton(getString(android.R.string.ok),
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-//Positive button click event
-                        if(!floor.getText().toString().equals("") && !x.getText().toString().equals("") && !y.getText().toString().equals("")){
-                            for(int i = 0;i< wifisFromDevice.size();i++){
-                                try {
-                                    Communication.getInstance().sendMessage("[WifiToReference]-"
-                                            +wifisFromDevice.size()
-                                            +"~"+floor.getText().toString()
-                                            +"~"+x.getText().toString()
-                                            +"~"+y.getText().toString()
-                                            +"~"+wifisFromDevice.get(i).getName()
-                                            +"~"+abs(wifisFromDevice.get(i).getLevel())
-                                            +"~"+ wifisFromDevice.get(i).getFrequency());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            try {
-                                Communication.getInstance().sendMessage("[WifiToReferenceStop]-");
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                        switch (selectFloorSpinner.getSelectedItemPosition()){
+                            case 0:
+                                selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/foldszint_100");
+                                break;
+                            case 1:
+                                selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/elso_emelet_200");
+                                break;
+                            case 2:
+                                selectedImage = Uri.parse("android.resource://"+context.getPackageName()+ "/drawable/masodik_emelet_300");
+                                break;
+                            case 3:
+                                selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/harmadik_emelet_400");
+                                break;
                         }
+                        myCanvasForReferencePoints.loadImageOnCanvas(selectedImage);
                     }
                 });
-
         builder.setNegativeButton(getString(android.R.string.cancel),
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-//Negative button click event
+
                     }
                 });
         AlertDialog dialog = builder.create();
         dialog.show();
-    }
-
-    public void onButtonPressed(Uri uri) {
-
     }
 
     @Override

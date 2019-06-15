@@ -8,29 +8,22 @@ import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.zip.Inflater;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.IDrawerLocker;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromManagerToWiFiReferencePointsFragment;
-import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromManagerToWiFiReferencePointsFragment;
-import ro.ms.sapientia.zsolti.wifimanager.MainActivity;
 import ro.ms.sapientia.zsolti.wifimanager.Manager;
 import ro.ms.sapientia.zsolti.wifimanager.PinchZoomPan;
 import ro.ms.sapientia.zsolti.wifimanager.R;
@@ -39,8 +32,8 @@ import ro.ms.sapientia.zsolti.wifimanager.UserOnCanvas;
 import ro.ms.sapientia.zsolti.wifimanager.WiFi;
 import ro.ms.sapientia.zsolti.wifimanager.WiFiReference;
 
+import static java.lang.Math.max;
 import static java.lang.StrictMath.abs;
-import static java.lang.StrictMath.log;
 
 
 public class WiFiReferencePointsFragment extends Fragment implements ISendMessageFromManagerToWiFiReferencePointsFragment {
@@ -174,7 +167,7 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
                 while (true) {
                     wifiListFromDevice=Manager.getInstance().getWifisFromDevice();
                     if(referencePointsFromDatabase.size()!=0){
-                        calculateConvolution(wifiListFromDevice,referencePointsFromDatabase);
+                        calculateCorrelation(wifiListFromDevice,referencePointsFromDatabase);
                     }
                     onlineUsers = Manager.getInstance().getOnlineUsers();
                     Log.d(TAG, "run: onlineUsers: " + onlineUsers.size());
@@ -218,69 +211,80 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
     }
 
 
-    private void calculateConvolution(ArrayList<WiFi> wifiListFromDevice, ArrayList<ReferencePoint> referencePointsFromDatabase){
+    private void calculateCorrelation(ArrayList<WiFi> wifiListFromDevice, ArrayList<ReferencePoint> referencePointsFromDatabase){
         //wifiListFromDevice.get(0).getLevel();
         //referencePointsFromDatabase.get(0).getReferenceWifis().get(0).getLevel();
         //ArrayList<Double> result = new ArrayList<>();
-        Double[] result;
-        Double[] max = new Double[referencePointsFromDatabase.size()];
-        int j = 0;
+        double[] result;
+        double max = 0;
+        int zeroNumbers = 9999;
+        int i=0;
+        ReferencePoint bestPoint = null;
+        result = new double[referencePointsFromDatabase.size()];
+        //result[]=0.0;
         for(ReferencePoint rp : referencePointsFromDatabase){
-            max[j]=0.0;
-            int numberOfElements = rp.getReferenceWifis().size() + wifiListFromDevice.size();
-
-            Double[] x = makeDoubleListFromReferenceWifi(rp.getReferenceWifis(),numberOfElements);
-            Double[] y = makeDoubleListFromDeviceWifi(wifiListFromDevice,numberOfElements);
-            //Double max=0.0;
-            //int N = x.length + y.length;
-            //Log.d(TAG, "calculateConvolution: " + numberOfElements);
-            result = new Double[numberOfElements];
-            for(int n =0;n<numberOfElements;n++){
-                result[n]=0.0;
-                for(int k=0;k<n;k++){
-                    if((n-k)>y.length){
-                        y[n-k]=0.0;
+            //max[j]=0.0;
+            //int numberOfElements = rp.getReferenceWifis().size() + wifiListFromDevice.size();
+            result[i]=0;
+            for(int n=0;n<rp.getReferenceWifis().size();n++){
+                for(int k=0;k<wifiListFromDevice.size();k++){
+                    if(rp.getReferenceWifis().get(n).getName().equals(wifiListFromDevice.get(k).getName())){
+                        //result[n]=result[n]+rp.getReferenceWifis().get(k).getLevel()*(wifiListFromDevice.get(n-k).getLevel());
+                        result[i]=result[i]+ abs( rp.getReferenceWifis().get(n).getLevel())*abs((wifiListFromDevice.get(k).getLevel()));
                     }
-                    if(k>x.length){
-                        x[k]=0.0;
-                    }
-                    //Log.d(TAG, "calculateConvolution: n:" + n + " k: " + k);
-                    result[n] = result[n] + x[k]*y[n-k];
                 }
+                //Log.d(TAG, "calculateCorrelation: result max: " + result[n]);
             }
-            for (int i =0;i<result.length;i++){
-                if(result[i]>max[j]){
-                    max[j] = result[i];
-                    //Log.d(TAG, "calculateConvolution: Max: " + max + " point x: " + rp.getReferenceWifis().get(0).getX() + " y: " + rp.getReferenceWifis().get(0).getY());
-                }
-                //Log.d(TAG, "calculateConvolution: " + result[i]);
-            }
-            j++;
-        }
-        double maxx = 0.0;
-        int index=0;
-        for(int i=0;i<referencePointsFromDatabase.size();i++){
-            if(max[i]>maxx){
-                maxx = max[i];
-                index = i;
-            }
-        }
-        /*
-        Log.d(TAG, "calculateConvolution: max: " + maxx + "x: " +
-                referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX() +
-                " y: " + referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY());
-*/
+            //Log.d(TAG, "calculateCorrelation: " + getMax(result) + " zero: " + countZeros(result));
 
-        //if(referencePointsFromDatabase.size()!=0){
-            Client.getInstance().setXRef(referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX()+"");
-            Client.getInstance().setYRef(referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY()+"");
-            pinchZoomPan.drawUser(referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX(),referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY());
+            if(result[i]>max){
+                max = result[i];
+                //zeroNumbers = countZeros(result);
+                bestPoint = rp;
+            }
+            i++;
+        }
+
+        if(bestPoint != null){
+            Client.getInstance().setXRef(bestPoint.getReferenceWifis().get(0).getX()+"");
+            Client.getInstance().setYRef(bestPoint.getReferenceWifis().get(0).getY()+"");
+            pinchZoomPan.drawUser(bestPoint.getReferenceWifis().get(0).getX(),bestPoint.getReferenceWifis().get(0).getY());
             try {
-                Communication.getInstance().sendMessage("[PositionConv]-"+referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getX() + " " + referencePointsFromDatabase.get(index).getReferenceWifis().get(0).getY());
+                Communication.getInstance().sendMessage("[PositionConv]-"+bestPoint.getReferenceWifis().get(0).getX() + " " + bestPoint.getReferenceWifis().get(0).getY());
             } catch (IOException e) {
                 //e.printStackTrace();
             }
-       // }
+        }else{
+            sendDataToUIListener.returnMessage("No reference point found.");
+        }
+    }
+
+    private double getMax(double[] array){
+        try {
+            double max=array[0];
+            for (double anArray : array) {
+                if (anArray > max) {
+                    max = anArray;
+                }
+            }
+            return max;
+        }catch (Exception e){
+            return 0;
+        }
+    }
+
+    private int countZeros(double[] array){
+        try {
+            int counter = 0;
+            for (double anArray : array) {
+                if (anArray == 0) {
+                    counter++;
+                }
+            }
+            return counter;
+        }catch (Exception e){
+            return 9999;
+        }
     }
 
     private Double[] makeDoubleListFromReferenceWifi(ArrayList<WiFiReference> wiFiReferences, int N){

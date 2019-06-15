@@ -43,10 +43,11 @@ import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromManagerToW
 public class MainActivity extends AppCompatActivity implements ISendDataToUIListener, IDrawerLocker, ISendMessageFromManagerToMainActivity, ISendMessageFromHomefragmentToMainActivity {
 
     private boolean doubleBackToExitPressedOnce = false;
-    private String TAG = "MainActivity";
-    private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private Thread managerThread;
+    private String TAG = "MainActivity";
+    private DrawerLayout drawerLayout;
+
     static final String USERNAME = "username";
     private DrawPositionFragmentI drawPositionFragment;
     private ListWiFisToSetReferenceFragment listWiFisToSetReferenceFragment;
@@ -54,15 +55,11 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
     private SettingsFragment settingsFragment;
     private TextView tw_username;
 
-    //private ISendWiFiListFromManagerToWiFiReferencePointsFragment sendWiFiListFromManagerToWiFiReferencePointsFragment = null;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        //myToolbar = findViewById(R.id.toolBar);
-        //setSupportActionBar(myToolbar);
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigationView);
@@ -78,17 +75,14 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 switch (menuItem.getItemId()){
                     case R.id.trilateration:
-                        //menuItem.setChecked(true);
                         startTrilateration();
                         drawerLayout.closeDrawers();
                         return true;
                     case R.id.save_as_reference:
-                        //menuItem.setChecked(true);
                         startListWifisToSetReference();
                         drawerLayout.closeDrawers();
                         return true;
                     case R.id.reference_points:
-                        //menuItem.setChecked(true);
                         startWiFiReferencePoints();
                         drawerLayout.closeDrawers();
                         return true;
@@ -106,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
             if (savedInstanceState != null){
                 Manager.getInstance().startCommunication();
                 startManager();
-                //Log.d(TAG, "onCreate: after savedInstance");
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -160,14 +153,23 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
     public void startListWifisToSetReference(){
         if(listWiFisToSetReferenceFragment ==null){
             listWiFisToSetReferenceFragment = new ListWiFisToSetReferenceFragment(this);
+            //listWiFisToSetReferenceFragment.setReferencePointsFromDatabaseList(new ArrayList<ReferencePoint>());
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container, listWiFisToSetReferenceFragment);
+            //fragmentTransaction.addToBackStack("mainActivity3");
+            fragmentTransaction.commit();
+
         }
-        //listWiFisToSetReferenceFragment.setArguments(bundle);
-        //listWiFisToSetReferenceFragment.setNotifyToDraw(notifyDraw);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, listWiFisToSetReferenceFragment);
-        //fragmentTransaction.addToBackStack("mainActivity2");
-        fragmentTransaction.commit();
+        else{
+            //listWiFisToSetReferenceFragment.setArguments(bundle);
+            //listWiFisToSetReferenceFragment.setNotifyToDraw(notifyDraw);
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container, listWiFisToSetReferenceFragment);
+            //fragmentTransaction.addToBackStack("mainActivity2");
+            fragmentTransaction.commit();
+        }
     }
 
     public void startWiFiReferencePoints(){
@@ -258,11 +260,18 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
     @Override
     protected void onRestart() {
         super.onRestart();
-        try {
-            Communication.getInstance().sendMessage("[Username]-"+Client.getInstance().getUsername());
-        } catch (IOException e) {
-            //e.printStackTrace();
-        }
+
+            Thread sendUsername = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Communication.getInstance().sendMessage("[Username]-" + Client.getInstance().getUsername());
+                    } catch (IOException e) {
+                        //e.printStackTrace();
+                    }
+                }
+            });
+            sendUsername.start();
         //startHomeFragment();
     }
 
@@ -352,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
                 startActivity(myIntent);
             }
             else if(!detectInternetConnection.isConnectingToInternet()){
-                Toast.makeText(getApplicationContext(), "You need to enable your WIFI.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "You need to enable your Wi-Fi.", Toast.LENGTH_SHORT).show();
                 Intent myIntent = new Intent(Settings.ACTION_WIFI_SETTINGS);
                 startActivity(myIntent);
             }
