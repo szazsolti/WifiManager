@@ -74,7 +74,7 @@ public class PinchZoomPan extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if(mBitmap != null){
+        if(mBitmap != null && points!=null){
 
             //canvas.save();
             /*
@@ -98,12 +98,11 @@ public class PinchZoomPan extends View {
             //canvas.drawCircle(x,y,5,pBlack);
 
             for(Point p: points){
-                float x = calculateX(p.x);
-                float y = calculateY(p.y);
-
-                //Log.d(TAG, "onDraw in for: x: " + x + " y: " + y);
-
-                canvas.drawCircle(x, y, 5, paintReferencePoint);
+                if(p != null){
+                    float x = calculateX(p.x);
+                    float y = calculateY(p.y);
+                    canvas.drawCircle(x, y, 5, paintReferencePoint);
+                }
             }
 
             paintUser.setColor(Client.getInstance().getClientDotColor());

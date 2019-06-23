@@ -180,7 +180,7 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
                     }
                     wifiListFromDevice=Manager.getInstance().getWifisFromDevice();
                     if(referencePointsFromDatabase.size()!=0){
-                        calculateCorrelation(wifiListFromDevice,new ArrayList<>(referencePointsFromDatabase));
+                        calculateCorrelation(wifiListFromDevice,referencePointsFromDatabase);
                     }
                     onlineUsers = Manager.getInstance().getOnlineUsers();
                     Log.d(TAG, "run: onlineUsers: " + onlineUsers.size());

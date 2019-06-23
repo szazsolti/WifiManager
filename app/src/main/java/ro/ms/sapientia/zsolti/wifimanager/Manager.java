@@ -409,7 +409,7 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
 
             }
             else if(parts[0].equals("[ReferenceWifiPointsFromDatabaseEnd]")){
-                sendDataToUIListener.returnMessage("All data is received.");
+                //sendDataToUIListener.returnMessage("All data is received.");
                 sendMessageFromManagerToWiFiReferencePointsFragment.drawReferncePoints(true);
                 //interface
             }
