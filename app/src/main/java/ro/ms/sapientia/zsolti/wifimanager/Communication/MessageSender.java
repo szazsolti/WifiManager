@@ -30,11 +30,11 @@ public class MessageSender extends AsyncTask<String,Void,Void> {
             clientSocket = Communication.getInstance().getClientSocket();
             //clientSocket = Client.getInstance().getClientSocket();
             //Client.getInstance().setSocket(clientSocket);
-
+            Log.d(TAG,"Kuldott uzenet: "+message);
             if(clientSocket != null && clientSocket.isConnected() && clientSocket.isBound()){
                 //ISendDataToUIListener.returnMessage("The socket is OK.");
                 pw = new PrintWriter(clientSocket.getOutputStream());
-                Log.d(TAG,"Kuldott uzenet: "+message);
+                //Log.d(TAG,"Kuldott uzenet: "+message);
 
                 if(message.contains("[Logout]-")){
                     pw.write(message.length()+"~"+message + '\n');

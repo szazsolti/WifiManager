@@ -20,5 +20,8 @@
     <string name="appName">WiFiManager</string>
     <string name="listWifis">Available Wi-Fi networks </string>
     <string name="selectFloor">Floor selection: </string>
+    <string name="selectMyColor">MyColor</string>
+    <string name="selectOnlineUsersColor">User colors</string>
+    <string name="selectReferencePointsColor">Reference points color</string>
 
 </resources>

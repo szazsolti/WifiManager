@@ -1,15 +1,21 @@
 package ro.ms.sapientia.zsolti.wifimanager.Communication;
 
+import android.graphics.Color;
+
 import java.io.IOException;
 import java.net.Socket;
 
+import ro.ms.sapientia.zsolti.wifimanager.UserConfig;
+
 public class Client {
     private static Client sinlge_instance = null;
-    private String username="User";
+    //private String username="User";
     private String xTrilat="0";
     private String yTrilat="0";
     private String xRef="0";
     private String yRef="0";
+    private UserConfig userConfig = new UserConfig();
+
 
     private Client(){
     }
@@ -30,11 +36,47 @@ public class Client {
     }*/
 
     public void setUsername(String username){
-        this.username = username;
+        userConfig.writeStringData(username,"username");
     }
 
     public String getUsername(){
-        return this.username;
+        if(userConfig.isExistStringData("username")){
+            return userConfig.readStringData("username");
+        }
+        return "";
+    }
+
+    public void setClientDotColor(int color){
+        userConfig.writeIntData(color,"clientDotColor");
+    }
+
+    public int getClientDotColor(){
+        if(userConfig.isExistIntData("clientDotColor")){
+            return userConfig.readIntData("clientDotColor");
+        }
+        return Color.RED;
+    }
+
+    public void setReferencePointDotColor(int color){
+        userConfig.writeIntData(color,"referencePointDotColor");
+    }
+
+    public int getReferencePointDotColor(){
+        if(userConfig.isExistIntData("referencePointDotColor")){
+            return userConfig.readIntData("referencePointDotColor");
+        }
+        return Color.GREEN;
+    }
+
+    public void setOnlineUsersDotColor(int color){
+        userConfig.writeIntData(color,"onlineUsersDotColor");
+    }
+
+    public int getOnlineUsersDotColor(){
+        if(userConfig.isExistIntData("onlineUsersDotColor")){
+            return userConfig.readIntData("onlineUsersDotColor");
+        }
+        return Color.BLUE;
     }
 
     public String getXRef() {

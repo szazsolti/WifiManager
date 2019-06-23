@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 import static java.lang.StrictMath.abs;
 
-public class MyCanvas extends View {
+public class MyCanvasForTrilateration extends View {
 
     //private Double x_coord;
     //private Double y_coord;
@@ -28,7 +28,7 @@ public class MyCanvas extends View {
     private float x=getWidth()/2f;
     private float y=getHeight()/2f;
 
-    public MyCanvas(Context context, UserOnCanvas userOnCanvas){
+    public MyCanvasForTrilateration(Context context, UserOnCanvas userOnCanvas){
         super(context);
         this.userOnCanvas=userOnCanvas;
     }
@@ -46,7 +46,7 @@ public class MyCanvas extends View {
             Log.e("Err",e.getMessage());
         }
 
-        if (x_1 != 99999999 && y_1 != 99999999){
+        if (x_1 != 99999999 && x_1 != 0 &&  y_1 != 99999999 && y_1 !=0){
             userOnCanvas.setXCoordTrilat(x_1);
             userOnCanvas.setYCoordTrilat(y_1);
         }

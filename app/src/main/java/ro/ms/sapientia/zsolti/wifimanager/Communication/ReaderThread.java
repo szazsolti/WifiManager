@@ -47,7 +47,7 @@ public class ReaderThread implements Runnable{
                     //Log.d(TAG,"In if, socket is connected: "+socket.isConnected()+ " and bound: "+socket.isBound());
                     try{
                         mess = bufferedReader.readLine();
-                        //Log.d(TAG,"Message: "+ mess);
+                        Log.d(TAG,"Message: "+ mess);
                     }
                     catch (Exception e){
                         inputStreamReader.close();
@@ -111,7 +111,7 @@ public class ReaderThread implements Runnable{
 
     public void processingPachet(String input){
 
-        //Log.d(TAG, "processingPachet: input: " + input);
+        Log.d(TAG, "processingPachet: input: " + input);
         sendMessageFromReaderThreadToManager.returnMessageFromReaderThread(input);
 
         /*

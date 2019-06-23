@@ -3,7 +3,6 @@ package ro.ms.sapientia.zsolti.wifimanager.Fragments;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.IntentFilter;
-import android.content.res.Resources;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,14 +12,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.IDrawerLocker;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.INotifyToDraw;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 import ro.ms.sapientia.zsolti.wifimanager.Manager;
-import ro.ms.sapientia.zsolti.wifimanager.MyCanvas;
+import ro.ms.sapientia.zsolti.wifimanager.MyCanvasForTrilateration;
 import ro.ms.sapientia.zsolti.wifimanager.NotifyToDrawBroadcastReceiver;
 import ro.ms.sapientia.zsolti.wifimanager.R;
 import ro.ms.sapientia.zsolti.wifimanager.Trilateration;
@@ -29,7 +27,7 @@ import ro.ms.sapientia.zsolti.wifimanager.UserOnCanvas;
 
 public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
 
-    private MyCanvas myCanvas;
+    private MyCanvasForTrilateration myCanvasForTrilateration;
     private Point point = new Point();
     private String TAG = "DRAWPOSITIONFRAGMENT";
     private Context context;
@@ -75,10 +73,12 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
 
 
         //tw_username = headerView.findViewById(R.id.tw_username);
+        Log.d(TAG,"X: " + Trilateration.getInstance().getX() + "Y: " + Trilateration.getInstance().getY());
+        if(Trilateration.getInstance().getX()!=0 && Trilateration.getInstance().getY()!=0){
+            point.set((int)Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
+        }
 
-        point.set((int)Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
-
-        //Log.d(TAG,"X: " + Trilateration.getInstance().getX() + "Y: " + Trilateration.getInstance().getY());
+        //
 
         try{
             context.registerReceiver(receiver, filter);
@@ -97,13 +97,13 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
 
         UserOnCanvas user = new UserOnCanvas(point.x+"", point.y+"", Client.getInstance().getUsername());
 
-        myCanvas = new MyCanvas(context,user);
+        myCanvasForTrilateration = new MyCanvasForTrilateration(context,user);
         //Log.d(TAG,point.x + " " + point.y);
         //myCanvas.setParameters(point.x+"", point.y+"");
-        myCanvas.setContext(context);
-        myCanvas.setBackgroundResource(R.drawable.szoba2);
+        myCanvasForTrilateration.setContext(context);
+        myCanvasForTrilateration.setBackgroundResource(R.drawable.szoba2);
 
-        relativeLayout.addView(myCanvas);
+        relativeLayout.addView(myCanvasForTrilateration);
         //Log.d(TAG, "onCreateView: ");
         return view;
     }
@@ -113,14 +113,16 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
         super.onStart();
     }
 
-    void updateCanvasData(){
+    public void updateCanvasData(){
 
         Log.d(TAG, "updateCanvasData: x: " + (int)Trilateration.getInstance().getX() + " y: " + (int)Trilateration.getInstance().getY());
 
-        point.set((int)Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
-        myCanvas.setParameters(point.x+"", point.y+"");
+        if(Trilateration.getInstance().getX()!=0 && Trilateration.getInstance().getY()!=0){
+            point.set((int)Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
+        }
+        myCanvasForTrilateration.setParameters(point.x+"", point.y+"");
         //Manager.getInstance().getWifisFromDevice().clear();
-        myCanvas.invalidate();
+        myCanvasForTrilateration.invalidate();
         //Log.d(TAG, "updateCanvasData: WifiListFromDevice: "+ manager.getWifisFromDevice());
         //Log.d(TAG, "updateCanvasData: WiFiListFromDataBase: " + manager.getWifiListFromDataBase());
     }

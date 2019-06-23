@@ -68,7 +68,7 @@ public class MyCanvasForReferencePoints extends View {
         Képlet: (kiválasztott_pont/Az_egyetem_szélessége/Képmagasság)
          */
         if(xCm < 0 || yCm < 0){
-            Toast.makeText(context,"Csak az beltérben helyezhető el referenciapont!" ,Toast.LENGTH_SHORT).show();
+            Toast.makeText(context,"You can place a reference point only in an indoor location!" ,Toast.LENGTH_SHORT).show();
         }else{
             Toast.makeText(context,"xCm: "+ xCm +" yCm: " + yCm ,Toast.LENGTH_SHORT).show();
         }

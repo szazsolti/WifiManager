@@ -94,24 +94,16 @@ public class ListWiFisToSetReferenceFragment extends Fragment   {
                 if(x>0 && y>0){
                     //Log.d(TAG, "onClick: selected item index: "+selectFloorSpinner.getSelectedItemPosition());
                     for(int i = 0;i< wifisFromDevice.size();i++){
-                        try {
-                            Communication.getInstance().sendMessage("[WifiToReference]-"
-                                    +wifisFromDevice.size()
-                                    +"~"+selectFloorSpinner.getSelectedItemPosition()
-                                    +"~"+x
-                                    +"~"+y
-                                    +"~"+wifisFromDevice.get(i).getName()
-                                    +"~"+abs(wifisFromDevice.get(i).getLevel())
-                                    +"~"+ wifisFromDevice.get(i).getFrequency());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        Communication.getInstance().sendMessage("[WifiToReference]-"
+                                +wifisFromDevice.size()
+                                +"~"+selectFloorSpinner.getSelectedItemPosition()
+                                +"~"+x
+                                +"~"+y
+                                +"~"+wifisFromDevice.get(i).getName()
+                                +"~"+abs(wifisFromDevice.get(i).getLevel())
+                                +"~"+ wifisFromDevice.get(i).getFrequency());
                     }
-                    try {
-                        Communication.getInstance().sendMessage("[WifiToReferenceStop]-");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    Communication.getInstance().sendMessage("[WifiToReferenceStop]-");
                 }
 
             }

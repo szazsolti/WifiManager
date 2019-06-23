@@ -101,12 +101,12 @@ public class PinchZoomPan extends View {
                 float x = calculateX(p.x);
                 float y = calculateY(p.y);
 
-                Log.d(TAG, "onDraw in for: x: " + x + " y: " + y);
+                //Log.d(TAG, "onDraw in for: x: " + x + " y: " + y);
 
                 canvas.drawCircle(x, y, 5, paintReferencePoint);
             }
 
-            paintUser.setColor(Color.RED);
+            paintUser.setColor(Client.getInstance().getClientDotColor());
 
             if(xUser != -1 && yUser != -1){
                 canvas.drawCircle(calculateX(xUser),calculateY(yUser),8,paintUser);
@@ -137,7 +137,7 @@ public class PinchZoomPan extends View {
         float screenRatioX = abs(xRatio - referenceRatioX)/10;
         x = (abs(screenRatioX * getWidth())%getWidth());*/
         float x = (imageX*xCoord)/8560;
-        Log.d(TAG, "calculateX: x: " + x + " imageX: " + imageX + " xCoord: " + xCoord);
+        //Log.d(TAG, "calculateX: x: " + x + " imageX: " + imageX + " xCoord: " + xCoord);
         //Log.d(TAG, "calculateX: x: " + x);
         return x;
     }
@@ -149,7 +149,7 @@ public class PinchZoomPan extends View {
         float screenRatioY = abs(yRatio - referenceRatioY);
         y = (abs(screenRatioY * getHeight())%getHeight());*/
         float y = (imageY*yCoord)/3630;
-        Log.d(TAG, "calculateY: y: " + y + " imageY: " + imageY + " yCoord: " + yCoord);
+        //Log.d(TAG, "calculateY: y: " + y + " imageY: " + imageY + " yCoord: " + yCoord);
         //Log.d(TAG, "calculateY: y: " + y);
         return y;
     }
@@ -176,7 +176,7 @@ public class PinchZoomPan extends View {
 
     public void drawUsers(ArrayList<UserOnCanvas> onlineUsers, Paint p){
         //this.userPoints = points;
-        Log.d(TAG, "drawUsers: onlineUsers: " + onlineUsers.size());
+        //Log.d(TAG, "drawUsers: onlineUsers: " + onlineUsers.size());
 
 /*
         for(UserOnCanvas uoc : onlineUsers){
@@ -325,14 +325,14 @@ public class PinchZoomPan extends View {
         imageX = bitmap.getWidth();
         imageY = bitmap.getHeight();
 
-        Log.d(TAG, "loadImageOnCanvas: bitmapX: " + bitmap.getWidth() + " bitmapY: " + (float) bitmap.getHeight());
+        //Log.d(TAG, "loadImageOnCanvas: bitmapX: " + bitmap.getWidth() + " bitmapY: " + (float) bitmap.getHeight());
 
         //float aspectRatio = (float) bitmap.getHeight()/(float) bitmap.getWidth();
         float aspectRatio = imageY/imageX;
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         //mImageWidth = displayMetrics.widthPixels;
         //mImageHeight = Math.round(mImageWidth * aspectRatio);
-        Log.d(TAG, "loadImageOnCanvas: mImageWidth: " + mImageWidth + " mImageHeight: " + mImageHeight);
+        //Log.d(TAG, "loadImageOnCanvas: mImageWidth: " + mImageWidth + " mImageHeight: " + mImageHeight);
         //mBitmap = bitmap.createScaledBitmap(bitmap,mImageWidth,mImageHeight,false);
         mBitmap = bitmap.createScaledBitmap(bitmap,(int)imageX,(int)imageY,false);
         invalidate();

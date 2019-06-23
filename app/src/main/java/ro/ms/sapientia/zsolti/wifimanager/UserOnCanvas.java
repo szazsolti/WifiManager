@@ -4,6 +4,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
 
+import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
+
 public class UserOnCanvas {
     private Paint point = new Paint();
     private Paint text = new Paint();
@@ -19,7 +21,7 @@ public class UserOnCanvas {
         float y_1 = 99999999;
 
         this.userName=userName;
-        point.setColor(Color.BLACK);
+        point.setColor(Client.getInstance().getClientDotColor());
         text.setColor(Color.RED);
         text.setFakeBoldText(true);
         text.setTextSize(80);

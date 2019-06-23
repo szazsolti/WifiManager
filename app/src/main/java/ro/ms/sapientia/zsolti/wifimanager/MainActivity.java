@@ -98,22 +98,20 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
 
         if(checkPermission()){
             if (savedInstanceState != null){
-                Manager.getInstance().startCommunication();
+                //Manager.getInstance().startCommunication();
+                Communication.getInstance().execute();
                 startManager();
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            Communication.getInstance().sendUsername();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        Communication.getInstance().sendUsername();
                     }
                 });
                 thread.start();
                 startHomeFragment();
             }
             else {
+
                 startManager();
                 startHomeFragment();
             }
@@ -218,16 +216,6 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(text.contains("The socket is closed. Server is not available.") || text.contains("Server is not available.")){
-                    startHomeFragment();
-                    Manager.getInstance().stopManager();
-                    try {
-                        Communication.getInstance().destroy();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
-                }
                 Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
             }
         });
@@ -260,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
     @Override
     protected void onRestart() {
         super.onRestart();
-
+/*
             Thread sendUsername = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -271,50 +259,15 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
                     }
                 }
             });
-            sendUsername.start();
+            sendUsername.start();*/
         //startHomeFragment();
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if(Communication.getInstance().connected() && Communication.getInstance() != null){
-                        Communication.getInstance().sendMessage("[Logout]-");
-                        Manager.getInstance().stopManager();
-                        Communication.getInstance().destroy();
-                    }
-                } catch (IOException e) {
-                    //e.printStackTrace();
-                }
-            }
-        });
-        thread.start();
-        /*
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if(Communication.getInstance().connected() && Communication.getInstance() != null){
-                        Communication.getInstance().sendMessage("[Logout]-");
-                        Manager.getInstance().stopManager();
-                        Communication.getInstance().destroy();
-
-                    }
-                } catch (IOException e) {
-                    //e.printStackTrace();
-                }
-            }}, 0);*/
-    }
 
     @Override
     protected void onPause() {
         super.onPause();
-
+/*
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -329,21 +282,7 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
                 }
             }
         });
-        thread.start();
-        /*
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if(Communication.getInstance().connected() && Communication.getInstance() != null){
-                        Communication.getInstance().sendMessage("[Logout]-");
-                        Manager.getInstance().stopManager();
-                        Communication.getInstance().destroy();
-                    }
-                } catch (IOException e) {
-                    //e.printStackTrace();
-                }
-            }}, 0);*/
+        thread.start();*/
     }
 
     public boolean checkPermission(){
@@ -395,12 +334,9 @@ public class MainActivity extends AppCompatActivity implements ISendDataToUIList
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG,"onDestroy()");
-        try {
-            //Client.getInstance().destroy();
-            //Communication.getInstance().destroy();
-        } catch (Exception e) {
-            //e.printStackTrace();
-        }
+
+        Manager.getInstance().stopManager();
+        Communication.getInstance().destroy();
     }
 
     @Override

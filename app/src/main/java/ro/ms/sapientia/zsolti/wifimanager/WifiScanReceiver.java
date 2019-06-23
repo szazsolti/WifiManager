@@ -15,7 +15,7 @@ import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromManagerToW
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendWiFiListFromWifiScanReceiverToManager;
 
 public class WifiScanReceiver extends BroadcastReceiver {
-    WifiManager mainWifiObj;
+    private WifiManager mainWifiObj;
     private ArrayList<String> wifis;
     private ArrayList<WiFi> wifisFromDevice=new ArrayList<>();
     private ISendWiFiListFromWifiScanReceiverToManager sendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager;

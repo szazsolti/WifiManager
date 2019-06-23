@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
@@ -76,6 +77,7 @@ public class HomeFragment extends Fragment {
         tw_test = view.findViewById(R.id.tw_instruction);
 
         et_username = view.findViewById(R.id.et_username);
+        et_username.setText(Client.getInstance().getUsername());
 
 /*
         if(!HomeFragment.this.readerThread.isAlive()) {
@@ -96,38 +98,50 @@ public class HomeFragment extends Fragment {
 
                     //Log.d(TAG, "onClick: ");
                 if(!et_username.getText().toString().equals("")){
-                    if(Manager.getInstance().startCommunication()){
-                        //Log.d(TAG, "onClick: in if");
-                        sendMessageFromHomeFragmentToMainActivity.setMessageFromHomeFragmentToMainActivity(et_username.getText().toString());
-                        Thread thread = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
+                    try {
+                        //if(Communication.getInstance().connected()){
+                            //Log.d(TAG, "onClick: in if");
+                            sendMessageFromHomeFragmentToMainActivity.setMessageFromHomeFragmentToMainActivity(et_username.getText().toString());
+                            /*Thread thread = new Thread(new Runnable() {
+                                @Override
+                                public void run() {
 
-                                try {
-                                    if(!Communication.getInstance().connected()){
-                                        Communication.getInstance().initParams();
-                                        Communication.getInstance().startReaderThread();
-                                        Manager.getInstance().startCommunication();
-                                        sendMyUsername();
-                                    }
-                                    else {
-                                        sendMyUsername();
-                                    }
+                                    try {
+                                        if(!Communication.getInstance().connected()){
+                                            //Communication.getInstance().initParams();
+                                            Communication.getInstance().startReaderThread();
+                                            Manager.getInstance().startCommunication();
+                                            sendMyUsername();
+                                        }
+                                        else {
+                                            sendMyUsername();
+                                        }
 
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                            }
-                        });
-                        thread.start();
+                            });
+                            thread.start();*/
+                            try {
+                                Communication.getInstance().execute();
+                                sendMyUsername();
 
-                    }
-                    else{
-                        sendDataToUIListener.returnMessage("Server is not available.");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                       // }
+                       // else{
+                       //     sendDataToUIListener.returnMessage("Server is not available.");
+                      //  }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
                 else {
-                    sendDataToUIListener.returnMessage("Username is needed.");
+                    sendDataToUIListener.returnMessage("Username is required.");
                 }
 
                 //et_username.setText("");

@@ -62,12 +62,6 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
         this.context=context;
     }
 
-    public static WiFiReferencePointsFragment newInstance(String param1, String param2) {
-        WiFiReferencePointsFragment fragment = new WiFiReferencePointsFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -141,8 +135,8 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
 
         //referencePointsFromDatabase = Manager.getInstance().getReferencePointsFromDatabase();
 
-        paintUsers.setColor(Color.BLUE);
-        paintReference.setColor(Color.GREEN);
+        paintUsers.setColor(Client.getInstance().getOnlineUsersDotColor());
+        paintReference.setColor(Client.getInstance().getReferencePointDotColor());
         refreshWiFiList();
 
 
@@ -164,10 +158,15 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
         refreshWifi = new Thread(new Runnable() {
             @Override
             public void run() {
+                String hashCode=Communication.getInstance().hashCode()+"";
                 while (true) {
+                    //Log.d(TAG, "run: " + Communication.getInstance().hashCode());
+                    if(Communication.getInstance()==null || Communication.getInstance().isCancelled() || !hashCode.equals(Communication.getInstance().hashCode()+"")){
+                        break;
+                    }
                     wifiListFromDevice=Manager.getInstance().getWifisFromDevice();
                     if(referencePointsFromDatabase.size()!=0){
-                        calculateCorrelation(wifiListFromDevice,referencePointsFromDatabase);
+                        calculateCorrelation(wifiListFromDevice,new ArrayList<>(referencePointsFromDatabase));
                     }
                     onlineUsers = Manager.getInstance().getOnlineUsers();
                     Log.d(TAG, "run: onlineUsers: " + onlineUsers.size());
@@ -186,11 +185,7 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
     }
 
     private void makeQuery(int i){
-        try {
-            Communication.getInstance().sendMessage("[ReferenceWifiPointsFromDatabase]-"+i);
-        } catch (IOException ignored) {
-            sendDataToUIListener.returnMessage("Failed to send message from StartWiFiReferencePoints.");
-        }
+        Communication.getInstance().sendMessage("[ReferenceWifiPointsFromDatabase]-"+i);
     }
 
     private void setPointsToFloor(){
@@ -217,7 +212,7 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
         //ArrayList<Double> result = new ArrayList<>();
         double[] result;
         double max = 0;
-        int zeroNumbers = 9999;
+        //int zeroNumbers = 9999;
         int i=0;
         ReferencePoint bestPoint = null;
         result = new double[referencePointsFromDatabase.size()];
@@ -228,12 +223,13 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
             result[i]=0;
             for(int n=0;n<rp.getReferenceWifis().size();n++){
                 for(int k=0;k<wifiListFromDevice.size();k++){
-                    if(rp.getReferenceWifis().get(n).getName().equals(wifiListFromDevice.get(k).getName())){
-                        //result[n]=result[n]+rp.getReferenceWifis().get(k).getLevel()*(wifiListFromDevice.get(n-k).getLevel());
-                        result[i]=result[i]+ abs( rp.getReferenceWifis().get(n).getLevel())*abs((wifiListFromDevice.get(k).getLevel()));
+                    if(rp.getReferenceWifis().get(n).getName()
+                            .equals(wifiListFromDevice.get(k).getName())){
+                        result[i]=result[i]
+                                +abs( rp.getReferenceWifis().get(n).getLevel())
+                                * abs((wifiListFromDevice.get(k).getLevel()));
                     }
                 }
-                //Log.d(TAG, "calculateCorrelation: result max: " + result[n]);
             }
             //Log.d(TAG, "calculateCorrelation: " + getMax(result) + " zero: " + countZeros(result));
 
@@ -249,16 +245,15 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
             Client.getInstance().setXRef(bestPoint.getReferenceWifis().get(0).getX()+"");
             Client.getInstance().setYRef(bestPoint.getReferenceWifis().get(0).getY()+"");
             pinchZoomPan.drawUser(bestPoint.getReferenceWifis().get(0).getX(),bestPoint.getReferenceWifis().get(0).getY());
-            try {
-                Communication.getInstance().sendMessage("[PositionConv]-"+bestPoint.getReferenceWifis().get(0).getX() + " " + bestPoint.getReferenceWifis().get(0).getY());
-            } catch (IOException e) {
-                //e.printStackTrace();
-            }
+            Communication.getInstance().sendMessage("[PositionConv]-"+bestPoint.getReferenceWifis().get(0).getX() + " " + bestPoint.getReferenceWifis().get(0).getY());
         }else{
-            sendDataToUIListener.returnMessage("No reference point found.");
+            try{
+                sendDataToUIListener.returnMessage("No reference point found.");
+            }
+            catch (Exception e){};
         }
     }
-
+/*
     private double getMax(double[] array){
         try {
             double max=array[0];
@@ -314,7 +309,7 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
         }
         return list;
     }
-
+*/
     public void setReferencePointsFromDatabaseList(ArrayList<ReferencePoint> referencePointsFromDatabase){
         this.referencePointsFromDatabase = referencePointsFromDatabase;
     }

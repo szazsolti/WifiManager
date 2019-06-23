@@ -100,7 +100,6 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
         //Looper.getMainLooper().quit();
 
         try{
-
             WiFiManagerSuperClass.getContext().unregisterReceiver(wifiReciever);
         }catch (Exception e){}
 
@@ -113,9 +112,10 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
         longRunningTaskFuture.cancel(true);*/
     }
 
-
+/*
     public boolean startCommunication() {
         inintWifiScanReceiver();
+
         startConnection=new Thread(new Runnable() {
             @Override
             public void run() {
@@ -138,10 +138,11 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
             startConnection.start();
         }
 
+
         return startConnection.isAlive();
     }
 
-
+*/
 
     @Override
     public void returnWiFiListFromDevice(ArrayList<WiFi> wifilistFromDevice) {
@@ -156,7 +157,7 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
 
         //Log.d(TAG, "returnWiFiListFromDeviceInManager: " + wifiListFromDevice.toString());
         try{
-            calculateTrilateration(wifilistFromDevice);
+            calculateTrilateration(new ArrayList<>(wifilistFromDevice));
         }
         catch (Exception e){
             //e.printStackTrace();
@@ -175,12 +176,16 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
     public void startRefresh(){
         refreshWifi = new Thread(){
             public void run(){
+                String hashCode=Communication.getInstance().hashCode()+"";
                 while (true){
-                    mainWifiObj.startScan();
                     try {
-                        Thread.sleep(7000);
+                        if(Communication.getInstance()==null || Communication.getInstance().isCancelled() || !hashCode.equals(Communication.getInstance().hashCode()+"")){
+                            break;
+                        }
+                        mainWifiObj.startScan();
+                        Thread.sleep(5000);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        //e.printStackTrace();
                     }
                 }
             }
@@ -208,10 +213,10 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
         return true;
     }*/
 
-    public void calculateTrilateration(ArrayList<WiFi> wifilistFromDevice) throws IOException {
+    public void calculateTrilateration(ArrayList<WiFi> wifilistFromDevice){
 
         //Log.d(TAG,"From phone: "+wifilistFromDevice.get(0).getName()+wifilistFromDevice.get(0).getFrequency()+wifilistFromDevice.get(0).getPercentage());
-
+        Log.d(TAG, "calculateTrilateration: ");
         ArrayList<WiFi> choosedWifis =  chooseWifis(wifilistFromDevice, wifiListFromDataBase);
 
         if(choosedWifis!=null){
@@ -352,6 +357,11 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
             e.printStackTrace();
         }
 */
+        Communication.getInstance().setSendDataToUIListener(sendDataToUIListener);
+        Communication.getInstance().setSendMessageFromReaderThreadToManager(sendMessageFromReaderThreadToManager);
+        inintWifiScanReceiver();
+        startRefresh();
+
     }
 
     private void startDrawPositionFragment(){
@@ -373,7 +383,7 @@ public class Manager implements ISendWiFiListFromWifiScanReceiverToManager, Runn
     public void returnMessageFromReaderThread(String message) {
 
         String[] parts = message.split("-");
-        //Log.d(TAG, "returnMessageFromReaderThread: message:" + message);
+        Log.d(TAG, "returnMessageFromReaderThread: message:" + message);
         try {
             if(parts[0].equals("[ConnectionOK]")){
                 sendDataToUIListener.returnMessage("Waiting for data...");

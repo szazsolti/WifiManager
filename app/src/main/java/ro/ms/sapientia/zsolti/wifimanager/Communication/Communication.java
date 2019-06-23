@@ -1,39 +1,76 @@
 package ro.ms.sapientia.zsolti.wifimanager.Communication;
 
+import android.os.AsyncTask;
+import android.util.Log;
+
 import java.io.IOException;
 import java.net.Socket;
 
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendDataToUIListener;
 import ro.ms.sapientia.zsolti.wifimanager.Interfaces.ISendMessageFromReaderThreadToManager;
 
-public class Communication {
-    private Socket clientSocket = new Socket("192.168.173.1",6554);
-
+public class Communication extends AsyncTask<Void, Void, Void> {
+    private Socket clientSocket = null;
+    private int tryCount = 3;
     private static Communication sinlge_instance = null;
     private Thread threadRead = new Thread();
     private ReaderThread readerThread;
+
+    private String TAG = "Communication";
 
     private ISendDataToUIListener sendDataToUIListener;
     //private ISendMessageFromReaderThreadToHomeFragment sendMessageFromReaderThreadToHomeFragment;
     private ISendMessageFromReaderThreadToManager sendMessageFromReaderThreadToManager;
 
-    private Communication() throws IOException {
+    private Communication(){
+        //clientSocket = new Socket("192.168.173.1",6554);
     }
 
+    @Override
+    protected Void doInBackground(Void... voids) {
+
+
+        for(int i = 0;i<tryCount;i++){
+            try {
+                clientSocket = new Socket("192.168.173.1",6554);
+                Thread.sleep(500);
+                break;
+            } catch (IOException e) {
+                //e.printStackTrace();
+                sendDataToUIListener.returnMessage("Server is not available.");
+                Log.d(TAG, "doInBackground: socket initialization failed");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if(clientSocket==null){
+            return null;
+        }
+        else {
+            readerThread = new ReaderThread();
+            readerThread.setISendDataToUIListener(sendDataToUIListener);
+            readerThread.setISendMessageFromReaderThreadToManager(sendMessageFromReaderThreadToManager);
+            //threadRead.setISendMessageFromReaderThreadToHomeFragment(sendMessageFromReaderThreadToHomeFragment);
+            readerThread.setSocket(clientSocket);
+            this.threadRead = new Thread(readerThread);
+            threadRead.start();
+            //Log.d(TAG, "doInBackground: ");
+        }
+
+        return null;
+    }
+/*
     public void initParams() throws IOException {
+
         if(clientSocket==null){
             clientSocket = new Socket("192.168.173.1",6554);
         }
 
-        readerThread = new ReaderThread();
-        readerThread.setISendDataToUIListener(sendDataToUIListener);
-        readerThread.setISendMessageFromReaderThreadToManager(sendMessageFromReaderThreadToManager);
-        //threadRead.setISendMessageFromReaderThreadToHomeFragment(sendMessageFromReaderThreadToHomeFragment);
-        readerThread.setSocket(clientSocket);
-        this.threadRead = new Thread(readerThread);
-    }
 
-    public static Communication getInstance() throws IOException {
+    }
+*/
+    public static Communication getInstance(){
         if (sinlge_instance == null) {
             synchronized (Client.class) {
                 if (sinlge_instance == null) {
@@ -51,6 +88,7 @@ public class Communication {
     public Socket getClientSocket(){
         return clientSocket;
     }
+
 
     public boolean connected(){
         if(clientSocket!=null){
@@ -99,9 +137,13 @@ public class Communication {
 
     public void destroy(){
         try{
+            Log.d(TAG, "destroy: ");
+            sendMessage("[Logout]-");
             clientSocket.close();
             clientSocket=null;
             readerThread.myStop();
+            cancel(true);
+            sinlge_instance=null;
             //threadRead.stop();
         }
         catch (Exception e){
