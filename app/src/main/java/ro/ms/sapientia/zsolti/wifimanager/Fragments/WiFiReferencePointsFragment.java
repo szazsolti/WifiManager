@@ -18,6 +18,7 @@ import android.widget.Spinner;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Communication;
@@ -51,6 +52,7 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
     private Spinner selectFloor;
     private Uri selectedImage;
     private String TAG = "WIFIREFERENCEPOINTSFRAGMENT";
+    private int selectedFloor=0;
     private ISendDataToUIListener sendDataToUIListener;
 
     public WiFiReferencePointsFragment() {
@@ -67,6 +69,7 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Manager.getInstance().setISendMessageFromManagerToWiFiReferencePointsFragment(this);
+        makeQuery();
     }
 
     @Override
@@ -94,34 +97,46 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
                     case 0:
                         //Log.d(TAG, "onItemClick: selected 0");
                         //sendDataToUIListener.returnMessage("No data from this floor.");
-                        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/foldszint_100");
-                        pinchZoomPan.loadImageOnCanvas(selectedImage);
-                        referencePointsFromDatabase.clear();
-                        makeQuery(0);
+                        //selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/foldszint_100");
+                        //pinchZoomPan.loadImageOnCanvas(selectedImage);
+                        //referencePointsFromDatabase.clear();
+                        //makeQuery(0);
+                        changeFloorPicture(0);
                         //setPointsToFloor(0);
+                        setPointsToFloor();
                         break;
                     case 1:
                         //Log.d(TAG, "onItemClick: selected 1");
-                        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/elso_emelet_200");
-                        pinchZoomPan.loadImageOnCanvas(selectedImage);
-                        referencePointsFromDatabase.clear();
-                        makeQuery(1);
+                        //selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/elso_emelet_200");
+                        //pinchZoomPan.loadImageOnCanvas(selectedImage);
+                        //referencePointsFromDatabase.clear();
+                        //makeQuery(1);
+                        //selectedFloor = 1;
+                        changeFloorPicture(1);
+                        setPointsToFloor();
                         //setPointsToFloor(1);
                         break;
                     case 2:
                         //Log.d(TAG, "onItemClick: selected 2");
-                        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+ "/drawable/masodik_emelet_300");
-                        pinchZoomPan.loadImageOnCanvas(selectedImage);
-                        referencePointsFromDatabase.clear();
-                        makeQuery(2);
+                        //selectedImage = Uri.parse("android.resource://"+context.getPackageName()+ "/drawable/masodik_emelet_300");
+                        //pinchZoomPan.loadImageOnCanvas(selectedImage);
+                        //referencePointsFromDatabase.clear();
+                        //selectedFloor = 2;
+                        changeFloorPicture(2);
+                        setPointsToFloor();
+                        //makeQuery(2);
+
                         //setPointsToFloor(2);
                         break;
                     case 3:
                         //Log.d(TAG, "onItemClick: selected 3");
-                        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/harmadik_emelet_400");
-                        pinchZoomPan.loadImageOnCanvas(selectedImage);
-                        referencePointsFromDatabase.clear();
-                        makeQuery(3);
+                        //selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/harmadik_emelet_400");
+                        //pinchZoomPan.loadImageOnCanvas(selectedImage);
+                        //referencePointsFromDatabase.clear();
+                        //selectedFloor = 3;
+                        changeFloorPicture(3);
+                        setPointsToFloor();
+                        //makeQuery(3);
                         //setPointsToFloor(3);
                         break;
                 }
@@ -132,7 +147,6 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
 
             }
         });
-
         //referencePointsFromDatabase = Manager.getInstance().getReferencePointsFromDatabase();
 
         paintUsers.setColor(Client.getInstance().getOnlineUsersDotColor());
@@ -184,15 +198,40 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
         refreshWifi.start();
     }
 
-    private void makeQuery(int i){
-        Communication.getInstance().sendMessage("[ReferenceWifiPointsFromDatabase]-"+i);
+    private void makeQuery(){
+        Communication.getInstance().sendMessage("[ReferenceWifiPointsFromDatabase]-");
+    }
+
+    private void changeFloorPicture(int floor){
+        switch (floor){
+            case 0:
+                selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/foldszint_100");
+                pinchZoomPan.loadImageOnCanvas(selectedImage);
+                selectedFloor = floor;
+                break;
+            case 1:
+                selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/elso_emelet_200");
+                pinchZoomPan.loadImageOnCanvas(selectedImage);
+                selectedFloor = floor;
+                break;
+            case 2:
+                selectedImage = Uri.parse("android.resource://"+context.getPackageName()+ "/drawable/masodik_emelet_300");
+                pinchZoomPan.loadImageOnCanvas(selectedImage);
+                selectedFloor = floor;
+                break;
+            case 3:
+                selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/harmadik_emelet_400");
+                pinchZoomPan.loadImageOnCanvas(selectedImage);
+                selectedFloor = floor;
+                break;
+        }
     }
 
     private void setPointsToFloor(){
         points.clear();
         for(ReferencePoint it : referencePointsFromDatabase){
             Log.d(TAG, "setPointsToFloor: " + it.getReferenceWifis().get(0).getFloor());
-            //if(it.getReferenceWifis().get(0).getFloor() == floor){
+            if(it.getReferenceWifis().get(0).getFloor() == selectedFloor){
                 Point point = new Point();
 
                 point.x = it.getReferenceWifis().get(0).getX();
@@ -200,9 +239,9 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
 
                 //Log.d(TAG, "onCreateView: " + "x: " + point.x + " y: " + point.y);
                 points.add(point);
-            //}
+            }
         }
-        pinchZoomPan.drawPoints(points, paintReference);
+        pinchZoomPan.drawPoints(new ArrayList<>(points), paintReference);
     }
 
 
@@ -244,7 +283,21 @@ public class WiFiReferencePointsFragment extends Fragment implements ISendMessag
         if(bestPoint != null){
             Client.getInstance().setXRef(bestPoint.getReferenceWifis().get(0).getX()+"");
             Client.getInstance().setYRef(bestPoint.getReferenceWifis().get(0).getY()+"");
+
+            if(Client.getInstance().getAutoFloor()){
+                changeFloorPicture(bestPoint.getReferenceWifis().get(0).getFloor());
+                try {
+                    Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            selectFloor.setSelection(selectedFloor);
+                        }
+                    });
+                }
+                catch (Exception e){}
+            }
             pinchZoomPan.drawUser(bestPoint.getReferenceWifis().get(0).getX(),bestPoint.getReferenceWifis().get(0).getY());
+            setPointsToFloor();
             Communication.getInstance().sendMessage("[PositionConv]-"+bestPoint.getReferenceWifis().get(0).getX() + " " + bestPoint.getReferenceWifis().get(0).getY());
         }else{
             try{

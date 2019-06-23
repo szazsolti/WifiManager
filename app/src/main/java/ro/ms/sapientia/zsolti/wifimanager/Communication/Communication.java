@@ -135,6 +135,10 @@ public class Communication extends AsyncTask<Void, Void, Void> {
         sendMessage("[Username]-"+Client.getInstance().getUsername());
     }
 
+    public void resetInstance(){
+        sinlge_instance=null;
+    }
+
     public void destroy(){
         try{
             Log.d(TAG, "destroy: ");

@@ -97,6 +97,7 @@ public class HomeFragment extends Fragment {
                     //Log.d(TAG, "onClick: startCommunication: " + Manager.getInstance().startCommunication());
 
                     //Log.d(TAG, "onClick: ");
+
                 if(!et_username.getText().toString().equals("")){
                     try {
                         //if(Communication.getInstance().connected()){

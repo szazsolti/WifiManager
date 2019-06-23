@@ -79,6 +79,14 @@ public class Client {
         return Color.BLUE;
     }
 
+    public void setAutoFloor(boolean value){
+        userConfig.writeBooleanData(value,"autoFloorChange");
+    }
+
+    public boolean getAutoFloor(){
+        return userConfig.readBooleanData("autoFloorChange");
+    }
+
     public String getXRef() {
         return xRef;
     }

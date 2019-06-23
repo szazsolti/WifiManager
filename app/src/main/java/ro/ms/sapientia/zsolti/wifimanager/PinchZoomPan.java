@@ -335,7 +335,7 @@ public class PinchZoomPan extends View {
         //Log.d(TAG, "loadImageOnCanvas: mImageWidth: " + mImageWidth + " mImageHeight: " + mImageHeight);
         //mBitmap = bitmap.createScaledBitmap(bitmap,mImageWidth,mImageHeight,false);
         mBitmap = bitmap.createScaledBitmap(bitmap,(int)imageX,(int)imageY,false);
-        invalidate();
+        postInvalidate();
         //requestLayout();
     }
 

@@ -44,6 +44,15 @@ public class UserConfig {
         return preference.getInt(key, -1)!=-1;
     }
 
+    public boolean readBooleanData(String key) {
+        return preference.getBoolean(key, false);
+    }
+
+    public void writeBooleanData(boolean value, String key){
+        editor.putBoolean(key,value);
+        editor.commit();
+    }
+
     private static Application getApplicationUsingReflection() throws Exception {
         return (Application) Class.forName("android.app.AppGlobals").getMethod("getInitialApplication").invoke(null, (Object[]) null);
     }

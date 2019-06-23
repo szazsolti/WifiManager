@@ -10,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 
 import ro.ms.sapientia.zsolti.wifimanager.Communication.Client;
 import ro.ms.sapientia.zsolti.wifimanager.R;
@@ -22,6 +24,7 @@ public class SettingsFragment extends Fragment {
     private Button userColor;
     private Button onlineUsersColor;
     private Button referencePointsColor;
+    private Switch aSwitch;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -48,6 +51,8 @@ public class SettingsFragment extends Fragment {
         userColor = view.findViewById(R.id.selectUserColorButton);
         onlineUsersColor = view.findViewById(R.id.selectOnlineUserColorButton);
         referencePointsColor = view.findViewById(R.id.seleReferencePointsColorButton);
+        aSwitch = view.findViewById(R.id.sw_autoFloorSwitch);
+        aSwitch.setChecked(Client.getInstance().getAutoFloor());
 
         userColor.setTextColor(Client.getInstance().getClientDotColor());
         onlineUsersColor.setTextColor(Client.getInstance().getOnlineUsersDotColor());
@@ -71,6 +76,12 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 openColorPickerReferencePoints();
+            }
+        });
+
+        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Client.getInstance().setAutoFloor(isChecked);
             }
         });
 
