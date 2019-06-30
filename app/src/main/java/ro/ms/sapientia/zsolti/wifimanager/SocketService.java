@@ -38,10 +38,6 @@ public class SocketService extends Service {
         return null;
     }
 
-    public Socket getClientSocket(){
-        return clientSocket;
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();

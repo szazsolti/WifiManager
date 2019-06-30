@@ -52,10 +52,6 @@ public class WiFiReference {
         return level;
     }
 
-    public double getFrequency() {
-        return frequency;
-    }
-
     @Override
     public String toString() {
         return floor + "~" + x + "~" + y + "~" + name + "~" + level + "~" + frequency;

@@ -15,9 +15,6 @@ public class WiFi implements Serializable {
     private double frequency=0;
     private double level=0;
 
-    public WiFi(){
-    }
-
     public WiFi(String name, double level, double frequency){
         this.name=name;
         this.level=level;
@@ -31,22 +28,8 @@ public class WiFi implements Serializable {
         this.y = y;
     }
 
-    public int getID() {
-        return ID;
-    }
-
-    public void setID(int ID) {
-        if(ceil(ID) == ID) {
-            this.ID = ID;
-        }
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public int getX() {
@@ -89,16 +72,8 @@ public class WiFi implements Serializable {
         return frequency;
     }
 
-    public void setFrequency(double frequency) {
-        this.frequency = frequency;
-    }
-
     public double getLevel() {
         return level;
-    }
-
-    public void setLevel(double level) {
-        this.level = level;
     }
 
     @Override

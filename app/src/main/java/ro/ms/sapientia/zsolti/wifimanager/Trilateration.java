@@ -20,11 +20,6 @@ public class Trilateration implements Serializable{
 
     private ArrayList<WiFi> ssidDistance = new ArrayList<>();
 
-    /*
-    public Trilateration(ArrayList<WiFi> ssidDistance1) {
-        ssidDistance = new ArrayList<>(ssidDistance1);
-    }*/
-
     public static Trilateration getInstance(){
         if(single_instance==null){
             single_instance = new Trilateration();
@@ -69,7 +64,6 @@ public class Trilateration implements Serializable{
     }
 
     public void setRouter(int r1x, int r1y, int r2x, int r2y, int r3x, int r3y){
-        //Log.d(TAG, "setRouter: r1x: " + r1x + " r1y: " + r1y + " r2x" + r2x + " r2y: " + r2y + " r3x: " + r3x + " r3y: " + r3y);
         router1.set(r1x,r1y); //in cm
         router2.set(r2x,r2y); //in cm
         router3.set(r3x,r3y); //in cm
@@ -98,19 +92,12 @@ public class Trilateration implements Serializable{
             return 0;
         }
     }
-    /*
-    private double round(double d, int decimalPlace) {
-        return Double.parseDouble((d+"").substring(0,((d+"").indexOf(".")+decimalPlace+1)));
-    }*/
-
     public void calculateX(){
         x=round(router1.x + (getX1() * ex + getY1() * ey + getZ() * ez), 3);
-        //Log.d(TAG, "calculateX: x: " + x);
     }
 
     public void calculateY(){
         y=round(router1.y + (getX1() * ex + getY1() * ey + getZ() * ez), 3);
-        //Log.d(TAG, "calculateY: y: " + y);
     }
 
     public double getX(){
@@ -123,16 +110,4 @@ public class Trilateration implements Serializable{
         return y;
     }
 
-    public void notifyToDraw(String message){
-        if(message.equals("calculate")){
-            calculateX();
-            calculateY();
-            //INotifyToDraw();
-        }
-    }
-
-/*
-    public void setGetMessageToDraw(GetMessageToDraw getMessageToDraw){
-        this.getMessageToDraw=getMessageToDraw;
-    }*/
 }

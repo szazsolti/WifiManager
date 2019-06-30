@@ -9,7 +9,6 @@ import ro.ms.sapientia.zsolti.wifimanager.UserConfig;
 
 public class Client {
     private static Client sinlge_instance = null;
-    //private String username="User";
     private String xTrilat="0";
     private String yTrilat="0";
     private String xRef="0";
@@ -30,10 +29,6 @@ public class Client {
         }
         return sinlge_instance;
     }
-/*
-    public void setSocket(Socket socket){
-        this.clientSocket = socket;
-    }*/
 
     public void setUsername(String username){
         userConfig.writeStringData(username,"username");

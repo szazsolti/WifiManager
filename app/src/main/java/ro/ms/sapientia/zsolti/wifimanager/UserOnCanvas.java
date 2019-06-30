@@ -46,7 +46,6 @@ public class UserOnCanvas {
         this.yRef = yRef;
         point.setColor(Color.BLACK);
         text.setColor(Color.BLACK);
-        //text.setFakeBoldText(true);
         text.setTextSize(80);
     }
 
@@ -70,10 +69,6 @@ public class UserOnCanvas {
         return userName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
     public Paint getPoint() {
         return point;
     }
@@ -86,16 +81,7 @@ public class UserOnCanvas {
         return xRef;
     }
 
-    public void setXRef(float xRef) {
-        this.xRef = xRef;
-    }
-
     public float getYRef() {
         return yRef;
     }
-
-    public void setYRef(float yRef) {
-        this.yRef = yRef;
-    }
-
 }

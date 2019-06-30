@@ -87,12 +87,10 @@ public class ListWiFisToSetReferenceFragment extends Fragment   {
             @Override
             public void onClick(View v) {
                 wifisFromDevice = Manager.getInstance().getWifisFromDevice();
-                //Log.d(TAG, "onClick: wifisFromDeive: " + wifisFromDevice.size());
                 int x = myCanvasForReferencePoints.getxCm();
                 int y =myCanvasForReferencePoints.getyCm();
 
                 if(x>0 && y>0){
-                    //Log.d(TAG, "onClick: selected item index: "+selectFloorSpinner.getSelectedItemPosition());
                     for(int i = 0;i< wifisFromDevice.size();i++){
                         Communication.getInstance().sendMessage("[WifiToReference]-"
                                 +wifisFromDevice.size()
@@ -119,7 +117,7 @@ public class ListWiFisToSetReferenceFragment extends Fragment   {
 
 
     private void getLevelCoord(View v){
-        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());//Context is activity context
+        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
 
         LinearLayout layout = new LinearLayout(v.getContext());
         layout.setOrientation(LinearLayout.VERTICAL);
@@ -135,37 +133,6 @@ public class ListWiFisToSetReferenceFragment extends Fragment   {
         String[] floors = new String[]{"Ground floor","First","Second","Third"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(context,android.R.layout.simple_spinner_dropdown_item,floors);
         selectFloorSpinner.setAdapter(adapter);
-/*
-        selectFloorSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch (position){
-                    case 0:
-                        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/foldszint_100");
-                        break;
-                    case 1:
-                        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/elso_emelet_200");
-                        break;
-                    case 2:
-                        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+ "/drawable/masodik_emelet_300");
-                        break;
-                    case 3:
-                        selectedImage = Uri.parse("android.resource://"+context.getPackageName()+"/drawable/harmadik_emelet_400");
-                        break;
-                    default:
-                        Log.e(TAG,"nincs kiválasztva semmi!");
-                        break;
-                }
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-*/
 
         if(selectFloorSpinner.getParent() != null){
             ((ViewGroup)selectFloorSpinner.getParent()).removeView(selectFloorSpinner);
@@ -204,30 +171,5 @@ public class ListWiFisToSetReferenceFragment extends Fragment   {
                 });
         AlertDialog dialog = builder.create();
         dialog.show();
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
-/*
-    @Override
-    public void returnWiFiListFromDevice(ArrayList<WiFi> wifisFromDevice) {
-        //Log.d(TAG, "returnWiFiListFromDevice: "+wifisFromDevice.toString());
-        //Log.d(TAG, "WifiListFromDevice: "+ Manager.getInstance().getWifisFromDevice().toString());
-        //for(int i=0;i<wifisFromDevice.size();i++){
-        //    listWifiItems.add(new ListWifiItem(wifisFromDevice.get(i).getName()+" "+wifisFromDevice.get(i).getLevel()+" "+wifisFromDevice.get(i).getFrequency()));
-        //}
-        adapter.notifyDataSetChanged();
-    }
-    */
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
     }
 }

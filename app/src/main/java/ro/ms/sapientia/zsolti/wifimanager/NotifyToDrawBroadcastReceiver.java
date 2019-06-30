@@ -23,6 +23,5 @@ public class NotifyToDrawBroadcastReceiver extends BroadcastReceiver {
     public void setNotifyToDraw (INotifyToDraw INotifyToDraw){
         Log.d(TAG, "setNotifyToDraw: " + this.toString());
         NotifyToDrawBroadcastReceiver.INotifyToDraw = INotifyToDraw;
-        //this.INotifyToDraw = INotifyToDraw;
     }
 }

@@ -6,9 +6,6 @@ public class ReferencePoint {
     private int id = 0;
     private ArrayList<WiFiReference> referenceWifis = new ArrayList<>();
 
-    public ReferencePoint() {
-    }
-
     public ReferencePoint(int Id) {
         this.id = Id;
     }

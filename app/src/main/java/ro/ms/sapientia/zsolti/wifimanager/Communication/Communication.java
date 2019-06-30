@@ -19,11 +19,9 @@ public class Communication extends AsyncTask<Void, Void, Void> {
     private String TAG = "Communication";
 
     private ISendDataToUIListener sendDataToUIListener;
-    //private ISendMessageFromReaderThreadToHomeFragment sendMessageFromReaderThreadToHomeFragment;
     private ISendMessageFromReaderThreadToManager sendMessageFromReaderThreadToManager;
 
     private Communication(){
-        //clientSocket = new Socket("192.168.173.1",6554);
     }
 
     @Override
@@ -36,7 +34,6 @@ public class Communication extends AsyncTask<Void, Void, Void> {
                 Thread.sleep(500);
                 break;
             } catch (IOException e) {
-                //e.printStackTrace();
                 sendDataToUIListener.returnMessage("Server is not available.");
                 Log.d(TAG, "doInBackground: socket initialization failed");
             } catch (InterruptedException e) {
@@ -51,25 +48,14 @@ public class Communication extends AsyncTask<Void, Void, Void> {
             readerThread = new ReaderThread();
             readerThread.setISendDataToUIListener(sendDataToUIListener);
             readerThread.setISendMessageFromReaderThreadToManager(sendMessageFromReaderThreadToManager);
-            //threadRead.setISendMessageFromReaderThreadToHomeFragment(sendMessageFromReaderThreadToHomeFragment);
             readerThread.setSocket(clientSocket);
             this.threadRead = new Thread(readerThread);
             threadRead.start();
-            //Log.d(TAG, "doInBackground: ");
         }
 
         return null;
     }
-/*
-    public void initParams() throws IOException {
 
-        if(clientSocket==null){
-            clientSocket = new Socket("192.168.173.1",6554);
-        }
-
-
-    }
-*/
     public static Communication getInstance(){
         if (sinlge_instance == null) {
             synchronized (Client.class) {
@@ -81,36 +67,8 @@ public class Communication extends AsyncTask<Void, Void, Void> {
         return sinlge_instance;
     }
 
-    public boolean isExists(){
-        return sinlge_instance != null;
-    }
-
     public Socket getClientSocket(){
         return clientSocket;
-    }
-
-
-    public boolean connected(){
-        if(clientSocket!=null){
-            return clientSocket.isConnected();
-        }
-        else {
-            return false;
-        }
-    }
-
-    public void startReaderThread(){
-        if(!this.threadRead.isAlive()){
-            this.threadRead.start();
-        }
-    }
-
-    public void stopReaderThread(){
-        Communication.this.threadRead.stop();
-    }
-
-    public boolean readerThreadIsRunning(){
-        return threadRead.isAlive();
     }
 
     public void sendMessage(final String message){
@@ -122,21 +80,13 @@ public class Communication extends AsyncTask<Void, Void, Void> {
     public void setSendDataToUIListener(ISendDataToUIListener sendDataToUIListener){
         this.sendDataToUIListener=sendDataToUIListener;
     }
-/*
-    public void setSendMessageFromReaderThreadToHomeFragment(ISendMessageFromReaderThreadToHomeFragment sendMessageFromReaderThreadToHomeFragment){
-        this.sendMessageFromReaderThreadToHomeFragment=sendMessageFromReaderThreadToHomeFragment;
-    }
-*/
+
     public void setSendMessageFromReaderThreadToManager(ISendMessageFromReaderThreadToManager sendMessageFromReaderThreadToManager){
         this.sendMessageFromReaderThreadToManager=sendMessageFromReaderThreadToManager;
     }
 
     public void sendUsername(){
         sendMessage("[Username]-"+Client.getInstance().getUsername());
-    }
-
-    public void resetInstance(){
-        sinlge_instance=null;
     }
 
     public void destroy(){
@@ -148,10 +98,8 @@ public class Communication extends AsyncTask<Void, Void, Void> {
             readerThread.myStop();
             cancel(true);
             sinlge_instance=null;
-            //threadRead.stop();
         }
         catch (Exception e){
-            //e.printStackTrace();
         }
     }
 

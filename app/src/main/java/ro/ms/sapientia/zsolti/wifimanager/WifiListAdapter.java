@@ -43,7 +43,7 @@ public class WifiListAdapter extends RecyclerView.Adapter<WifiListAdapter.ViewHo
         public ViewHolder(View itemView) {
             super(itemView);
 
-            textViewdescription = (TextView) itemView.findViewById(R.id.description);
+            textViewdescription = itemView.findViewById(R.id.description);
 
         }
     }

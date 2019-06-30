@@ -27,7 +27,6 @@ public class SettingsFragment extends Fragment {
     private Switch aSwitch;
 
     public SettingsFragment() {
-        // Required empty public constructor
     }
 
     @SuppressLint("ValidFragment")
@@ -44,7 +43,6 @@ public class SettingsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
         constraintLayout = view.findViewById(R.id.settingLayout);

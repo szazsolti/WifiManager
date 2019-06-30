@@ -36,12 +36,9 @@ import static java.lang.StrictMath.abs;
 
 public class PinchZoomPan extends View {
     private Bitmap mBitmap;
-    private int mImageWidth;
-    private int mImageHeight;
     private int xUser = -1;
     private int yUser = -1;
     private ArrayList<Point> points = new ArrayList<>();
-    private ArrayList<Point> userPoints = new ArrayList<>();
     private ArrayList<UserOnCanvas> onlineUsers = new ArrayList<>();
     private Paint paintReferencePoint = new Paint();
     private Paint paintUser = new Paint();
@@ -75,27 +72,9 @@ public class PinchZoomPan extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if(mBitmap != null && points!=null){
-
-            //canvas.save();
-            /*
-            if ((mPositionX * -1) < 0) {
-                mPositionX = 0;
-            } else if ((mPositionX * -1) > mImageWidth * mScaleFactor - getWidth()) {
-                mPositionX = (mImageWidth * mScaleFactor - getWidth()) * -1;
-            }
-            if ((mPositionY * -1) < 0) {
-                mPositionY = 0;
-            } else if ((mPositionY * -1) > mImageHeight * mScaleFactor - getHeight()) {
-                mPositionY = (mImageHeight * mScaleFactor - getHeight()) * -1;
-            }
-
-            if ((mImageHeight * mScaleFactor) < getHeight()) {
-                mPositionY = 0;
-            }*/
             canvas.translate(mPositionX,mPositionY);
             canvas.scale(mScaleFactor, mScaleFactor);
             canvas.drawBitmap(mBitmap,0,0,null);
-            //canvas.drawCircle(x,y,5,pBlack);
 
             for(Point p: points){
                 if(p != null){
@@ -112,16 +91,11 @@ public class PinchZoomPan extends View {
                 canvas.drawText(Client.getInstance().getUsername(),calculateX(xUser)-20,calculateY(yUser)+25,paintUser);
             }
             for(UserOnCanvas p : onlineUsers){
-                //randomNumber=10;
                 if(!p.getUserName().equals(Client.getInstance().getUsername())){
                     canvas.drawCircle(calculateX((int)p.getXRef()),calculateY((int)p.getYRef()),5,paintUsers);
-                    //Log.d(TAG, "onDraw: username: " + p.getUserName() + p.getXRef() + " " + p.getYRef());
                     canvas.drawText(p.getUserName(),calculateX((int)p.getXRef())-20,calculateY((int)p.getYRef())+25,paintUsers);
                 }
             }
-
-            //canvas.save();
-            //canvas.restore();
         }
     }
 
@@ -130,37 +104,15 @@ public class PinchZoomPan extends View {
     }
 
     private float calculateX(int xCoord){
-        /*float x;
-        float xRatio = 1384/8600;
-        float referenceRatioX = 1384/xCoord;
-        float screenRatioX = abs(xRatio - referenceRatioX)/10;
-        x = (abs(screenRatioX * getWidth())%getWidth());*/
         float x = (imageX*xCoord)/8560;
-        //Log.d(TAG, "calculateX: x: " + x + " imageX: " + imageX + " xCoord: " + xCoord);
-        //Log.d(TAG, "calculateX: x: " + x);
         return x;
     }
 
     private float calculateY(int yCoord){
-       /* float y;
-        float yRatio = 637/3700;
-        float referenceRatioY = 637/yCoord;
-        float screenRatioY = abs(yRatio - referenceRatioY);
-        y = (abs(screenRatioY * getHeight())%getHeight());*/
         float y = (imageY*yCoord)/3630;
-        //Log.d(TAG, "calculateY: y: " + y + " imageY: " + imageY + " yCoord: " + yCoord);
-        //Log.d(TAG, "calculateY: y: " + y);
         return y;
     }
 
-    private boolean checkX(float touchedX){
-        int width  = Resources.getSystem().getDisplayMetrics().widthPixels;
-        return (1440-xUser + (width/100)*3.472 >= touchedX) && (1440-yUser - (width/100)*3.472 <= touchedX); //50 pixel, 3,472 szazaleka a kepernyo szelessegenek
-    }
-    private boolean checkY(float touchedY){
-        int width  = Resources.getSystem().getDisplayMetrics().widthPixels;
-        return (2560-xUser + (width/100)*3.472 >= touchedY) && (2560-yUser - (width/100)*3.472 <= touchedY);
-    }
     public void drawPoints(ArrayList<Point> points, Paint p){
         this.points = points;
         this.paintReferencePoint = p;
@@ -174,64 +126,15 @@ public class PinchZoomPan extends View {
     }
 
     public void drawUsers(ArrayList<UserOnCanvas> onlineUsers, Paint p){
-        //this.userPoints = points;
-        //Log.d(TAG, "drawUsers: onlineUsers: " + onlineUsers.size());
-
-/*
-        for(UserOnCanvas uoc : onlineUsers){
-            float randomNumberX = uoc.getXRef()+ random.nextInt(20)-10;
-            float randomNumberY = uoc.getYRef() + random.nextInt(20)-10;
-            uoc.setXRef(randomNumberX);
-            uoc.setYRef(randomNumberY);
-        }
-*/
         this.onlineUsers = onlineUsers;
         this.paintUsers = p;
         postInvalidate();
     }
 
-/*
-    public void drawCircle(int x, int y, Paint p){
-
-        //pBlack.setColor(Color.BLACK);
-        this.paintReferencePoint = p;
-        this.x = x;
-        this.y = y;
-        invalidate();
-
-    }
-*/
-/*
-    private void drawToast(MotionEvent event){
-        if(checkX(event.getX()) && checkY(event.getY())){
-            int width  = Resources.getSystem().getDisplayMetrics().widthPixels;
-            Toast toast = new Toast(context);
-            toast.setGravity(Gravity.TOP|Gravity.LEFT, 1440-(int)Math.round(xUser)-280,2560-(int) Math.round(yUser)+(int) Math.round((width/100)*3.472)-20);
-
-            TextView tv = new TextView(context);
-            //tv.setBackgroundColor(Color.BLUE);
-            tv.setBackground(ContextCompat.getDrawable(context,R.drawable.bubble));
-            //tv.setBackgroundColor(Color.parseColor("#7e7e7e"));
-            tv.setTextColor(Color.BLACK);
-            tv.setTextSize(15);
-
-            Typeface t = Typeface.create("serif", Typeface.BOLD);
-            tv.setTypeface(t);
-            //tv.setPadding(10,10,10,10);
-            tv.setText("  x: " + xUser + " y: " + yUser);
-            toast.setView(tv);
-            toast.show();
-
-            Log.d(TAG,"Clicked x: " + event.getX() + " clicked y: " + event.getY());
-        }
-    }
-*/
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        //the scale gesture detector should inspect all the touch events
         mScaleDetector.onTouchEvent(event);
-        //drawToast(event);
         final int action = event.getAction();
 
         switch (action & MotionEvent.ACTION_MASK){
@@ -324,30 +227,16 @@ public class PinchZoomPan extends View {
         imageX = bitmap.getWidth();
         imageY = bitmap.getHeight();
 
-        //Log.d(TAG, "loadImageOnCanvas: bitmapX: " + bitmap.getWidth() + " bitmapY: " + (float) bitmap.getHeight());
-
-        //float aspectRatio = (float) bitmap.getHeight()/(float) bitmap.getWidth();
-        float aspectRatio = imageY/imageX;
-        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        //mImageWidth = displayMetrics.widthPixels;
-        //mImageHeight = Math.round(mImageWidth * aspectRatio);
-        //Log.d(TAG, "loadImageOnCanvas: mImageWidth: " + mImageWidth + " mImageHeight: " + mImageHeight);
-        //mBitmap = bitmap.createScaledBitmap(bitmap,mImageWidth,mImageHeight,false);
         mBitmap = bitmap.createScaledBitmap(bitmap,(int)imageX,(int)imageY,false);
         postInvalidate();
-        //requestLayout();
     }
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
-
             mScaleFactor *= scaleGestureDetector.getScaleFactor();
-            //don't to let the image get too large or small
             mScaleFactor = Math.max(mMinZoom, Math.min(mScaleFactor, mMaxZoom));
-
             invalidate();
-
             return true;
         }
     }

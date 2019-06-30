@@ -35,23 +35,13 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
     private NotifyToDrawBroadcastReceiver receiver = new NotifyToDrawBroadcastReceiver();
     private ISendDataToUIListener sendDataToUIListener;
     private IntentFilter filter = new IntentFilter("draw");
-    private Toolbar myToolbar;
 
-    private Manager manager = Manager.getInstance();
     @SuppressLint("ValidFragment")
     public DrawPositionFragmentI(Context context){
         this.context = context;
     }
 
     public DrawPositionFragmentI() {
-        // Required empty public constructor
-    }
-
-    public static DrawPositionFragmentI newInstance() {
-        DrawPositionFragmentI fragment = new DrawPositionFragmentI();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
@@ -62,49 +52,32 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-
-        //receiver.setNotifyToDraw(notifyToDraw);
-
 
         View view =  inflater.inflate(R.layout.fragment_draw_position, container, false);
 
         ((IDrawerLocker) getActivity()).setDrawerEnabled(true);
 
-
-        //tw_username = headerView.findViewById(R.id.tw_username);
-        Log.d(TAG,"X: " + Trilateration.getInstance().getX() + "Y: " + Trilateration.getInstance().getY());
         if(Trilateration.getInstance().getX()!=0 && Trilateration.getInstance().getY()!=0){
             point.set((int)Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
         }
-
-        //
 
         try{
             context.registerReceiver(receiver, filter);
             receiver.setNotifyToDraw(this);
         }
         catch (Exception e){
-            //ISendDataToUIListener.returnMessage("Helytelen hivatkozás. Az alkalmazás kilép.");
-            //System.exit(2);
         }
 
         relativeLayout = view.findViewById(R.id.rect);
-        //myToolbar = view.findViewById(R.id.toolBar);
-
-
-        //((AppCompatActivity) Objects.requireNonNull(getActivity())).setSupportActionBar(myToolbar);
 
         UserOnCanvas user = new UserOnCanvas(point.x+"", point.y+"", Client.getInstance().getUsername());
 
         myCanvasForTrilateration = new MyCanvasForTrilateration(context,user);
-        //Log.d(TAG,point.x + " " + point.y);
-        //myCanvas.setParameters(point.x+"", point.y+"");
+
         myCanvasForTrilateration.setContext(context);
         myCanvasForTrilateration.setBackgroundResource(R.drawable.szoba2);
 
         relativeLayout.addView(myCanvasForTrilateration);
-        //Log.d(TAG, "onCreateView: ");
         return view;
     }
 
@@ -114,35 +87,17 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
     }
 
     public void updateCanvasData(){
-
-        Log.d(TAG, "updateCanvasData: x: " + (int)Trilateration.getInstance().getX() + " y: " + (int)Trilateration.getInstance().getY());
-
         if(Trilateration.getInstance().getX()!=0 && Trilateration.getInstance().getY()!=0){
             point.set((int)Trilateration.getInstance().getX(),(int)Trilateration.getInstance().getY());
         }
         myCanvasForTrilateration.setParameters(point.x+"", point.y+"");
-        //Manager.getInstance().getWifisFromDevice().clear();
         myCanvasForTrilateration.invalidate();
-        //Log.d(TAG, "updateCanvasData: WifiListFromDevice: "+ manager.getWifisFromDevice());
-        //Log.d(TAG, "updateCanvasData: WiFiListFromDataBase: " + manager.getWifiListFromDataBase());
     }
 
-
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try{
-            //context.registerReceiver(receiver, filter);
-            //receiver.setNotifyToDraw(this);
-        }
-        catch (Exception ignored){}
-    }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        //Log.d(TAG, "onDestroyView: ");
         try {
             context.unregisterReceiver(receiver);
             receiver = null;
@@ -154,10 +109,6 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
     public void onStop() {
         super.onStop();
         try {
-            //Client.getInstance().destroy();
-            //Log.d(TAG, "onStop: called");
-            //Communication.getInstance().sendMessage("[Logout-]");
-           // Communication.getInstance().destroy();
             context.unregisterReceiver(receiver);
             receiver = null;
         } catch (Exception ignored) {
@@ -172,13 +123,10 @@ public class DrawPositionFragmentI extends Fragment implements INotifyToDraw {
             receiver = null;
         }
         catch (Exception ignored){}
-        //context.unregisterReceiver(receiver);
-        //Log.d(TAG, "onDetach: ");
     }
 
     @Override
     public void notifyToDraw(String message) {
-        //Log.d(TAG,"Notified from reciver"+message);
         updateCanvasData();
     }
 

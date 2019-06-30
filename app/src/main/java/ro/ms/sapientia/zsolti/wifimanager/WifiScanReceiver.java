@@ -19,7 +19,6 @@ public class WifiScanReceiver extends BroadcastReceiver {
     private ArrayList<String> wifis;
     private ArrayList<WiFi> wifisFromDevice=new ArrayList<>();
     private ISendWiFiListFromWifiScanReceiverToManager sendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager;
-    //private ISendWiFiListFromManagerToWiFiReferencePointsFragment sendWiFiListFromWiFiScanReceiverToListWiFisToSetReference;
 
     private String TAG = "WIFISCANRECEIVER";
 
@@ -37,31 +36,18 @@ public class WifiScanReceiver extends BroadcastReceiver {
             for(int i = 0; i < wifiScanList.size(); i++){
                 wifis.add((wifiScanList.get(i)).toString());
             }
-            //Log.d(TAG, "Wifis: " + wifis.toString());
-            //int point = 70; //dist = point*(1-percentage) - hatotavolsag merese
-
             wifisFromDevice.clear();
 
             for (String wifi : wifis){
                 String[] temp = wifi.split(",");
-                //Log.d(TAG, "onReceive: wifi:" + wifi);
                 String ssid = temp[0].substring(5).trim();
                 String macAddress =  temp[1].substring(8);
                 double frequency = Double.parseDouble(temp[4].substring(11));
                 double level = Double.parseDouble(temp[3].substring(7).trim());
-
-                //Log.d(TAG, "onReceive: mac:" + macAddress);
-
                 WiFi tempWifi = new WiFi(macAddress,level,frequency);
                 wifisFromDevice.add(tempWifi);
             }
-            //Log.d(TAG, "onReceive: WifiList: " + wifisFromDevice.toString());
             sendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager.returnWiFiListFromDevice(wifisFromDevice);
-            /*
-            try{
-                sendWiFiListFromWiFiScanReceiverToListWiFisToSetReference.returnWiFiListFromDevice(wifisFromDevice);
-            }
-            catch (Exception ignored){}*/
         }
     }
     public void setISendWiFiListFromDeviceArrayListFromWifiScanReceiverToManager(ISendWiFiListFromWifiScanReceiverToManager ISendWiFiListFromWifiScanReceiverToManager){

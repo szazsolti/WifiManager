@@ -15,11 +15,6 @@ public class MessageSender extends AsyncTask<String,Void,Void> {
     private DataOutputStream dataOutputStream;
     private ISendDataToUIListener ISendDataToUIListener;
     private String TAG = "MESSAGESENDER_CLASS";
-
-    //public MessageSender(Socket socket){
-    //     this.clientSocket = socket;
-    // }
-
     @Override
     protected Void doInBackground(String... voids) {
         PrintWriter pw=null;
@@ -28,13 +23,9 @@ public class MessageSender extends AsyncTask<String,Void,Void> {
         try {
 
             clientSocket = Communication.getInstance().getClientSocket();
-            //clientSocket = Client.getInstance().getClientSocket();
-            //Client.getInstance().setSocket(clientSocket);
-            Log.d(TAG,"Kuldott uzenet: "+message);
+
             if(clientSocket != null && clientSocket.isConnected() && clientSocket.isBound()){
-                //ISendDataToUIListener.returnMessage("The socket is OK.");
                 pw = new PrintWriter(clientSocket.getOutputStream());
-                //Log.d(TAG,"Kuldott uzenet: "+message);
 
                 if(message.contains("[Logout]-")){
                     pw.write(message.length()+"~"+message + '\n');
@@ -46,8 +37,6 @@ public class MessageSender extends AsyncTask<String,Void,Void> {
                 else if(!message.equals("null")){
                     pw.write(message.length()+"~"+message + '\n');
                     pw.flush();
-                    //pw.close();
-                    //clientSocket.close();
                 }
                 else{
                     pw.flush();
@@ -57,11 +46,6 @@ public class MessageSender extends AsyncTask<String,Void,Void> {
                 }
             }
             else{
-                //assert pw != null;
-                /*
-                pw.flush();
-                pw.close();
-                clientSocket.close();*/
                 try{
                     ISendDataToUIListener.returnMessage("The socket is closed. Server is not available.");
                 }
@@ -75,16 +59,10 @@ public class MessageSender extends AsyncTask<String,Void,Void> {
             }
             catch (Exception ignored){
             }
-
-            //e.printStackTrace();
         }
 
         return null;
     }
-
-    //public void setSocket(Socket socket){
-    //    this.clientSocket = socket;
-    // }
 
 
     public void setISendDataToUIListener(ISendDataToUIListener ISendDataToUIListener){
